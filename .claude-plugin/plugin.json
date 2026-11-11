@@ -1,6 +1,6 @@
 {
   "name": "studywright",
-  "version": "0.4.0",
+  "version": "0.6.0",
   "description": "Turn a student's worksheets or study guide (photos, notes, text) into a playable study game: a single offline HTML page that quizzes every item, explains why after each answer, brings missed questions back until mastered, and wraps it in game elements (XP, streaks, levels, a 3D tower that grows with each right answer). Evergreen.",
   "author": {"name": "Mark Rogers"},
   "license": "MIT",
