@@ -22,3 +22,6 @@
 - Student answers noted wrong on the science notes: "Only ___ variation" should be **genetic**; "favors the ___" should be **survival**; "developed" for evolution blank. Games teach the correct ones.
 - Everscout beat learning-games created at ~/.everscout/beats/learning-games (not scanned yet).
 - No GitHub repo made yet (needs Mark's ok; private, child's schoolwork).
+
+## 2026-11-10 session 5
+Mark: biology test done; update Texas game to latest engine; questions should show the hero overcoming tasks, each subject a realm; Start quest should offer continue / other / new hero. Built 0.4.0 in game.html (REALMS table, chal(), pickHero), added `realm` to decks, rebuilt games, play-tested in Chrome on 127.0.0.1:8791 (test hero removed). Note: port 8765 was taken by another server.

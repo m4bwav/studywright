@@ -36,7 +36,7 @@ The engine is [templates/game.html](templates/game.html); `SW build` fills it. `
   {"topic":"People","q":"Moses Austin: filibuster or not?","choices":["Filibuster","Not a filibuster"],"answer":1,"explain":"...","review":"Austin asked permission"}]}
 ```
 
-Optional deck keys: `stat` (the hero study area this deck trains; default is the subject before the colon) and `follows` (id of the deck this one re-tests).
+Optional deck keys: `realm` (history, biology, math, science, words or quest; guessed from the subject if missing: each subject is a themed 3D world and every question opens with a challenge the hero overcomes), per-question `scene`/`win`/`lose` (custom challenge text; `{h}` = hero name, `{t}` = topic), `stat` (the hero study area this deck trains; default is the subject before the colon) and `follows` (id of the deck this one re-tests).
 
 `type` defaults to `mc`; choices are shuffled at play time, `answer` indexes the list as written.
 
