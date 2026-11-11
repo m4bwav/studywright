@@ -3,7 +3,7 @@ name: studywright
 description: "Turn a student's worksheets, notes or study guide (photos, PDFs or text) into a playable study game: one offline HTML page that quizzes every item on the sheet, says right or wrong and why after each answer, brings misses back until mastered, and adds game elements (XP, levels, streaks, a three.js tower that grows with right answers, end-of-game review list). Use on 'make a study guide game', 'quiz my kid on this worksheet', 'turn these notes into a practice test', 'study game for the science test', 'flashcard game from this'. Also 'refresh studywright'. Not for grading finished work or for designing a commercial game (ludowright)."
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.3.0"
 ---
 
 # studywright
@@ -24,7 +24,8 @@ The engine is [templates/game.html](templates/game.html); `SW build` fills it. `
    - 15 to 25 questions per test; group by `topic` using the sheet's own headings.
 3. **Build and check**: `SW build decks/<slug>.json games/<slug>.html`. Fix every ERROR.
 4. **Play it through** in a browser (serve `games/` on 127.0.0.1 if file:// is blocked; port 8765 may be refused on Windows, use 18765): answer some wrong, confirm the miss returns and the end screen lists it with its answer.
-5. Hand over the file paths; the pages work offline (three.js is optional, the quiz runs without it).
+5. **Follow-up tests.** Before writing one, read `records/INDEX.md` and the linked records (run `SW records` first to file new downloads). Write a new deck with `"follows": "<old id>"` that re-tests every first-try miss at least twice in NEW scenarios (apply it, not recall the sheet's wording), plus a few items the student got right as a check.
+6. Hand over the file paths; the pages work offline (three.js is optional, the quiz runs without it).
 
 ## Deck format
 
@@ -35,8 +36,14 @@ The engine is [templates/game.html](templates/game.html); `SW build` fills it. `
   {"topic":"People","q":"Moses Austin: filibuster or not?","choices":["Filibuster","Not a filibuster"],"answer":1,"explain":"...","review":"Austin asked permission"}]}
 ```
 
+Optional deck keys: `stat` (the hero study area this deck trains; default is the subject before the colon) and `follows` (id of the deck this one re-tests).
+
 `type` defaults to `mc`; choices are shuffled at play time, `answer` indexes the list as written.
 
 ## Learning design (why the engine works this way)
 
-See [references/learning-design.md](references/learning-design.md). In short: retrieval practice beats rereading; feedback right after each answer with the reason; misses come back a few items later (spacing) until answered right (mastery); no lives or game over, so a miss costs only the streak; rewards follow correct effort (XP, streak gold, tower) and never block learning.
+See [references/learning-design.md](references/learning-design.md). In short: retrieval practice beats rereading; feedback right after each answer with the reason; misses come back a few items later (spacing) until answered right (mastery); no lives or game over, so a miss costs only the streak; rewards follow correct effort (XP, streak gold, tower) and never block learning. A persistent hero (class, levels, feats, study areas that rise by use and by training picks) carries across games; feats only add XP or one strike-out hint, never skip questions.
+
+## Paper trail
+
+Every finished game downloads `studywright-<deck>-<time>.json` (hero snapshot, score, each first-try miss with what was typed). `SW records [--from DIR] [--to DIR]` files them into `records/<deck>/` as JSON + Markdown and rebuilds `records/INDEX.md`. Agents read INDEX.md before writing the next test. Keep records out of public repos (gitignored here).

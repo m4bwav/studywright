@@ -14,7 +14,15 @@ Rules the engine and decks follow, with the evidence base they come from. Check 
 | Rewards attach to correct answers and progress, are visible and immediate | XP, levels, gold streak blocks, tower, sounds | Game feedback loops (juice) for motivation; keep extrinsic rewards light so they do not crowd out the learning |
 | End with a review list of first-try misses, with answers | finish screen | Points study time at what is not known yet |
 
+## Hero and RPG layer (0.3.0)
+
+- One persistent character across games gives a sense of long-term progress (competence) and lets the student choose (autonomy): class, name, which feat or stat at each level-up. Mark asked for D&D style feats and Kingdom Come Deliverance 2 style learn-by-doing skills.
+- Study areas rise two ways: by use (every 15 right answers, like KCD2) and by training picks at level-up (like a D&D ability bump).
+- Guard rails: feats change XP or give one strike-out hint per quest; none skips a question or hides the explanation, so the learning loop (retrieve, feedback, spaced retry until mastered) stays intact. Grit rewards getting a missed question right later, which praises fixing mistakes.
+
 ## Ideas not built yet
+
+- Gear or titles for mastering a whole deck (e.g. "Naturalist" title after a 90%+ follow-up).
 
 - Boss round: a timed final pass over first-try misses.
 - Day-2 mode: reload remembers misses (localStorage) and starts with them (spaced across days).

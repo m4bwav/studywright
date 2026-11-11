@@ -1,5 +1,11 @@
 # Log
 
+## 2026-11-10 (session 4)
+- Son's first natural-selection run: 67% first try, streak 7; missed faster (sexual repro), variation first step, populations, generations, which snails are seen, fitness=reproduce, mutation, genetic variation. Recorded in records/natural-selection/2026-11-10-run1.* (screenshot, no typed answers).
+- Built follow-up deck natural-selection-2 (22 q, new scenarios: deer fitness, clones and disease, fish A/B, rabbits, moths, giraffes, bacteria, beetles, finches, pesticide).
+- Engine 0.3.0: hero/classes/feats/study areas, character sheet with past games, JSON record download per game, sw.py records. Play-tested in Chrome by script: full run, Keen Eye, two level-up picks, record saved, sheet lists the game. No JS errors.
+- records/ gitignored because the repo is public and records are a child's results.
+
 ## 2026-11-10 (session 3)
 - README banner: Z-Image Turbo 1536x640 on the Mac, four seeds, picked seed 2313760545 (only take with no fake lettering on the worksheet). Workflow and prompt in .github/images. PR #1 merged. Discussions enabled.
 - Social preview crop not uploaded (no API).
