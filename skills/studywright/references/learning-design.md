@@ -30,4 +30,3 @@ Rules the engine and decks follow, with the evidence base they come from. Check 
 
 - Gear or titles for mastering a whole deck (e.g. "Naturalist" title after a 90%+ follow-up).
 
-- Two-player hot-seat for parent and child.

@@ -33,3 +33,9 @@ Mark: biology test done; update Texas game to latest engine; questions should sh
 ## 2026-11-10 session 7
 - Texas game still not played (sw.py records: nothing new).
 - Engine: boss round (timed pass over first-try misses after the main run; bonus XP; `boss` field in the record; skip button). Games rebuilt. Scripted Chrome play-test on 127.0.0.1:8791: intro, timer bar, timeout counts as a miss, finish screen boss line, record field; no JS errors; test hero removed (localStorage restored).
+
+## 2026-11-10 session 8
+- Texas game still not played (sw.py records: nothing new).
+- Engine: two-player hot-seat (duoPick, startDuo, duoTurn; per-hero tally in S.duo.p; record `duo`; the partner gets a record copy and a quest count; World.tint recolors the 3D hero each turn). Finish line says "The team earned" in duo mode.
+- Scripted Chrome play-test on 127.0.0.1:8791: turns alternate A,B,A,B; scoreboard and boss shown; 2 records (one per hero); 1 download; no JS errors; localStorage restored.
+- Version 0.6.0 (covers 0.5.0 warm-up/read-aloud, boss round, hot-seat).

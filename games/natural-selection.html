@@ -115,7 +115,7 @@ function chal(qi){const q=DECK.questions[qi];if(q.scene)return[q.scene,q.win||RE
 function newRun(){const rec=store.get(KEY);const miss=(rec&&rec.miss||[]).filter(i=>i<DECK.questions.length);const rest=DECK.questions.map((_,i)=>i).filter(i=>!miss.includes(i));S={warm:miss.length,queue:shuffle(miss).concat(shuffle(rest)),mastered:new Set(),firstMiss:new Set(),seen:new Set(),xp:0,streak:0,best:0,answered:0,correct:0,log:{},keen:false,wind:false,boss:null,started:new Date().toISOString()}}
 const app=document.getElementById('app');
 function hud(){const h=H.cur();const pct=100*S.mastered.size/DECK.questions.length;const L=heroLvl(h);const lo=L>1?need(L-1):0;
- return `<div class="hud"><span>${CLASSES[h.cls].icon} <b>${esc(h.name)}</b></span><span>Lv <b>${L}</b> <span class="small">(${h.xp-lo}/${need(L)-lo})</span></span><span>${esc(STAT)} <b>${area(h,STAT).lvl}</b></span><span>Streak <b>${S.streak}</b>${S.streak>=goldAt()?' 🔥':''}</span><div class="bar" title="mastered"><i style="width:${pct}%"></i></div><span class="small">${S.mastered.size}/${DECK.questions.length} mastered</span></div>`}
+ return `<div class="hud">${S.duo?'<span class="small">👥 Turn:</span>':''}<span>${CLASSES[h.cls].icon} <b>${esc(h.name)}</b></span><span>Lv <b>${L}</b> <span class="small">(${h.xp-lo}/${need(L)-lo})</span></span><span>${esc(STAT)} <b>${area(h,STAT).lvl}</b></span><span>Streak <b>${S.streak}</b>${S.streak>=goldAt()?' 🔥':''}</span><div class="bar" title="mastered"><i style="width:${pct}%"></i></div><span class="small">${S.mastered.size}/${DECK.questions.length} mastered</span></div>`}
 // ---------- screens ----------
 function title(){const h=H.cur();if(!h)return heroCreate(false);const rec=store.get(KEY);const a=area(h,STAT);
  app.innerHTML=`<div class="card"><div class="topic">${esc(DECK.subject)}</div><h1>${esc(DECK.title)}</h1><p>${DECK.intro}</p>
@@ -130,9 +130,17 @@ function title(){const h=H.cur();if(!h)return heroCreate(false);const rec=store.
 function pickHero(){const d=H.all();const cur=H.cur();const others=d.list.filter(h=>h.id!==d.active);
  app.innerHTML=`<div class="card"><h1>Who goes on this quest?</h1><div class="choices"><button class="go" data-h="${cur.id}">▶ Continue as ${CLASSES[cur.cls].icon} <b>${esc(cur.name)}</b> · Level ${heroLvl(cur)}</button>
  ${others.map(h=>`<button data-h="${h.id}">${CLASSES[h.cls].icon} <b>${esc(h.name)}</b> the ${h.cls} · Level ${heroLvl(h)}</button>`).join('')}
- <button id="nh">➕ Start a new hero</button></div><div class="row"><button id="bk">Back</button></div></div>`;
+ <button id="nh">➕ Start a new hero</button><button id="duo">👥 Two players (hot-seat): take turns on one screen</button></div><div class="row"><button id="bk">Back</button></div></div>`;
+ document.getElementById('duo').onclick=duoPick;
  app.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{d.active=b.dataset.h;H.save(d);newRun();World.reset();next()});
  document.getElementById('nh').onclick=()=>heroCreate(true);document.getElementById('bk').onclick=title}
+function duoPick(){const d=H.all();const sel=[];
+ app.innerHTML=`<div class="card"><h1>👥 Two players</h1><p>Pick two heroes. You take turns: one question each, passing the screen. Each hero keeps its own XP and feats; misses come back for whoever is up next, so help each other.</p><div class="choices">${d.list.map(h=>`<button data-h="${h.id}">${CLASSES[h.cls].icon} <b>${esc(h.name)}</b> the ${h.cls} · Level ${heroLvl(h)}</button>`).join('')}</div>
+ <div class="row"><button class="go" id="go" disabled>Start together ▶</button><button id="nh">New hero +</button><button id="bk">Back</button></div></div>`;
+ app.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{const i=sel.indexOf(b.dataset.h);if(i>=0)sel.splice(i,1);else{sel.push(b.dataset.h);if(sel.length>2)sel.shift()}app.querySelectorAll('[data-h]').forEach(x=>x.classList.toggle('right',sel.includes(x.dataset.h)));document.getElementById('go').disabled=sel.length!==2});
+ document.getElementById('go').onclick=()=>{newRun();startDuo(sel);World.reset();next()};document.getElementById('nh').onclick=()=>heroCreate(true);document.getElementById('bk').onclick=pickHero}
+function startDuo(ids){S.duo={ids:ids.slice(),turn:0,p:Object.fromEntries(ids.map(id=>[id,{right:0,first:0,asked:0,xp:0}]))}}
+function duoTurn(){if(!S||!S.duo)return;const d=H.all();d.active=S.duo.ids[S.duo.turn%2];H.save(d);World.tint()}
 function heroCreate(back){app.innerHTML=`<div class="card"><h1>Create your hero</h1><p>Your hero levels up in every studywright game you play. You can make more heroes later and switch between them.</p>
  <input type="text" id="hn" maxlength="24" placeholder="Hero name" autocomplete="off"><h2>Pick a class</h2><div class="choices">${Object.entries(CLASSES).map(([c,v])=>`<button data-c="${c}">${v.icon} <b>${c}</b>: starts with ${FEATS[v.feat].name}. <span class="small">${FEATS[v.feat].desc}</span></button>`).join('')}</div>
  <div class="row">${back?'<button id="bk">Back</button>':''}<button id="imp">Load hero from a saved record</button></div></div>`;
@@ -155,11 +163,11 @@ function importHero(){const i=document.createElement('input');i.type='file';i.ac
 function bossIntro(){const n=S.firstMiss.size;app.innerHTML=hud()+`<div class="card boss"><h1>👹 Boss of ${esc(REALM.name)}!</h1><p>The boss knows the ${n} question${n>1?'s':''} that tripped you up. Beat each one before the timer runs out. Every hit is +15 bonus XP.</p><p class="small">Misses here do not change your score. They just go on the review list.</p><div class="row"><button class="go" id="fight">Fight! ⚔️</button><button id="skip">Skip the boss</button></div></div>`;
  document.getElementById('fight').onclick=()=>{S.boss={max:n,hits:0,list:[...S.firstMiss]};S.queue=shuffle([...S.firstMiss]);Sound.lvl();next()};document.getElementById('skip').onclick=()=>{S.boss={max:n,hits:0,list:[...S.firstMiss],skipped:true};finish()}}
 const BOSS_SECS=q=>q.type==='type'?30:20;
-function next(){const h=H.cur();if(h.picks>0)return levelUp();if(!S.queue.length){if(S.boss)return finish();if(S.firstMiss.size)return bossIntro();return finish()}const qi=S.queue[0];const q=DECK.questions[qi];
+function next(){duoTurn();const h=H.cur();if(h.picks>0)return levelUp();if(!S.queue.length){if(S.boss)return finish();if(S.firstMiss.size)return bossIntro();return finish()}const qi=S.queue[0];const q=DECK.questions[qi];
  let body='';
  if(q.type==='type'){body=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer"><div class="row"><button class="go" id="check">Check</button></div>`}
  else{const order=shuffle(q.choices.map((c,i)=>i));body=`<div class="choices">${order.map((i,k)=>`<button data-i="${i}">${String.fromCharCode(65+k)}. ${q.choices[i]}</button>`).join('')}</div>${hasFeat(h,'keen')&&!S.keen&&q.choices.length>2?'<div class="row"><button id="keen">🔍 Keen Eye: strike a wrong choice (once per quest)</button></div>':''}`}
- app.innerHTML=hud()+`<div class="card" id="card"><div class="topic">${REALM.icon} ${esc(REALM.name)} · ${q.topic||''}</div><p class="scene">${fill(chal(qi)[0],h.name,q.topic)}</p><h2>${q.q}</h2>${body}${'speechSynthesis' in window?'<div class="row"><button id="say" title="Read aloud">🔊 Read it to me</button></div>':''}<div class="fb" id="fb"></div></div>`;
+ app.innerHTML=hud()+`<div class="card" id="card">${S.duo?`<p class="scene">👥 ${CLASSES[h.cls].icon} <b>${esc(h.name)}</b>, your turn!</p>`:''}<div class="topic">${REALM.icon} ${esc(REALM.name)} · ${q.topic||''}</div><p class="scene">${fill(chal(qi)[0],h.name,q.topic)}</p><h2>${q.q}</h2>${body}${'speechSynthesis' in window?'<div class="row"><button id="say" title="Read aloud">🔊 Read it to me</button></div>':''}<div class="fb" id="fb"></div></div>`;
  if(S.boss){const card=document.getElementById('card');card.classList.add('boss');card.insertAdjacentHTML('afterbegin',`<div class="topic">👹 Boss: ${S.boss.max-S.queue.length+1} of ${S.boss.max}</div><div class="bar timer"><i id="tm" style="width:100%"></i></div>`);const T=BOSS_SECS(q),t0=Date.now();
   S.tick=setInterval(()=>{const left=1-(Date.now()-t0)/1000/T;const tm=document.getElementById('tm');if(tm)tm.style.width=Math.max(0,100*left)+'%';if(left<=0){app.querySelectorAll('.choices button').forEach(x=>{x.disabled=true;if(+x.dataset.i===q.answer)x.classList.add('right')});answer(qi,false,'(time ran out)')}},250)}
  const sb=document.getElementById('say');if(sb)sb.onclick=()=>say(q);
@@ -167,11 +175,11 @@ function next(){const h=H.cur();if(h.picks>0)return levelUp();if(!S.queue.length
  if(q.type==='type'){const inp=document.getElementById('ans');inp.focus();const go=()=>answer(qi,typedOk(q,inp.value),inp.value);document.getElementById('check').onclick=go;inp.onkeydown=e=>{if(e.key==='Enter'){e.stopPropagation();go()}}}
  else app.querySelectorAll('.choices button').forEach(b=>b.onclick=()=>{const pick=+b.dataset.i;app.querySelectorAll('.choices button').forEach(x=>{x.disabled=true;if(+x.dataset.i===q.answer)x.classList.add('right')});if(pick!==q.answer)b.classList.add('wrong');answer(qi,pick===q.answer,q.choices[pick])})}
 function answer(qi,ok,given){clearInterval(S.tick);const q=DECK.questions[qi];const h=H.cur();S.queue.shift();S.answered++;const boss=!!S.boss;
- const first=!S.seen.has(qi);S.seen.add(qi);(S.log[qi]=S.log[qi]||[]).push({given:String(given),ok});
+ const first=!S.seen.has(qi);S.seen.add(qi);if(S.duo){const P=S.duo.p[h.id];P.asked++;if(ok){P.right++;if(first)P.first++}S.duo.turn++}(S.log[qi]=S.log[qi]||[]).push({given:String(given),ok});
  if(ok){S.correct++;S.streak++;S.best=Math.max(S.best,S.streak);S.mastered.add(qi);const gold=S.streak>=goldAt();
   const a=h.areas[STAT]=h.areas[STAT]||{use:0,train:0};const before=area(h,STAT).lvl;a.use++;
   let gain=(gold?20:10)+area(h,STAT).lvl;if(q.type==='type'&&hasFeat(h,'scribe'))gain+=5;if(!first&&hasFeat(h,'grit'))gain+=10;if(hasFeat(h,'sage:'+STAT))gain+=3;if(boss){gain+=15;S.boss.hits++}
-  const L0=heroLvl(h);S.xp+=gain;h.xp+=gain;const L1=heroLvl(h);h.picks+=L1-L0;H.put(h);
+  if(S.duo)S.duo.p[h.id].xp+=gain;const L0=heroLvl(h);S.xp+=gain;h.xp+=gain;const L1=heroLvl(h);h.picks+=L1-L0;H.put(h);
   World.add(gold);Sound.ok();popup('+'+gain+' XP'+(gold?' 🔥':''));
   if(L1>L0){setTimeout(()=>popup('LEVEL UP! Lv '+L1),500);World.burst();Sound.lvl()}else if(area(h,STAT).lvl>before)setTimeout(()=>popup(STAT+' skill up!'),500)}
  else{if(first)S.firstMiss.add(qi);if(hasFeat(h,'wind')&&!S.wind)S.wind=true;else S.streak=0;if(!boss)S.queue.splice(Math.min(3,S.queue.length),0,qi);World.wobble();Sound.no();document.getElementById('card').classList.add('shake')}
@@ -188,22 +196,24 @@ function levelUp(){const h=H.cur();const opts=[{k:'train',label:`+1 ${esc(STAT)}
 const stamp=()=>new Date().toISOString().slice(0,16).replace(/[:T]/g,'-');
 function download(name,obj){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,1)],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){}}
 function record(score){const h=H.cur();return{studywright_record:1,deck:DECK.id,title:DECK.title,subject:DECK.subject,area:STAT,follows:DECK.follows||null,started:S.started,finished:new Date().toISOString(),
- score_first_try:score,best_streak:S.best,answers:S.answered,questions_total:DECK.questions.length,run_xp:S.xp,boss:S.boss?{questions:S.boss.max,hits:S.boss.hits,skipped:!!S.boss.skipped}:null,
+ score_first_try:score,best_streak:S.best,answers:S.answered,questions_total:DECK.questions.length,run_xp:S.xp,duo:S.duo?S.duo.ids.map(id=>{const x=H.all().list.find(h=>h.id===id);return{id,name:x?x.name:'',...S.duo.p[id]}}):null,boss:S.boss?{questions:S.boss.max,hits:S.boss.hits,skipped:!!S.boss.skipped}:null,
  hero:JSON.parse(JSON.stringify(h)),
  first_try_misses:[...S.firstMiss].map(i=>{const q=DECK.questions[i];return{n:i+1,topic:q.topic||'',q:q.q,answer:q.type==='type'?q.accept[0]:q.choices[q.answer],tries:S.log[i]}}),
  items:DECK.questions.map((q,i)=>({n:i+1,topic:q.topic||'',tries:(S.log[i]||[]).length,first_ok:!!(S.log[i]&&S.log[i][0].ok)}))}}
 function finish(){const n=DECK.questions.length;const score=Math.round(100*(n-S.firstMiss.size)/n);
  const rec=store.get(KEY)||{score:-1,best:0};store.set(KEY,{score:Math.max(score,rec.score),best:Math.max(S.best,rec.best),miss:[...S.firstMiss],last:new Date().toLocaleDateString('en-CA')});
- const h=H.cur();h.quests++;H.put(h);S.R=record(score);S.score=score;S.done=true;const all=store.get(RKEY)||[];all.push(S.R);store.set(RKEY,all.slice(-200));
+ const h=H.cur();h.quests++;H.put(h);S.R=record(score);S.score=score;S.done=true;const all=store.get(RKEY)||[];all.push(S.R);
+ if(S.duo)S.duo.ids.filter(id=>id!==h.id).forEach(id=>{const d=H.all();const o=d.list.find(x=>x.id===id);if(!o)return;o.quests++;H.save(d);all.push({...S.R,hero:JSON.parse(JSON.stringify(o))});H.put(h)});store.set(RKEY,all.slice(-200));
  S.fname='studywright-'+DECK.id+'-'+stamp()+'.json';download(S.fname,S.R);World.burst();Sound.lvl();finishScreen()}
 function finishScreen(){const h=H.cur();const score=S.score;const stars=score>=90?3:score>=70?2:1;
  const topics={};S.firstMiss.forEach(i=>{const t=DECK.questions[i].topic||'Other';(topics[t]=topics[t]||[]).push(DECK.questions[i])});
- app.innerHTML=hud()+`<div class="card"><h1>Quest complete! ${'⭐'.repeat(stars)}</h1><p><b>${score}%</b> right on the first try. Top streak: <b>${S.best}</b>. Tower height: <b>${S.correct}</b> blocks. ${esc(h.name)} earned <b>${S.xp} XP</b>.</p>
+ app.innerHTML=hud()+`<div class="card"><h1>Quest complete! ${'⭐'.repeat(stars)}</h1><p><b>${score}%</b> right on the first try. Top streak: <b>${S.best}</b>. Tower height: <b>${S.correct}</b> blocks. ${S.duo?'The team':esc(h.name)} earned <b>${S.xp} XP</b>.</p>
+ ${S.duo?`<h2>👥 Team scoreboard</h2><ul class="rev">${S.R.duo.map(p=>`<li><b>${esc(p.name)}</b>: ${p.first} right on first try, ${p.right}/${p.asked} answers right, +${p.xp} XP</li>`).join('')}</ul>`:''}
  ${S.boss&&!S.boss.skipped?`<p>👹 Boss: <b>${S.boss.hits}/${S.boss.max}</b> beaten in time${S.boss.hits===S.boss.max?'. The boss is defeated!':'.'}</p>`:''}
  ${S.firstMiss.size?`<h2>Review these before the test</h2><ul class="rev">${Object.entries(topics).map(([t,qs])=>`<li><b>${t}</b>: ${qs.map(q=>(q.review||q.q)+' → <b>'+(q.type==='type'?q.accept[0]:q.choices[q.answer])+'</b>').join('<br>')}</li>`).join('')}</ul>`:'<p>Perfect run. You are ready.</p>'}
  <p class="small">Record saved to Downloads as ${S.fname}.</p>
  <div class="row"><button class="go" id="again">Play again ↻</button><button id="save">Save record again 💾</button><button id="home">Character</button></div></div>`;
- document.getElementById('again').onclick=()=>{newRun();World.reset();next()};document.getElementById('save').onclick=()=>download(S.fname,S.R);document.getElementById('home').onclick=sheet;
+ document.getElementById('again').onclick=()=>{const du=S.duo;newRun();if(du)startDuo(du.ids);World.reset();next()};document.getElementById('save').onclick=()=>download(S.fname,S.R);document.getElementById('home').onclick=sheet;
  if(h.picks>0)setTimeout(levelUp,2500)}
 function say(q){try{speechSynthesis.cancel();const t=document.createElement('div');t.innerHTML=q.q;const ch=[...document.querySelectorAll('.choices button:not(:disabled)')].map(x=>x.textContent);const u=new SpeechSynthesisUtterance([t.textContent,...ch].join('. '));u.rate=.95;speechSynthesis.speak(u)}catch(e){}}
 function popup(t){const d=document.createElement('div');d.className='pop';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1000)}
@@ -213,7 +223,7 @@ document.addEventListener('keydown',e=>{const ae=document.activeElement;if(ae&&a
 const Sound=(()=>{let ctx;function tone(f,d,t='sine',when=0){try{ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(.12,ctx.currentTime+when);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+when+d);o.connect(g).connect(ctx.destination);o.start(ctx.currentTime+when);o.stop(ctx.currentTime+when+d)}catch(e){}}
  return{ok(){tone(660,.12);tone(990,.18,'sine',.08)},no(){tone(180,.25,'square')},lvl(){[523,659,784,1046].forEach((f,i)=>tone(f,.2,'triangle',i*.09))}}})();
 // ---------- 3D tower (three.js; page still works without it) ----------
-const World=(()=>{const none={add(){},wobble(){},burst(){},reset(){}};if(!window.THREE)return none;
+const World=(()=>{const none={add(){},wobble(){},burst(){},reset(){},tint(){}};if(!window.THREE)return none;
  try{const cv=document.getElementById('scene');const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});r.setPixelRatio(Math.min(2,devicePixelRatio));
  const sc=new THREE.Scene();sc.fog=new THREE.Fog(REALM.fog,14,45);sc.background=new THREE.Color(REALM.sky);const cam=new THREE.PerspectiveCamera(50,1,.1,100);
  sc.add(new THREE.HemisphereLight(0xbcd2ff,0x202040,.9));const dl=new THREE.DirectionalLight(0xffffff,.8);dl.position.set(5,10,7);sc.add(dl);
@@ -259,7 +269,7 @@ const World=(()=>{const none={add(){},wobble(){},burst(){},reset(){}};if(!window
   props.children.forEach(p=>{if(p.userData.spin)p.userData.spin.rotation.z+=.01});wob*=.92;
   parts.children.slice().forEach(p=>{p.position.add(p.userData.v);p.userData.v.y-=.006;if(--p.userData.life<=0)parts.remove(p)});
   const h=tower.children.length*.52;camY+=((h+3)-camY)*.05;cam.position.set(Math.sin(t)*10,camY+2,Math.cos(t)*10);cam.lookAt(0,Math.max(1,h-1),0);stars.rotation.y=t*.2;r.render(sc,cam)})();
- return{add,wobble(){wob=1},burst,reset}}catch(e){return none}})();
+ return{add,wobble(){wob=1},burst,reset,tint(){const c=H.cur();if(c&&heroCol[c.cls])hb.material.color.setHex(heroCol[c.cls])}}}catch(e){return none}})();
 title();
 </script>
 </body>

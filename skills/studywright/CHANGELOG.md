@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.0 (2026-11-10)
+- Two-player hot-seat: "Two players" on Start quest picks two heroes who take turns, one question each. Each hero keeps its own XP, feats and level-ups; the finish screen shows a team scoreboard; the record carries `duo` and is filed under both heroes.
+- Boss round: a timed pass over the first-try misses after the main run (+15 XP per hit, skippable; `boss` in the record).
+- Day-2 warm-up (last run's misses come first) and a read-aloud button (0.5.0, not released separately).
+
 ## 0.4.0 (2026-11-10)
 - Realms: each subject is a themed 3D world (props, sky, obstacle); each question is a challenge the hero overcomes, with win/lose lines.
 - 3D hero stands on the tower and leaps up as obstacles shatter.

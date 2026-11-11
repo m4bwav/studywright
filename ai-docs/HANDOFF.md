@@ -10,10 +10,12 @@ Banner merged 2026-11-10 (PR #1, seed 2313760545); Discussions on. Social previe
 
 0.5.0 (2026-11-10, session 6): day-2 warm-up (last run's misses first) and read-aloud button.
 
+Session 8: two-player hot-seat built; plugin bumped to 0.6.0 and released (see log).
+
 Session 7: boss round (timed pass over first-try misses) merged; games rebuilt. Plugin.json not bumped or released since 0.2.0.
 
 Next:
 0. When the Texas game has been played: run `sw.py records`, read records/INDEX.md, report shaky ideas; consider per-question `scene` text for Texas.
-1. Build ideas in skills/studywright/references/learning-design.md ("Ideas not built yet"), next: two-player hot-seat; bump plugin version and tag a release once a batch is in.
+1. Build ideas in skills/studywright/references/learning-design.md ("Ideas not built yet"), next: gear/titles for mastering a deck; release once a batch is in.
 2. First everscout scan of beat learning-games; fold findings into RESEARCH.md.
 3. evergreen-test evals for the skill (trigger + build case).
