@@ -6,4 +6,5 @@ Plugin that turns worksheets into study games. Skill: [skills/studywright/SKILL.
 - CLI: `python skills/studywright/scripts/sw.py check|build DECK.json [OUT.html]` (stdlib only).
 - Decks: `skills/studywright/decks/*.json`. Built games: `games/` (open the .html directly in a browser).
 - State and next steps: [ai-docs/HANDOFF.md](ai-docs/HANDOFF.md). Log: [ai-docs/log.md](ai-docs/log.md).
+- Study records (paper trail): `records/INDEX.md`, filled by `sw.py records` from the JSON each game saves to Downloads; gitignored. Read it before writing a follow-up deck.
 - Private repo material: decks come from a child's schoolwork; keep the child's name out of every file.

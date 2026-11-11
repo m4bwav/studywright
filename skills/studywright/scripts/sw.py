@@ -3,6 +3,10 @@
 
   sw.py check DECK.json            validate a deck
   sw.py build DECK.json OUT.html   validate, then write a standalone game page
+  sw.py records [--from DIR] [--to DIR]
+        file the studywright-*.json records the games save (default from
+        ~/Downloads) into DIR/<deck>/ as JSON + Markdown and rebuild DIR/INDEX.md,
+        the paper trail agents read before writing the next test (default ./records)
 """
 import json, sys, html
 from pathlib import Path
@@ -44,7 +48,62 @@ def check(deck):
     return errs
 
 
+def record_md(r):
+    h = r.get("hero") or {}
+    total = r["questions_total"]
+    L = [f"# {r['title']} - {r['finished'][:16].replace('T', ' ')}", "",
+         f"- Deck: `{r['deck']}`" + (f" (follow-up to `{r['follows']}`)" if r.get("follows") else ""),
+         f"- Area: {r.get('area')}; hero: {h.get('name')} the {h.get('cls')} ({h.get('xp')} XP total)",
+         f"- First-try score: **{r['score_first_try']}%** ({total - len(r['first_try_misses'])}/{total}); "
+         f"best streak {r['best_streak']}; {r['answers']} answers to master all", ""]
+    if r["first_try_misses"]:
+        L += ["## Missed on first try", ""]
+        for m in r["first_try_misses"]:
+            tries = "; ".join(f"'{t['given']}' {'ok' if t['ok'] else 'wrong'}" for t in m.get("tries") or [])
+            L.append(f"- [{m.get('topic', '')}] {m.get('q', '')} -> **{m.get('answer', '')}**" + (f" (tries: {tries})" if tries else ""))
+    else:
+        L.append("Perfect first-try run.")
+    return "\n".join(L) + "\n"
+
+
+def records(argv):
+    src = Path(argv[argv.index("--from") + 1]) if "--from" in argv else Path.home() / "Downloads"
+    dst = Path(argv[argv.index("--to") + 1]) if "--to" in argv else Path("records")
+    new = 0
+    for f in sorted(src.glob("studywright-*.json")):
+        try:
+            r = json.loads(f.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        rs = r.get("records", []) if r.get("studywright_records") else [r] if r.get("studywright_record") else []
+        for r in rs:
+            d = dst / r["deck"]
+            base = r["finished"][:16].replace(":", "-").replace("T", "-")
+            if (d / f"{base}.json").exists():
+                continue
+            d.mkdir(parents=True, exist_ok=True)
+            (d / f"{base}.json").write_text(json.dumps(r, indent=1, ensure_ascii=False), encoding="utf-8", newline="\n")
+            (d / f"{base}.md").write_text(record_md(r), encoding="utf-8", newline="\n")
+            new += 1
+    rows = []
+    for j in sorted(dst.glob("*/*.json")):
+        r = json.loads(j.read_text(encoding="utf-8"))
+        miss = ", ".join(sorted({m["topic"] for m in r["first_try_misses"]})) or "-"
+        hero = (r.get("hero") or {}).get("name", "")
+        rows.append(f"| {r['finished'][:10]} | [{r['title']}]({j.parent.name}/{j.stem}.md) | {hero} | {r['score_first_try']}% | {miss} |")
+    if rows:
+        (dst / "INDEX.md").write_text(
+            "# Study records\n\nOne row per finished game. Each linked file lists the questions missed on the first try "
+            "and what was typed. Write the next follow-up deck from the missed topics.\n\n"
+            "| Date | Game | Hero | First try | Missed topics |\n|---|---|---|---|---|\n" + "\n".join(rows) + "\n",
+            encoding="utf-8", newline="\n")
+    print(f"filed {new} new record(s); {len(rows)} listed in {dst / 'INDEX.md'}")
+    return 0
+
+
 def main(argv):
+    if argv and argv[0] == "records":
+        return records(argv[1:])
     if len(argv) < 2 or argv[0] not in ("check", "build"):
         print(__doc__)
         return 2

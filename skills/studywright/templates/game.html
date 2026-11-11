@@ -37,6 +37,9 @@ input[type=text]{font:inherit;width:100%;padding:12px;border-radius:12px;border:
 @keyframes shake{25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-4px)}}
 ul.rev{padding-left:20px} ul.rev li{margin:6px 0}
 .small{font-size:14px;color:var(--dim)}
+.hero{display:flex;gap:12px;align-items:center;background:#ffffff0d;border-radius:12px;padding:10px;margin-top:10px}.hero .big{font-size:40px}
+button.struck{opacity:.35;text-decoration:line-through}
+a{color:var(--accent)}
 @media (max-width:520px){html,body{font-size:16px}h2{font-size:20px}}
 </style>
 </head>
@@ -46,54 +49,116 @@ ul.rev{padding-left:20px} ul.rev li{margin:6px 0}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const DECK = __DECK__;
-// ---------- state ----------
+// ---------- storage ----------
 const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-const KEY='studywright:'+DECK.id;
+const KEY='studywright:'+DECK.id, HKEY='studywright:heroes', RKEY='studywright:records';
+const STAT=DECK.stat||String(DECK.subject).split(':')[0].trim()||'Study';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let S;
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
 function norm(s){return String(s).toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()}
 function lev(a,b){const m=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=m[0];m[0]=i;for(let j=1;j<=b.length;j++){const t=m[j];m[j]=Math.min(m[j]+1,m[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=t}}return m[b.length]}
 function typedOk(q,v){const n=norm(v);if(!n)return false;return q.accept.some(a=>{const t=norm(a);return n===t||(t.length>4&&lev(n,t)<=Math.floor(t.length/5))})}
-function newRun(){S={queue:shuffle(DECK.questions.map((_,i)=>i)),mastered:new Set(),firstMiss:new Set(),seen:new Set(),xp:0,streak:0,best:0,answered:0,correct:0}}
+// ---------- hero (persists across every studywright game in this browser) ----------
+const CLASSES={Scholar:{icon:'📜',feat:'scribe'},Ranger:{icon:'🏹',feat:'keen'},Knight:{icon:'🛡️',feat:'wind'},Mage:{icon:'🔮',feat:'focus'}};
+const FEATS={keen:{name:'Keen Eye',desc:'Once per quest, strike out one wrong choice.'},
+ wind:{name:'Second Wind',desc:'Your first miss each quest does not break your streak.'},
+ scribe:{name:'Scribe',desc:'+5 XP for every typed answer you get right.'},
+ grit:{name:'Grit',desc:'+10 XP when you finally get a question you missed. Mistakes make you stronger.'},
+ focus:{name:'Battle Focus',desc:'Gold streaks start at 2 in a row instead of 3.'},
+ sage:{name:'Sage',desc:'+3 XP per right answer in one study area (needs that area at level 3).',area:true}};
+const H={all(){return store.get(HKEY)||{active:null,list:[]}},save(d){store.set(HKEY,d)},
+ cur(){const d=H.all();return d.list.find(h=>h.id===d.active)||null},
+ put(h){const d=H.all();const i=d.list.findIndex(x=>x.id===h.id);if(i<0)d.list.push(h);else d.list[i]=h;d.active=h.id;H.save(d)}};
+const need=L=>50*L*(L+1); // total XP needed to reach level L+1
+function heroLvl(h){let L=1;while(h.xp>=need(L))L++;return L}
+function area(h,s){const a=h.areas[s]||{use:0,train:0};return{...a,lvl:Math.floor(a.use/15)+a.train}}
+function hasFeat(h,f){return !!h&&h.feats.includes(f)}
+function featName(f){const[b,ar]=f.split(':');return FEATS[b].name+(ar?' ('+esc(ar)+')':'')}
+function newHero(name,cls){return{id:'h'+Date.now().toString(36),name,cls,xp:0,areas:{},feats:[CLASSES[cls].feat],picks:0,created:new Date().toISOString(),quests:0}}
+const goldAt=()=>hasFeat(H.cur(),'focus')?2:3;
+// ---------- run ----------
+function newRun(){S={queue:shuffle(DECK.questions.map((_,i)=>i)),mastered:new Set(),firstMiss:new Set(),seen:new Set(),xp:0,streak:0,best:0,answered:0,correct:0,log:{},keen:false,wind:false,started:new Date().toISOString()}}
 const app=document.getElementById('app');
-function hud(){const lvl=1+Math.floor(S.xp/100);const pct=100*S.mastered.size/DECK.questions.length;
- return `<div class="hud"><span>Lv <b>${lvl}</b></span><span>XP <b>${S.xp}</b></span><span>Streak <b>${S.streak}</b>${S.streak>=3?' 🔥':''}</span><div class="bar" title="mastered"><i style="width:${pct}%"></i></div><span class="small">${S.mastered.size}/${DECK.questions.length} mastered</span></div>`}
+function hud(){const h=H.cur();const pct=100*S.mastered.size/DECK.questions.length;const L=heroLvl(h);const lo=L>1?need(L-1):0;
+ return `<div class="hud"><span>${CLASSES[h.cls].icon} <b>${esc(h.name)}</b></span><span>Lv <b>${L}</b> <span class="small">(${h.xp-lo}/${need(L)-lo})</span></span><span>${esc(STAT)} <b>${area(h,STAT).lvl}</b></span><span>Streak <b>${S.streak}</b>${S.streak>=goldAt()?' 🔥':''}</span><div class="bar" title="mastered"><i style="width:${pct}%"></i></div><span class="small">${S.mastered.size}/${DECK.questions.length} mastered</span></div>`}
 // ---------- screens ----------
-function title(){const rec=store.get(KEY);
- app.innerHTML=`<div class="card"><div class="topic">${DECK.subject}</div><h1>${DECK.title}</h1><p>${DECK.intro}</p>
- <p class="small">Every right answer stacks a block on your tower. Streaks of 3+ make gold blocks and double XP. Miss one and it comes back later until you get it. Finish when every question is mastered.</p>
+function title(){const h=H.cur();if(!h)return heroCreate(false);const rec=store.get(KEY);const a=area(h,STAT);
+ app.innerHTML=`<div class="card"><div class="topic">${esc(DECK.subject)}</div><h1>${esc(DECK.title)}</h1><p>${DECK.intro}</p>
+ <p class="small">Every right answer stacks a block on your tower and trains your hero. Streaks make gold blocks and double XP. Miss one and it comes back later until you get it.</p>
  ${rec?`<p class="small">Best so far: ${rec.score}% right on first try, top streak ${rec.best}.</p>`:''}
- <div class="row"><button class="go" id="start">Start quest ▶</button></div></div>`;
- document.getElementById('start').onclick=()=>{newRun();World.reset();next()}}
-function next(){if(!S.queue.length)return finish();const qi=S.queue[0];const q=DECK.questions[qi];
+ <div class="hero"><div class="big">${CLASSES[h.cls].icon}</div><div><b>${esc(h.name)}</b> the ${h.cls} · Level ${heroLvl(h)} · ${h.quests} quests<br><span class="small">${esc(STAT)} level ${a.lvl} · Feats: ${h.feats.map(featName).join(', ')}</span></div></div>
+ <div class="row"><button class="go" id="start">Start quest ▶</button><button id="sheet">Character sheet</button><button id="switch">Switch hero</button></div></div>`;
+ document.getElementById('start').onclick=()=>{newRun();World.reset();next()};
+ document.getElementById('sheet').onclick=sheet;document.getElementById('switch').onclick=switcher}
+function heroCreate(back){app.innerHTML=`<div class="card"><h1>Create your hero</h1><p>Your hero levels up in every studywright game you play. You can make more heroes later and switch between them.</p>
+ <input type="text" id="hn" maxlength="24" placeholder="Hero name" autocomplete="off"><h2>Pick a class</h2><div class="choices">${Object.entries(CLASSES).map(([c,v])=>`<button data-c="${c}">${v.icon} <b>${c}</b>: starts with ${FEATS[v.feat].name}. <span class="small">${FEATS[v.feat].desc}</span></button>`).join('')}</div>
+ <div class="row">${back?'<button id="bk">Back</button>':''}<button id="imp">Load hero from a saved record</button></div></div>`;
+ app.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{const n=document.getElementById('hn').value.trim();if(!n){document.getElementById('hn').focus();popup('Name your hero first');return}H.put(newHero(n,b.dataset.c));title()});
+ if(back)document.getElementById('bk').onclick=title;document.getElementById('imp').onclick=importHero}
+function switcher(){const d=H.all();app.innerHTML=`<div class="card"><h1>Heroes</h1><div class="choices">${d.list.map(h=>`<button data-h="${h.id}">${CLASSES[h.cls].icon} <b>${esc(h.name)}</b> the ${h.cls} · Level ${heroLvl(h)}${h.id===d.active?' · <i>playing</i>':''}</button>`).join('')}</div>
+ <div class="row"><button class="go" id="nh">New hero +</button><button id="bk">Back</button></div></div>`;
+ app.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{d.active=b.dataset.h;H.save(d);title()});
+ document.getElementById('nh').onclick=()=>heroCreate(true);document.getElementById('bk').onclick=title}
+function sheet(){const h=H.cur();const recs=(store.get(RKEY)||[]).filter(r=>r.hero&&r.hero.id===h.id);
+ const games={};recs.forEach(r=>{const g=games[r.deck]=games[r.deck]||{title:r.title,runs:[]};g.runs.push(r)});
+ app.innerHTML=`<div class="card"><h1>${CLASSES[h.cls].icon} ${esc(h.name)}</h1><p>${h.cls} · Level ${heroLvl(h)} · ${h.xp} XP · ${h.quests} quests finished</p>
+ <h2>Study areas</h2><p class="small">Areas rise by use (every 15 right answers) and by training from level-ups. Each level adds +1 XP per right answer in that area.</p>
+ <ul class="rev">${Object.keys(h.areas).length?Object.keys(h.areas).map(s=>{const a=area(h,s);return`<li><b>${esc(s)}</b> level ${a.lvl} <span class="small">(${a.use} right answers, ${a.train} trained)</span></li>`}).join(''):'<li>None yet. Finish a quest!</li>'}</ul>
+ <h2>Feats</h2><ul class="rev">${h.feats.map(f=>`<li><b>${featName(f)}</b>: ${FEATS[f.split(':')[0]].desc}</li>`).join('')}</ul>
+ <h2>Games and quizzes</h2><ul class="rev">${Object.keys(games).length?Object.entries(games).map(([id,g])=>`<li><a href="${esc(id)}.html">${esc(g.title)}</a> · played ${g.runs.length}× · best ${Math.max(...g.runs.map(r=>r.score_first_try))}% · last ${g.runs[g.runs.length-1].finished.slice(0,10)}<br><span class="small">${g.runs.slice(-5).map(r=>r.finished.slice(0,10)+': '+r.score_first_try+'%'+(r.first_try_misses.length?' (missed: '+r.first_try_misses.map(m=>esc(m.topic)).join(', ')+')':'')).join('<br>')}</span></li>`).join(''):'<li>No quests yet.</li>'}</ul>
+ <div class="row"><button id="dl">Download all records</button><button class="go" id="bk">Back</button></div></div>`;
+ document.getElementById('bk').onclick=title;document.getElementById('dl').onclick=()=>download('studywright-all-records-'+stamp()+'.json',{studywright_records:1,heroes:H.all(),records:store.get(RKEY)||[]})}
+function importHero(){const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=()=>{const f=i.files[0];if(!f)return;f.text().then(t=>{try{const j=JSON.parse(t);const hs=j.hero?[j.hero]:(j.heroes&&j.heroes.list)||[];if(!hs.length)throw 0;hs.forEach(h=>H.put(h));if(j.records){const all=store.get(RKEY)||[];j.records.forEach(r=>{if(!all.some(x=>x.finished===r.finished))all.push(r)});store.set(RKEY,all)}title()}catch(e){popup('No hero in that file')}})};i.click()}
+function next(){const h=H.cur();if(h.picks>0)return levelUp();if(!S.queue.length)return finish();const qi=S.queue[0];const q=DECK.questions[qi];
  let body='';
  if(q.type==='type'){body=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer"><div class="row"><button class="go" id="check">Check</button></div>`}
- else{const order=shuffle(q.choices.map((c,i)=>i));body=`<div class="choices">${order.map((i,k)=>`<button data-i="${i}">${String.fromCharCode(65+k)}. ${q.choices[i]}</button>`).join('')}</div>`}
+ else{const order=shuffle(q.choices.map((c,i)=>i));body=`<div class="choices">${order.map((i,k)=>`<button data-i="${i}">${String.fromCharCode(65+k)}. ${q.choices[i]}</button>`).join('')}</div>${hasFeat(h,'keen')&&!S.keen&&q.choices.length>2?'<div class="row"><button id="keen">🔍 Keen Eye: strike a wrong choice (once per quest)</button></div>':''}`}
  app.innerHTML=hud()+`<div class="card" id="card"><div class="topic">${q.topic||''}</div><h2>${q.q}</h2>${body}<div class="fb" id="fb"></div></div>`;
- if(q.type==='type'){const inp=document.getElementById('ans');inp.focus();const go=()=>answer(qi,typedOk(q,inp.value),inp.value);document.getElementById('check').onclick=go;inp.onkeydown=e=>{if(e.key==='Enter')go()}}
+ const kb=document.getElementById('keen');if(kb)kb.onclick=()=>{S.keen=true;const w=shuffle([...app.querySelectorAll('.choices button')].filter(b=>+b.dataset.i!==q.answer))[0];w.disabled=true;w.classList.add('struck');kb.remove()};
+ if(q.type==='type'){const inp=document.getElementById('ans');inp.focus();const go=()=>answer(qi,typedOk(q,inp.value),inp.value);document.getElementById('check').onclick=go;inp.onkeydown=e=>{if(e.key==='Enter'){e.stopPropagation();go()}}}
  else app.querySelectorAll('.choices button').forEach(b=>b.onclick=()=>{const pick=+b.dataset.i;app.querySelectorAll('.choices button').forEach(x=>{x.disabled=true;if(+x.dataset.i===q.answer)x.classList.add('right')});if(pick!==q.answer)b.classList.add('wrong');answer(qi,pick===q.answer,q.choices[pick])})}
-function answer(qi,ok,given){const q=DECK.questions[qi];S.queue.shift();S.answered++;
- const first=!S.seen.has(qi);S.seen.add(qi);
- if(ok){S.correct++;S.streak++;S.best=Math.max(S.best,S.streak);S.mastered.add(qi);const gain=(S.streak>=3?20:10);const before=Math.floor(S.xp/100);S.xp+=gain;
-  World.add(S.streak>=3);Sound.ok();popup('+'+gain+' XP'+(S.streak>=3?' 🔥':''));if(Math.floor(S.xp/100)>before){setTimeout(()=>popup('LEVEL UP!'),500);World.burst();Sound.lvl()}}
- else{if(first)S.firstMiss.add(qi);S.streak=0;S.queue.splice(Math.min(3,S.queue.length),0,qi);World.wobble();Sound.no();document.getElementById('card').classList.add('shake')}
+function answer(qi,ok,given){const q=DECK.questions[qi];const h=H.cur();S.queue.shift();S.answered++;
+ const first=!S.seen.has(qi);S.seen.add(qi);(S.log[qi]=S.log[qi]||[]).push({given:String(given),ok});
+ if(ok){S.correct++;S.streak++;S.best=Math.max(S.best,S.streak);S.mastered.add(qi);const gold=S.streak>=goldAt();
+  const a=h.areas[STAT]=h.areas[STAT]||{use:0,train:0};const before=area(h,STAT).lvl;a.use++;
+  let gain=(gold?20:10)+area(h,STAT).lvl;if(q.type==='type'&&hasFeat(h,'scribe'))gain+=5;if(!first&&hasFeat(h,'grit'))gain+=10;if(hasFeat(h,'sage:'+STAT))gain+=3;
+  const L0=heroLvl(h);S.xp+=gain;h.xp+=gain;const L1=heroLvl(h);h.picks+=L1-L0;H.put(h);
+  World.add(gold);Sound.ok();popup('+'+gain+' XP'+(gold?' 🔥':''));
+  if(L1>L0){setTimeout(()=>popup('LEVEL UP! Lv '+L1),500);World.burst();Sound.lvl()}else if(area(h,STAT).lvl>before)setTimeout(()=>popup(STAT+' skill up!'),500)}
+ else{if(first)S.firstMiss.add(qi);if(hasFeat(h,'wind')&&!S.wind)S.wind=true;else S.streak=0;S.queue.splice(Math.min(3,S.queue.length),0,qi);World.wobble();Sound.no();document.getElementById('card').classList.add('shake')}
  const right=q.type==='type'?q.accept[0]:q.choices[q.answer];
  const fb=document.getElementById('fb');fb.className='fb '+(ok?'ok':'no');
  fb.innerHTML=`<strong>${ok?'Correct!':'Not quite.'}</strong> ${ok?'':`The answer is <b>${right}</b>.`}<p>${q.explain}</p>${ok?'':'<p class="small">This one will come back in a few questions.</p>'}<div class="row"><button class="go" id="nx">Next ▶ <span class="small">(Enter)</span></button></div>`;
- const inp=document.getElementById('ans');if(inp)inp.disabled=true;const c=document.getElementById('check');if(c)c.disabled=true;
+ const inp=document.getElementById('ans');if(inp)inp.disabled=true;const c=document.getElementById('check');if(c)c.disabled=true;const kb=document.getElementById('keen');if(kb)kb.remove();
  const nx=document.getElementById('nx');nx.focus();nx.onclick=next;
  app.querySelector('.hud').outerHTML=hud()}
-function finish(){const n=DECK.questions.length;const score=Math.round(100*(n-S.firstMiss.size)/n);const stars=score>=90?3:score>=70?2:1;
+function levelUp(){const h=H.cur();const opts=[{k:'train',label:`+1 ${esc(STAT)} (training)`,desc:`Raise ${esc(STAT)} to level ${area(h,STAT).lvl+1}: +1 more XP per right answer in ${esc(STAT)}.`}];
+ Object.keys(FEATS).forEach(f=>{if(FEATS[f].area){if(area(h,STAT).lvl>=3&&!hasFeat(h,'sage:'+STAT))opts.push({k:'sage:'+STAT,label:'Feat: Sage of '+esc(STAT),desc:FEATS.sage.desc})}else if(!hasFeat(h,f))opts.push({k:f,label:'Feat: '+FEATS[f].name,desc:FEATS[f].desc})});
+ app.innerHTML=`<div class="card"><h1>⬆️ Level ${heroLvl(h)-h.picks+1}!</h1><p>${esc(h.name)} grows stronger. Choose one:</p><div class="choices">${opts.map((o,i)=>`<button data-o="${i}"><b>${o.label}</b><br><span class="small">${o.desc}</span></button>`).join('')}</div></div>`;
+ World.burst();app.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{const o=opts[+b.dataset.o];if(o.k==='train'){const a=h.areas[STAT]=h.areas[STAT]||{use:0,train:0};a.train++}else h.feats.push(o.k);h.picks--;H.put(h);Sound.lvl();if(S&&S.done)finishScreen();else next()})}
+const stamp=()=>new Date().toISOString().slice(0,16).replace(/[:T]/g,'-');
+function download(name,obj){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,1)],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){}}
+function record(score){const h=H.cur();return{studywright_record:1,deck:DECK.id,title:DECK.title,subject:DECK.subject,area:STAT,follows:DECK.follows||null,started:S.started,finished:new Date().toISOString(),
+ score_first_try:score,best_streak:S.best,answers:S.answered,questions_total:DECK.questions.length,run_xp:S.xp,
+ hero:JSON.parse(JSON.stringify(h)),
+ first_try_misses:[...S.firstMiss].map(i=>{const q=DECK.questions[i];return{n:i+1,topic:q.topic||'',q:q.q,answer:q.type==='type'?q.accept[0]:q.choices[q.answer],tries:S.log[i]}}),
+ items:DECK.questions.map((q,i)=>({n:i+1,topic:q.topic||'',tries:(S.log[i]||[]).length,first_ok:!!(S.log[i]&&S.log[i][0].ok)}))}}
+function finish(){const n=DECK.questions.length;const score=Math.round(100*(n-S.firstMiss.size)/n);
  const rec=store.get(KEY);if(!rec||score>rec.score)store.set(KEY,{score,best:S.best});
+ const h=H.cur();h.quests++;H.put(h);S.R=record(score);S.score=score;S.done=true;const all=store.get(RKEY)||[];all.push(S.R);store.set(RKEY,all.slice(-200));
+ S.fname='studywright-'+DECK.id+'-'+stamp()+'.json';download(S.fname,S.R);World.burst();Sound.lvl();finishScreen()}
+function finishScreen(){const h=H.cur();const score=S.score;const stars=score>=90?3:score>=70?2:1;
  const topics={};S.firstMiss.forEach(i=>{const t=DECK.questions[i].topic||'Other';(topics[t]=topics[t]||[]).push(DECK.questions[i])});
- World.burst();Sound.lvl();
- app.innerHTML=hud()+`<div class="card"><h1>Quest complete! ${'⭐'.repeat(stars)}</h1><p><b>${score}%</b> right on the first try. Top streak: <b>${S.best}</b>. Tower height: <b>${S.correct}</b> blocks.</p>
+ app.innerHTML=hud()+`<div class="card"><h1>Quest complete! ${'⭐'.repeat(stars)}</h1><p><b>${score}%</b> right on the first try. Top streak: <b>${S.best}</b>. Tower height: <b>${S.correct}</b> blocks. ${esc(h.name)} earned <b>${S.xp} XP</b>.</p>
  ${S.firstMiss.size?`<h2>Review these before the test</h2><ul class="rev">${Object.entries(topics).map(([t,qs])=>`<li><b>${t}</b>: ${qs.map(q=>(q.review||q.q)+' → <b>'+(q.type==='type'?q.accept[0]:q.choices[q.answer])+'</b>').join('<br>')}</li>`).join('')}</ul>`:'<p>Perfect run. You are ready.</p>'}
- <div class="row"><button class="go" id="again">Play again ↻</button></div></div>`;
- document.getElementById('again').onclick=()=>{newRun();World.reset();next()}}
+ <p class="small">Record saved to Downloads as ${S.fname}.</p>
+ <div class="row"><button class="go" id="again">Play again ↻</button><button id="save">Save record again 💾</button><button id="home">Character</button></div></div>`;
+ document.getElementById('again').onclick=()=>{newRun();World.reset();next()};document.getElementById('save').onclick=()=>download(S.fname,S.R);document.getElementById('home').onclick=sheet;
+ if(h.picks>0)setTimeout(levelUp,2500)}
 function popup(t){const d=document.createElement('div');d.className='pop';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1000)}
-document.addEventListener('keydown',e=>{if(e.key==='Enter'){const nx=document.getElementById('nx');if(nx&&document.activeElement!==nx){e.preventDefault();nx.click()}}
- const k=e.key.toUpperCase().charCodeAt(0)-65;const bs=app.querySelectorAll('.choices button');if(e.key.length===1&&k>=0&&k<bs.length&&!bs[k].disabled)bs[k].click()});
+document.addEventListener('keydown',e=>{const ae=document.activeElement;if(ae&&ae.tagName==='INPUT')return;if(e.key==='Enter'){const nx=document.getElementById('nx');if(nx&&ae!==nx){e.preventDefault();nx.click()}}
+ const k=e.key.toUpperCase().charCodeAt(0)-65;const bs=app.querySelectorAll('#card .choices button');if(e.key.length===1&&k>=0&&k<bs.length&&!bs[k].disabled)bs[k].click()});
 // ---------- sound ----------
 const Sound=(()=>{let ctx;function tone(f,d,t='sine',when=0){try{ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(.12,ctx.currentTime+when);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+when+d);o.connect(g).connect(ctx.destination);o.start(ctx.currentTime+when);o.stop(ctx.currentTime+when+d)}catch(e){}}
  return{ok(){tone(660,.12);tone(990,.18,'sine',.08)},no(){tone(180,.25,'square')},lvl(){[523,659,784,1046].forEach((f,i)=>tone(f,.2,'triangle',i*.09))}}})();
