@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0 (2026-11-10)
+- Realms: each subject is a themed 3D world (props, sky, obstacle); each question is a challenge the hero overcomes, with win/lose lines.
+- 3D hero stands on the tower and leaps up as obstacles shatter.
+- Start quest asks: continue as the last hero, pick another, or start a new one.
+- Rebuilt all three games; decks carry `realm`.
+
 ## 0.3.0 (2026-11-10)
 - Persistent hero shared by every game in the browser: name + class (Scholar, Ranger, Knight, Mage, each with a starting feat), switch or add heroes, load a hero from a saved record.
 - Level-ups (XP curve 100, 300, 600...) offer a choice: +1 training in the deck's study area, or a feat (Keen Eye, Second Wind, Scribe, Grit, Battle Focus, Sage of an area at level 3). Study areas also rise by use, every 15 right answers.
