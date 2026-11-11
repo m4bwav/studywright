@@ -110,7 +110,7 @@ const REALM=REALMS[RID]||REALMS.quest;
 const fill=(x,h,t)=>x.replace(/\{h\}/g,'<b>'+esc(h)+'</b>').replace(/\{t\}/g,esc(t||'this'));
 function chal(qi){const q=DECK.questions[qi];if(q.scene)return[q.scene,q.win||REALM.c[0][1],q.lose||REALM.c[0][2]];return REALM.c[(qi*7+3)%REALM.c.length]}
 // ---------- run ----------
-function newRun(){S={queue:shuffle(DECK.questions.map((_,i)=>i)),mastered:new Set(),firstMiss:new Set(),seen:new Set(),xp:0,streak:0,best:0,answered:0,correct:0,log:{},keen:false,wind:false,started:new Date().toISOString()}}
+function newRun(){const rec=store.get(KEY);const miss=(rec&&rec.miss||[]).filter(i=>i<DECK.questions.length);const rest=DECK.questions.map((_,i)=>i).filter(i=>!miss.includes(i));S={warm:miss.length,queue:shuffle(miss).concat(shuffle(rest)),mastered:new Set(),firstMiss:new Set(),seen:new Set(),xp:0,streak:0,best:0,answered:0,correct:0,log:{},keen:false,wind:false,started:new Date().toISOString()}}
 const app=document.getElementById('app');
 function hud(){const h=H.cur();const pct=100*S.mastered.size/DECK.questions.length;const L=heroLvl(h);const lo=L>1?need(L-1):0;
  return `<div class="hud"><span>${CLASSES[h.cls].icon} <b>${esc(h.name)}</b></span><span>Lv <b>${L}</b> <span class="small">(${h.xp-lo}/${need(L)-lo})</span></span><span>${esc(STAT)} <b>${area(h,STAT).lvl}</b></span><span>Streak <b>${S.streak}</b>${S.streak>=goldAt()?' 🔥':''}</span><div class="bar" title="mastered"><i style="width:${pct}%"></i></div><span class="small">${S.mastered.size}/${DECK.questions.length} mastered</span></div>`}
@@ -120,6 +120,7 @@ function title(){const h=H.cur();if(!h)return heroCreate(false);const rec=store.
  <p class="scene">${REALM.icon} You enter <b>${esc(REALM.name)}</b>. Every question is a challenge in your path: answer it to get past.</p>
  <p class="small">Every right answer stacks a block on your tower and trains your hero. Streaks make gold blocks and double XP. Miss one and it comes back later until you get it.</p>
  ${rec?`<p class="small">Best so far: ${rec.score}% right on first try, top streak ${rec.best}.</p>`:''}
+ ${rec&&rec.miss&&rec.miss.length?`<p class="small">🔁 Warm-up: the ${rec.miss.length} question${rec.miss.length>1?'s':''} you missed last time (${esc(rec.last||'')}) come first.</p>`:''}
  <div class="hero"><div class="big">${CLASSES[h.cls].icon}</div><div><b>${esc(h.name)}</b> the ${h.cls} · Level ${heroLvl(h)} · ${h.quests} quests<br><span class="small">${esc(STAT)} level ${a.lvl} · Feats: ${h.feats.map(featName).join(', ')}</span></div></div>
  <div class="row"><button class="go" id="start">Start quest ▶</button><button id="sheet">Character sheet</button><button id="switch">Switch hero</button></div></div>`;
  document.getElementById('start').onclick=pickHero;
@@ -153,7 +154,8 @@ function next(){const h=H.cur();if(h.picks>0)return levelUp();if(!S.queue.length
  let body='';
  if(q.type==='type'){body=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer"><div class="row"><button class="go" id="check">Check</button></div>`}
  else{const order=shuffle(q.choices.map((c,i)=>i));body=`<div class="choices">${order.map((i,k)=>`<button data-i="${i}">${String.fromCharCode(65+k)}. ${q.choices[i]}</button>`).join('')}</div>${hasFeat(h,'keen')&&!S.keen&&q.choices.length>2?'<div class="row"><button id="keen">🔍 Keen Eye: strike a wrong choice (once per quest)</button></div>':''}`}
- app.innerHTML=hud()+`<div class="card" id="card"><div class="topic">${REALM.icon} ${esc(REALM.name)} · ${q.topic||''}</div><p class="scene">${fill(chal(qi)[0],h.name,q.topic)}</p><h2>${q.q}</h2>${body}<div class="fb" id="fb"></div></div>`;
+ app.innerHTML=hud()+`<div class="card" id="card"><div class="topic">${REALM.icon} ${esc(REALM.name)} · ${q.topic||''}</div><p class="scene">${fill(chal(qi)[0],h.name,q.topic)}</p><h2>${q.q}</h2>${body}${'speechSynthesis' in window?'<div class="row"><button id="say" title="Read aloud">🔊 Read it to me</button></div>':''}<div class="fb" id="fb"></div></div>`;
+ const sb=document.getElementById('say');if(sb)sb.onclick=()=>say(q);
  const kb=document.getElementById('keen');if(kb)kb.onclick=()=>{S.keen=true;const w=shuffle([...app.querySelectorAll('.choices button')].filter(b=>+b.dataset.i!==q.answer))[0];w.disabled=true;w.classList.add('struck');kb.remove()};
  if(q.type==='type'){const inp=document.getElementById('ans');inp.focus();const go=()=>answer(qi,typedOk(q,inp.value),inp.value);document.getElementById('check').onclick=go;inp.onkeydown=e=>{if(e.key==='Enter'){e.stopPropagation();go()}}}
  else app.querySelectorAll('.choices button').forEach(b=>b.onclick=()=>{const pick=+b.dataset.i;app.querySelectorAll('.choices button').forEach(x=>{x.disabled=true;if(+x.dataset.i===q.answer)x.classList.add('right')});if(pick!==q.answer)b.classList.add('wrong');answer(qi,pick===q.answer,q.choices[pick])})}
@@ -184,7 +186,7 @@ function record(score){const h=H.cur();return{studywright_record:1,deck:DECK.id,
  first_try_misses:[...S.firstMiss].map(i=>{const q=DECK.questions[i];return{n:i+1,topic:q.topic||'',q:q.q,answer:q.type==='type'?q.accept[0]:q.choices[q.answer],tries:S.log[i]}}),
  items:DECK.questions.map((q,i)=>({n:i+1,topic:q.topic||'',tries:(S.log[i]||[]).length,first_ok:!!(S.log[i]&&S.log[i][0].ok)}))}}
 function finish(){const n=DECK.questions.length;const score=Math.round(100*(n-S.firstMiss.size)/n);
- const rec=store.get(KEY);if(!rec||score>rec.score)store.set(KEY,{score,best:S.best});
+ const rec=store.get(KEY)||{score:-1,best:0};store.set(KEY,{score:Math.max(score,rec.score),best:Math.max(S.best,rec.best),miss:[...S.firstMiss],last:new Date().toLocaleDateString('en-CA')});
  const h=H.cur();h.quests++;H.put(h);S.R=record(score);S.score=score;S.done=true;const all=store.get(RKEY)||[];all.push(S.R);store.set(RKEY,all.slice(-200));
  S.fname='studywright-'+DECK.id+'-'+stamp()+'.json';download(S.fname,S.R);World.burst();Sound.lvl();finishScreen()}
 function finishScreen(){const h=H.cur();const score=S.score;const stars=score>=90?3:score>=70?2:1;
@@ -195,6 +197,7 @@ function finishScreen(){const h=H.cur();const score=S.score;const stars=score>=9
  <div class="row"><button class="go" id="again">Play again ↻</button><button id="save">Save record again 💾</button><button id="home">Character</button></div></div>`;
  document.getElementById('again').onclick=()=>{newRun();World.reset();next()};document.getElementById('save').onclick=()=>download(S.fname,S.R);document.getElementById('home').onclick=sheet;
  if(h.picks>0)setTimeout(levelUp,2500)}
+function say(q){try{speechSynthesis.cancel();const t=document.createElement('div');t.innerHTML=q.q;const ch=[...document.querySelectorAll('.choices button:not(:disabled)')].map(x=>x.textContent);const u=new SpeechSynthesisUtterance([t.textContent,...ch].join('. '));u.rate=.95;speechSynthesis.speak(u)}catch(e){}}
 function popup(t){const d=document.createElement('div');d.className='pop';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1000)}
 document.addEventListener('keydown',e=>{const ae=document.activeElement;if(ae&&ae.tagName==='INPUT')return;if(e.key==='Enter'){const nx=document.getElementById('nx');if(nx&&ae!==nx){e.preventDefault();nx.click()}}
  const k=e.key.toUpperCase().charCodeAt(0)-65;const bs=app.querySelectorAll('#card .choices button');if(e.key.length===1&&k>=0&&k<bs.length&&!bs[k].disabled)bs[k].click()});

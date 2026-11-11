@@ -20,11 +20,14 @@ Rules the engine and decks follow, with the evidence base they come from. Check 
 - Study areas rise two ways: by use (every 15 right answers, like KCD2) and by training picks at level-up (like a D&D ability bump).
 - Guard rails: feats change XP or give one strike-out hint per quest; none skips a question or hides the explanation, so the learning loop (retrieve, feedback, spaced retry until mastered) stays intact. Grit rewards getting a missed question right later, which praises fixing mistakes.
 
+## Built in 0.5.0
+
+- Day-2 warm-up: each finish stores that run's first-try misses per deck; the next run serves them first and the title screen says so.
+- Read-aloud: a "Read it to me" button speaks the question and the choices in on-screen order (speechSynthesis).
+
 ## Ideas not built yet
 
 - Gear or titles for mastering a whole deck (e.g. "Naturalist" title after a 90%+ follow-up).
 
 - Boss round: a timed final pass over first-try misses.
-- Day-2 mode: reload remembers misses (localStorage) and starts with them (spaced across days).
-- Read-aloud button (speechSynthesis) for younger readers.
 - Two-player hot-seat for parent and child.
