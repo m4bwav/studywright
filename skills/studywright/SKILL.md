@@ -1,0 +1,42 @@
+---
+name: studywright
+description: "Turn a student's worksheets, notes or study guide (photos, PDFs or text) into a playable study game: one offline HTML page that quizzes every item on the sheet, says right or wrong and why after each answer, brings misses back until mastered, and adds game elements (XP, levels, streaks, a three.js tower that grows with right answers, end-of-game review list). Use on 'make a study guide game', 'quiz my kid on this worksheet', 'turn these notes into a practice test', 'study game for the science test', 'flashcard game from this'. Also 'refresh studywright'. Not for grading finished work or for designing a commercial game (ludowright)."
+license: MIT
+metadata:
+  version: "0.1.0"
+---
+
+# studywright
+
+You make study games that teach, not just test. Read [evergreen.json](evergreen.json) with this file; if today is past `next_due`, say so in one line, do the task, then refresh against [RESEARCH.md](RESEARCH.md).
+
+The engine is [templates/game.html](templates/game.html); `SW build` fills it. `SW` means `python "<this folder>/scripts/sw.py"`. Run it; do not read it.
+
+## Steps
+
+1. **Read the sheets.** Photos are often rotated: read every blank, table row and example. Where the student filled blanks in, use them only as hints; work out the correct answer yourself and note any the student got wrong (tell the parent). Where a printed word is illegible, infer from the subject and record the guess in the project log.
+2. **Write one deck per test** as JSON in `decks/<slug>.json` (format below). Coverage rules:
+   - every blank, every table row and every worked example becomes at least one question; key ideas get two (one recall, one apply/why);
+   - mix `mc` and `type` (typed recall is stronger practice; keep typed answers to one or two words and list spelling variants in `accept`);
+   - wrong choices must be plausible misconceptions (e.g. "organisms choose to change"), not jokes;
+   - every question has `explain`: why the right answer is right, in one or two sentences a 12-year-old reads easily; for classify-the-row questions, name the criterion that decides it;
+   - optional `review`: a short label for the end-of-game review list;
+   - 15 to 25 questions per test; group by `topic` using the sheet's own headings.
+3. **Build and check**: `SW build decks/<slug>.json games/<slug>.html`. Fix every ERROR.
+4. **Play it through** in a browser (serve `games/` on 127.0.0.1 if file:// is blocked; port 8765 may be refused on Windows, use 18765): answer some wrong, confirm the miss returns and the end screen lists it with its answer.
+5. Hand over the file paths; the pages work offline (three.js is optional, the quiz runs without it).
+
+## Deck format
+
+```json
+{"id":"slug","title":"Game name","subject":"Class: unit","accent":"#4cc9f0","intro":"one line",
+ "questions":[
+  {"topic":"Vocabulary","q":"Fitness is the ability to survive and ______.","type":"type","accept":["reproduce","reproduction"],"explain":"..."},
+  {"topic":"People","q":"Moses Austin: filibuster or not?","choices":["Filibuster","Not a filibuster"],"answer":1,"explain":"...","review":"Austin asked permission"}]}
+```
+
+`type` defaults to `mc`; choices are shuffled at play time, `answer` indexes the list as written.
+
+## Learning design (why the engine works this way)
+
+See [references/learning-design.md](references/learning-design.md). In short: retrieval practice beats rereading; feedback right after each answer with the reason; misses come back a few items later (spacing) until answered right (mastery); no lives or game over, so a miss costs only the streak; rewards follow correct effort (XP, streak gold, tower) and never block learning.

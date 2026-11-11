@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Filibuster Hunt</title>
+<style>
+:root{--bg:#0d1020;--panel:#171b33ee;--ink:#eef1ff;--dim:#a8b0d8;--accent:#ff9f43;--good:#3ddc84;--bad:#ff6b6b;--gold:#ffd166}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:18px/1.45 system-ui,Segoe UI,Roboto,sans-serif}
+#scene{position:fixed;inset:0;z-index:0}
+#app{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:16px;min-height:100%;display:flex;flex-direction:column;gap:12px}
+.hud{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:var(--panel);border-radius:14px;padding:10px 14px}
+.hud b{color:var(--gold)}
+.bar{flex:1 1 160px;height:12px;background:#ffffff22;border-radius:8px;overflow:hidden;min-width:120px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .4s}
+.card{background:var(--panel);border-radius:18px;padding:20px;box-shadow:0 10px 40px #0008}
+.topic{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+h1{margin:.2em 0;font-size:30px} h2{margin:.3em 0 .6em;font-size:23px}
+.choices{display:grid;gap:10px}
+button{font:inherit;color:var(--ink);background:#ffffff14;border:2px solid #ffffff22;border-radius:12px;padding:12px 14px;text-align:left;cursor:pointer;transition:transform .08s,background .2s}
+button:hover:not(:disabled){background:#ffffff26;transform:translateY(-1px)}
+button:disabled{cursor:default}
+button.right{border-color:var(--good);background:#3ddc8433}
+button.wrong{border-color:var(--bad);background:#ff6b6b33}
+.go{background:var(--accent);border-color:transparent;font-weight:700;text-align:center;color:#0d1020}
+input[type=text]{font:inherit;width:100%;padding:12px;border-radius:12px;border:2px solid #ffffff33;background:#0006;color:var(--ink)}
+.fb{margin-top:14px;padding:14px;border-radius:12px;display:none}
+.fb.ok{display:block;background:#3ddc8422;border-left:5px solid var(--good)}
+.fb.no{display:block;background:#ff6b6b22;border-left:5px solid var(--bad)}
+.fb strong{font-size:20px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.row>button{flex:1}
+.pop{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);font-size:34px;font-weight:800;color:var(--gold);text-shadow:0 2px 12px #000;pointer-events:none;z-index:5;animation:pop 1s forwards}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,-20%) scale(.6)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-120%) scale(1)}}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-4px)}}
+ul.rev{padding-left:20px} ul.rev li{margin:6px 0}
+.small{font-size:14px;color:var(--dim)}
+@media (max-width:520px){html,body{font-size:16px}h2{font-size:20px}}
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<div id="app"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const DECK = {"id": "texas-filibusters", "title": "Filibuster Hunt", "subject": "Texas History", "accent": "#ff9f43", "intro": "Spanish Texas, around 1800 to 1821. The Spanish government is on the lookout for filibusters. Can you tell who was one and who was not?", "questions": [{"topic": "What is a filibuster?", "q": "In Texas history, a filibuster was someone who...", "choices": ["came from another country and tried to take land and power from the government by force", "gave very long speeches to delay a vote", "was a Spanish soldier guarding the border", "was a priest who started missions"], "answer": 0, "explain": "In Spanish Texas a filibuster was a foreign adventurer who came to fight the government for land, power and personal gain. (The long-speech meaning in Congress came later.)", "review": "the four filibuster criteria"}, {"topic": "What is a filibuster?", "type": "type", "q": "Which government decided who counted as a filibuster in Texas? (one word)", "accept": ["Spanish", "Spain", "the Spanish"], "explain": "Texas belonged to Spain until 1821, so it was the Spanish government that called these intruders filibusters."}, {"topic": "The four criteria", "q": "Criterion 1: a filibuster was from a ______ country (not Spanish).", "choices": ["foreign", "neighboring Spanish", "native", "friendly"], "answer": 0, "explain": "A filibuster was a foreigner. Someone born in Spain or New Spain could rebel, but would not be called a filibuster."}, {"topic": "The four criteria", "type": "type", "q": "Criterion 2: a filibuster came to ______ the government. (one word)", "accept": ["fight", "attack", "overthrow"], "explain": "Filibusters came prepared to fight the Spanish government, usually with a small private army."}, {"topic": "The four criteria", "q": "Criterion 3: a filibuster wanted...", "choices": ["land and power", "religious freedom", "to learn Spanish", "to trade peacefully"], "answer": 0, "explain": "They wanted to grab land and power in Texas for themselves."}, {"topic": "The four criteria", "q": "Criterion 4: a filibuster wanted personal gain, meaning they wanted to...", "choices": ["get rich", "help the Spanish king", "spread their religion", "protect Native Americans"], "answer": 0, "explain": "Personal gain means wealth: filibusters hoped to get rich."}, {"topic": "The four criteria", "q": "How many of the four criteria must a person meet to be a filibuster?", "choices": ["All four", "Any one", "Any two", "Just 'foreigner'"], "answer": 0, "explain": "On the worksheet, only people with a check in every column are filibusters. Missing even one (like not fighting the government) makes it a NO."}, {"topic": "The people", "q": "Philip Nolan: filibuster or not?", "choices": ["Filibuster", "Not a filibuster"], "answer": 0, "explain": "Nolan was an American horse trader who led armed men into Texas without permission. He meets all four criteria. Spanish troops killed him in 1801."}, {"topic": "The people", "q": "Moses Austin: filibuster or not?", "choices": ["Filibuster", "Not a filibuster"], "answer": 1, "explain": "Austin was a foreigner who wanted land and wealth, but he asked Spain for permission to bring settlers (1821). He was not prepared to fight the government, so he is a NO.", "review": "Moses Austin asked permission, did not fight"}, {"topic": "The people", "q": "Peter Ellis Bean: filibuster or not?", "choices": ["Filibuster", "Not a filibuster"], "answer": 0, "explain": "Bean was an American who rode with Philip Nolan. He was captured by the Spanish when Nolan was killed. Foreigner, fought, wanted land and gain: all four checks."}, {"topic": "The people", "q": "Baron de Bastrop: filibuster or not?", "choices": ["Filibuster", "Not a filibuster"], "answer": 1, "explain": "Bastrop was a foreigner who wanted land and money, but he worked with the Spanish government (he helped Austin get permission). No fighting, so NO.", "review": "Baron de Bastrop helped, did not fight"}, {"topic": "The people", "q": "Father Miguel Hidalgo: filibuster or not?", "choices": ["Filibuster", "Not a filibuster"], "answer": 1, "explain": "Hidalgo did fight the government (he started Mexico's war for independence in 1810), but he was born in New Spain, not a foreigner. So he is a NO.", "review": "Father Hidalgo was not a foreigner"}, {"topic": "The people", "q": "James Long: filibuster or not?", "choices": ["Filibuster", "Not a filibuster"], "answer": 0, "explain": "Long was an American who led armed expeditions into Texas (starting 1819) and declared Texas independent. All four checks."}, {"topic": "The people", "q": "Jean Lafitte: filibuster or not?", "choices": ["Filibuster", "Not a filibuster"], "answer": 0, "explain": "Lafitte was a French-born pirate based on Galveston Island who wanted riches and helped filibusters like James Long. Your worksheet counts him as a filibuster."}, {"topic": "Why the answer", "q": "Father Hidalgo fought the Spanish government. What criterion is he MISSING?", "choices": ["He was not a foreigner", "He did not fight", "He did not want power", "He was too old"], "answer": 0, "explain": "Fighting is not enough. Hidalgo was from New Spain (Mexico), so he fails the 'foreigner' test."}, {"topic": "Why the answer", "q": "Moses Austin and Baron de Bastrop are both NO for the same reason. What is it?", "choices": ["They were not prepared to fight the government", "They were Spanish", "They did not want land", "They never came to Texas"], "answer": 0, "explain": "Both were foreigners who wanted land and gain, but they worked with Spain instead of fighting it."}, {"topic": "Why the answer", "q": "Who was Philip Nolan's companion that was captured by the Spanish?", "choices": ["Peter Ellis Bean", "James Long", "Moses Austin", "Jean Lafitte"], "answer": 0, "explain": "Peter Ellis Bean rode with Nolan in 1801 and spent years as a Spanish prisoner."}, {"topic": "Why the answer", "q": "Which filibuster was a pirate on Galveston Island?", "choices": ["Jean Lafitte", "Philip Nolan", "Peter Ellis Bean", "Father Hidalgo"], "answer": 0, "explain": "Jean Lafitte ran a pirate base at Galveston."}, {"topic": "Why the answer", "type": "type", "q": "Name one person on the worksheet who is a filibuster.", "accept": ["Philip Nolan", "Nolan", "Peter Ellis Bean", "Peter Bean", "Bean", "James Long", "Long", "Jean Lafitte", "Lafitte"], "explain": "The four filibusters on the sheet: Philip Nolan, Peter Ellis Bean, James Long and Jean Lafitte."}]};
+// ---------- state ----------
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const KEY='studywright:'+DECK.id;
+let S;
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+function norm(s){return String(s).toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()}
+function lev(a,b){const m=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=m[0];m[0]=i;for(let j=1;j<=b.length;j++){const t=m[j];m[j]=Math.min(m[j]+1,m[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=t}}return m[b.length]}
+function typedOk(q,v){const n=norm(v);if(!n)return false;return q.accept.some(a=>{const t=norm(a);return n===t||(t.length>4&&lev(n,t)<=Math.floor(t.length/5))})}
+function newRun(){S={queue:shuffle(DECK.questions.map((_,i)=>i)),mastered:new Set(),firstMiss:new Set(),seen:new Set(),xp:0,streak:0,best:0,answered:0,correct:0}}
+const app=document.getElementById('app');
+function hud(){const lvl=1+Math.floor(S.xp/100);const pct=100*S.mastered.size/DECK.questions.length;
+ return `<div class="hud"><span>Lv <b>${lvl}</b></span><span>XP <b>${S.xp}</b></span><span>Streak <b>${S.streak}</b>${S.streak>=3?' 🔥':''}</span><div class="bar" title="mastered"><i style="width:${pct}%"></i></div><span class="small">${S.mastered.size}/${DECK.questions.length} mastered</span></div>`}
+// ---------- screens ----------
+function title(){const rec=store.get(KEY);
+ app.innerHTML=`<div class="card"><div class="topic">${DECK.subject}</div><h1>${DECK.title}</h1><p>${DECK.intro}</p>
+ <p class="small">Every right answer stacks a block on your tower. Streaks of 3+ make gold blocks and double XP. Miss one and it comes back later until you get it. Finish when every question is mastered.</p>
+ ${rec?`<p class="small">Best so far: ${rec.score}% right on first try, top streak ${rec.best}.</p>`:''}
+ <div class="row"><button class="go" id="start">Start quest ▶</button></div></div>`;
+ document.getElementById('start').onclick=()=>{newRun();World.reset();next()}}
+function next(){if(!S.queue.length)return finish();const qi=S.queue[0];const q=DECK.questions[qi];
+ let body='';
+ if(q.type==='type'){body=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer"><div class="row"><button class="go" id="check">Check</button></div>`}
+ else{const order=shuffle(q.choices.map((c,i)=>i));body=`<div class="choices">${order.map((i,k)=>`<button data-i="${i}">${String.fromCharCode(65+k)}. ${q.choices[i]}</button>`).join('')}</div>`}
+ app.innerHTML=hud()+`<div class="card" id="card"><div class="topic">${q.topic||''}</div><h2>${q.q}</h2>${body}<div class="fb" id="fb"></div></div>`;
+ if(q.type==='type'){const inp=document.getElementById('ans');inp.focus();const go=()=>answer(qi,typedOk(q,inp.value),inp.value);document.getElementById('check').onclick=go;inp.onkeydown=e=>{if(e.key==='Enter')go()}}
+ else app.querySelectorAll('.choices button').forEach(b=>b.onclick=()=>{const pick=+b.dataset.i;app.querySelectorAll('.choices button').forEach(x=>{x.disabled=true;if(+x.dataset.i===q.answer)x.classList.add('right')});if(pick!==q.answer)b.classList.add('wrong');answer(qi,pick===q.answer,q.choices[pick])})}
+function answer(qi,ok,given){const q=DECK.questions[qi];S.queue.shift();S.answered++;
+ const first=!S.seen.has(qi);S.seen.add(qi);
+ if(ok){S.correct++;S.streak++;S.best=Math.max(S.best,S.streak);S.mastered.add(qi);const gain=(S.streak>=3?20:10);const before=Math.floor(S.xp/100);S.xp+=gain;
+  World.add(S.streak>=3);Sound.ok();popup('+'+gain+' XP'+(S.streak>=3?' 🔥':''));if(Math.floor(S.xp/100)>before){setTimeout(()=>popup('LEVEL UP!'),500);World.burst();Sound.lvl()}}
+ else{if(first)S.firstMiss.add(qi);S.streak=0;S.queue.splice(Math.min(3,S.queue.length),0,qi);World.wobble();Sound.no();document.getElementById('card').classList.add('shake')}
+ const right=q.type==='type'?q.accept[0]:q.choices[q.answer];
+ const fb=document.getElementById('fb');fb.className='fb '+(ok?'ok':'no');
+ fb.innerHTML=`<strong>${ok?'Correct!':'Not quite.'}</strong> ${ok?'':`The answer is <b>${right}</b>.`}<p>${q.explain}</p>${ok?'':'<p class="small">This one will come back in a few questions.</p>'}<div class="row"><button class="go" id="nx">Next ▶ <span class="small">(Enter)</span></button></div>`;
+ const inp=document.getElementById('ans');if(inp)inp.disabled=true;const c=document.getElementById('check');if(c)c.disabled=true;
+ const nx=document.getElementById('nx');nx.focus();nx.onclick=next;
+ app.querySelector('.hud').outerHTML=hud()}
+function finish(){const n=DECK.questions.length;const score=Math.round(100*(n-S.firstMiss.size)/n);const stars=score>=90?3:score>=70?2:1;
+ const rec=store.get(KEY);if(!rec||score>rec.score)store.set(KEY,{score,best:S.best});
+ const topics={};S.firstMiss.forEach(i=>{const t=DECK.questions[i].topic||'Other';(topics[t]=topics[t]||[]).push(DECK.questions[i])});
+ World.burst();Sound.lvl();
+ app.innerHTML=hud()+`<div class="card"><h1>Quest complete! ${'⭐'.repeat(stars)}</h1><p><b>${score}%</b> right on the first try. Top streak: <b>${S.best}</b>. Tower height: <b>${S.correct}</b> blocks.</p>
+ ${S.firstMiss.size?`<h2>Review these before the test</h2><ul class="rev">${Object.entries(topics).map(([t,qs])=>`<li><b>${t}</b>: ${qs.map(q=>(q.review||q.q)+' → <b>'+(q.type==='type'?q.accept[0]:q.choices[q.answer])+'</b>').join('<br>')}</li>`).join('')}</ul>`:'<p>Perfect run. You are ready.</p>'}
+ <div class="row"><button class="go" id="again">Play again ↻</button></div></div>`;
+ document.getElementById('again').onclick=()=>{newRun();World.reset();next()}}
+function popup(t){const d=document.createElement('div');d.className='pop';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1000)}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'){const nx=document.getElementById('nx');if(nx&&document.activeElement!==nx){e.preventDefault();nx.click()}}
+ const k=e.key.toUpperCase().charCodeAt(0)-65;const bs=app.querySelectorAll('.choices button');if(e.key.length===1&&k>=0&&k<bs.length&&!bs[k].disabled)bs[k].click()});
+// ---------- sound ----------
+const Sound=(()=>{let ctx;function tone(f,d,t='sine',when=0){try{ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(.12,ctx.currentTime+when);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+when+d);o.connect(g).connect(ctx.destination);o.start(ctx.currentTime+when);o.stop(ctx.currentTime+when+d)}catch(e){}}
+ return{ok(){tone(660,.12);tone(990,.18,'sine',.08)},no(){tone(180,.25,'square')},lvl(){[523,659,784,1046].forEach((f,i)=>tone(f,.2,'triangle',i*.09))}}})();
+// ---------- 3D tower (three.js; page still works without it) ----------
+const World=(()=>{const none={add(){},wobble(){},burst(){},reset(){}};if(!window.THREE)return none;
+ try{const cv=document.getElementById('scene');const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});r.setPixelRatio(Math.min(2,devicePixelRatio));
+ const sc=new THREE.Scene();sc.fog=new THREE.Fog(0x0d1020,14,40);const cam=new THREE.PerspectiveCamera(50,1,.1,100);
+ sc.add(new THREE.HemisphereLight(0xbcd2ff,0x202040,.9));const dl=new THREE.DirectionalLight(0xffffff,.8);dl.position.set(5,10,7);sc.add(dl);
+ const ground=new THREE.Mesh(new THREE.CylinderGeometry(4,4.4,.4,40),new THREE.MeshStandardMaterial({color:0x2a2f55,roughness:.8}));ground.position.y=-.2;sc.add(ground);
+ const tower=new THREE.Group();sc.add(tower);const parts=new THREE.Group();sc.add(parts);
+ const stars=new THREE.Points(new THREE.BufferGeometry().setAttribute('position',new THREE.Float32BufferAttribute(Array.from({length:900},()=>(Math.random()-.5)*80),3)),new THREE.PointsMaterial({color:0xffffff,size:.08}));sc.add(stars);
+ const accent=new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#7aa2ff');
+ let wob=0,camY=3;
+ function size(){const w=innerWidth,h=innerHeight;r.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}addEventListener('resize',size);size();
+ function add(gold){const n=tower.children.length;const m=new THREE.Mesh(new THREE.BoxGeometry(1.6,.5,1.6),new THREE.MeshStandardMaterial({color:gold?0xffd166:accent.clone().offsetHSL((n*.03)%1,0,0),emissive:gold?0x664400:0x000000,metalness:.3,roughness:.4}));
+  m.position.set((Math.random()-.5)*.25,n*.52+6,(Math.random()-.5)*.25);m.rotation.y=n*.35;m.userData.ty=n*.52+.25;tower.add(m)}
+ function burst(){const top=tower.children.length*.52;for(let i=0;i<60;i++){const p=new THREE.Mesh(new THREE.SphereGeometry(.07,6,6),new THREE.MeshBasicMaterial({color:new THREE.Color().setHSL(Math.random(),1,.6)}));p.position.set(0,top,0);p.userData.v=new THREE.Vector3((Math.random()-.5)*.3,Math.random()*.3,(Math.random()-.5)*.3);p.userData.life=80;parts.add(p)}}
+ function reset(){tower.clear();parts.clear()}
+ let t=0;(function loop(){requestAnimationFrame(loop);t+=.005;
+  tower.children.forEach(m=>{m.position.y+=(m.userData.ty-m.position.y)*.15});
+  tower.rotation.z=Math.sin(wob*20)*wob*.15;wob*=.92;
+  parts.children.slice().forEach(p=>{p.position.add(p.userData.v);p.userData.v.y-=.006;if(--p.userData.life<=0)parts.remove(p)});
+  const h=tower.children.length*.52;camY+=((h+3)-camY)*.05;cam.position.set(Math.sin(t)*10,camY+2,Math.cos(t)*10);cam.lookAt(0,Math.max(1,h-1),0);stars.rotation.y=t*.2;r.render(sc,cam)})();
+ return{add,wobble(){wob=1},burst,reset}}catch(e){return none}})();
+title();
+</script>
+</body>
+</html>
