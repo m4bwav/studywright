@@ -1,28 +1,565 @@
 {
   "id": "texas-filibusters",
-  "title": "Filibuster Hunt",
+  "title": "Texas Test Prep",
   "subject": "Texas History",
   "accent": "#ff9f43",
-  "intro": "Spanish Texas, around 1800 to 1821. The Spanish government is on the lookout for filibusters. Can you tell who was one and who was not?",
+  "intro": "Spanish Texas, 1754 to 1821: the Seven Years War, the Louisiana Purchase, Father Hidalgo, and the filibusters the Spanish were watching for.",
   "questions": [
-    {"topic": "What is a filibuster?", "q": "In Texas history, a filibuster was someone who...", "choices": ["came from another country and tried to take land and power from the government by force", "gave very long speeches to delay a vote", "was a Spanish soldier guarding the border", "was a priest who started missions"], "answer": 0, "explain": "In Spanish Texas a filibuster was a foreign adventurer who came to fight the government for land, power and personal gain. (The long-speech meaning in Congress came later.)", "review": "the four filibuster criteria"},
-    {"topic": "What is a filibuster?", "type": "type", "q": "Which government decided who counted as a filibuster in Texas? (one word)", "accept": ["Spanish", "Spain", "the Spanish"], "explain": "Texas belonged to Spain until 1821, so it was the Spanish government that called these intruders filibusters."},
-    {"topic": "The four criteria", "q": "Criterion 1: a filibuster was from a ______ country (not Spanish).", "choices": ["foreign", "neighboring Spanish", "native", "friendly"], "answer": 0, "explain": "A filibuster was a foreigner. Someone born in Spain or New Spain could rebel, but would not be called a filibuster."},
-    {"topic": "The four criteria", "type": "type", "q": "Criterion 2: a filibuster came to ______ the government. (one word)", "accept": ["fight", "attack", "overthrow"], "explain": "Filibusters came prepared to fight the Spanish government, usually with a small private army."},
-    {"topic": "The four criteria", "q": "Criterion 3: a filibuster wanted...", "choices": ["land and power", "religious freedom", "to learn Spanish", "to trade peacefully"], "answer": 0, "explain": "They wanted to grab land and power in Texas for themselves."},
-    {"topic": "The four criteria", "q": "Criterion 4: a filibuster wanted personal gain, meaning they wanted to...", "choices": ["get rich", "help the Spanish king", "spread their religion", "protect Native Americans"], "answer": 0, "explain": "Personal gain means wealth: filibusters hoped to get rich."},
-    {"topic": "The four criteria", "q": "How many of the four criteria must a person meet to be a filibuster?", "choices": ["All four", "Any one", "Any two", "Just 'foreigner'"], "answer": 0, "explain": "On the worksheet, only people with a check in every column are filibusters. Missing even one (like not fighting the government) makes it a NO."},
-    {"topic": "The people", "q": "Philip Nolan: filibuster or not?", "choices": ["Filibuster", "Not a filibuster"], "answer": 0, "explain": "Nolan was an American horse trader who led armed men into Texas without permission. He meets all four criteria. Spanish troops killed him in 1801."},
-    {"topic": "The people", "q": "Moses Austin: filibuster or not?", "choices": ["Filibuster", "Not a filibuster"], "answer": 1, "explain": "Austin was a foreigner who wanted land and wealth, but he asked Spain for permission to bring settlers (1821). He was not prepared to fight the government, so he is a NO.", "review": "Moses Austin asked permission, did not fight"},
-    {"topic": "The people", "q": "Peter Ellis Bean: filibuster or not?", "choices": ["Filibuster", "Not a filibuster"], "answer": 0, "explain": "Bean was an American who rode with Philip Nolan. He was captured by the Spanish when Nolan was killed. Foreigner, fought, wanted land and gain: all four checks."},
-    {"topic": "The people", "q": "Baron de Bastrop: filibuster or not?", "choices": ["Filibuster", "Not a filibuster"], "answer": 1, "explain": "Bastrop was a foreigner who wanted land and money, but he worked with the Spanish government (he helped Austin get permission). No fighting, so NO.", "review": "Baron de Bastrop helped, did not fight"},
-    {"topic": "The people", "q": "Father Miguel Hidalgo: filibuster or not?", "choices": ["Filibuster", "Not a filibuster"], "answer": 1, "explain": "Hidalgo did fight the government (he started Mexico's war for independence in 1810), but he was born in New Spain, not a foreigner. So he is a NO.", "review": "Father Hidalgo was not a foreigner"},
-    {"topic": "The people", "q": "James Long: filibuster or not?", "choices": ["Filibuster", "Not a filibuster"], "answer": 0, "explain": "Long was an American who led armed expeditions into Texas (starting 1819) and declared Texas independent. All four checks."},
-    {"topic": "The people", "q": "Jean Lafitte: filibuster or not?", "choices": ["Filibuster", "Not a filibuster"], "answer": 0, "explain": "Lafitte was a French-born pirate based on Galveston Island who wanted riches and helped filibusters like James Long. Your worksheet counts him as a filibuster."},
-    {"topic": "Why the answer", "q": "Father Hidalgo fought the Spanish government. What criterion is he MISSING?", "choices": ["He was not a foreigner", "He did not fight", "He did not want power", "He was too old"], "answer": 0, "explain": "Fighting is not enough. Hidalgo was from New Spain (Mexico), so he fails the 'foreigner' test."},
-    {"topic": "Why the answer", "q": "Moses Austin and Baron de Bastrop are both NO for the same reason. What is it?", "choices": ["They were not prepared to fight the government", "They were Spanish", "They did not want land", "They never came to Texas"], "answer": 0, "explain": "Both were foreigners who wanted land and gain, but they worked with Spain instead of fighting it."},
-    {"topic": "Why the answer", "q": "Who was Philip Nolan's companion that was captured by the Spanish?", "choices": ["Peter Ellis Bean", "James Long", "Moses Austin", "Jean Lafitte"], "answer": 0, "explain": "Peter Ellis Bean rode with Nolan in 1801 and spent years as a Spanish prisoner."},
-    {"topic": "Why the answer", "q": "Which filibuster was a pirate on Galveston Island?", "choices": ["Jean Lafitte", "Philip Nolan", "Peter Ellis Bean", "Father Hidalgo"], "answer": 0, "explain": "Jean Lafitte ran a pirate base at Galveston."},
-    {"topic": "Why the answer", "type": "type", "q": "Name one person on the worksheet who is a filibuster.", "accept": ["Philip Nolan", "Nolan", "Peter Ellis Bean", "Peter Bean", "Bean", "James Long", "Long", "Jean Lafitte", "Lafitte"], "explain": "The four filibusters on the sheet: Philip Nolan, Peter Ellis Bean, James Long and Jean Lafitte."}
+    {
+      "topic": "Seven Years War",
+      "q": "The Seven Years War lasted from...",
+      "choices": [
+        "1754 to 1763",
+        "1776 to 1783",
+        "1803 to 1811",
+        "1810 to 1821"
+      ],
+      "answer": 0,
+      "explain": "It ran 1754 to 1763."
+    },
+    {
+      "topic": "Seven Years War",
+      "type": "type",
+      "q": "In America the Seven Years War was known as the French and ______ War. (one word)",
+      "accept": [
+        "Indian",
+        "Indians"
+      ],
+      "explain": "Americans called it the French and Indian War."
+    },
+    {
+      "topic": "Seven Years War",
+      "q": "After the war, Great Britain gained...",
+      "choices": [
+        "Canada and all land east of the Mississippi",
+        "New Orleans and land west of the Mississippi",
+        "Mexico",
+        "Texas"
+      ],
+      "answer": 0,
+      "explain": "Britain took Canada plus everything east of the Mississippi River.",
+      "review": "Britain = Canada + east"
+    },
+    {
+      "topic": "Seven Years War",
+      "q": "After the war, Spain got...",
+      "choices": [
+        "New Orleans and French land west of the Mississippi",
+        "Canada and land east of the Mississippi",
+        "Florida and Canada",
+        "nothing"
+      ],
+      "answer": 0,
+      "explain": "Spain got New Orleans and the French land west of the Mississippi (Louisiana).",
+      "review": "Spain = New Orleans + west"
+    },
+    {
+      "topic": "Seven Years War",
+      "q": "After the war, France was...",
+      "choices": [
+        "no longer a colonial power in the Americas",
+        "the strongest power in the Americas",
+        "in charge of Texas",
+        "in charge of Canada"
+      ],
+      "answer": 0,
+      "explain": "France lost its land in North America, so it was no longer a colonial power there."
+    },
+    {
+      "topic": "Seven Years War",
+      "q": "Why did losing France as a neighbor change things for Spanish Texas?",
+      "choices": [
+        "Louisiana was now Spain's, so Texas no longer bordered France",
+        "France attacked Texas",
+        "Texas became British",
+        "The missions doubled"
+      ],
+      "answer": 0,
+      "explain": "With Louisiana in Spanish hands, Texas was no longer a border against France, so Spain rethought how to defend it."
+    },
+    {
+      "topic": "Rubí and Texas",
+      "q": "Marqués de Rubí said Spain did not have the ______ or ______ to defend all its claims in Texas.",
+      "choices": [
+        "wealth, power",
+        "priests, horses",
+        "maps, roads",
+        "ships, ports"
+      ],
+      "answer": 0,
+      "explain": "Rubí inspected the frontier and decided Spain lacked the wealth or power to hold it all.",
+      "review": "Rubí: no wealth or power"
+    },
+    {
+      "topic": "Rubí and Texas",
+      "q": "Rubí suggested closing all missions EXCEPT those in...",
+      "choices": [
+        "San Antonio and La Bahía (Goliad)",
+        "Nacogdoches and Galveston",
+        "New Orleans and Mexico City",
+        "El Paso and Austin"
+      ],
+      "answer": 0,
+      "explain": "Keep San Antonio and La Bahía, close the rest (the East Texas missions were abandoned and settlers moved to San Antonio).",
+      "review": "Rubí kept San Antonio + La Bahía"
+    },
+    {
+      "topic": "Rubí and Texas",
+      "type": "type",
+      "q": "Rubí kept the missions in La Bahía and in ______. (two words)",
+      "accept": [
+        "San Antonio"
+      ],
+      "explain": "San Antonio, which became the capital of Spanish Texas."
+    },
+    {
+      "topic": "In America",
+      "q": "In what year did the 13 colonies declare independence from Great Britain?",
+      "choices": [
+        "1776",
+        "1763",
+        "1803",
+        "1821"
+      ],
+      "answer": 0,
+      "explain": "1776: the Declaration of Independence.",
+      "review": "1776 = 13 colonies vs Great Britain"
+    },
+    {
+      "topic": "In America",
+      "q": "In 1776 the 13 colonies fought for independence from...",
+      "choices": [
+        "Great Britain",
+        "Spain",
+        "France",
+        "Mexico"
+      ],
+      "answer": 0,
+      "explain": "They fought Great Britain in the American Revolution."
+    },
+    {
+      "topic": "In America",
+      "type": "type",
+      "q": "In what year was the Louisiana Purchase? (number)",
+      "accept": [
+        "1803"
+      ],
+      "explain": "1803: the United States bought Louisiana from France (Spain had given it back to France in 1800)."
+    },
+    {
+      "topic": "In America",
+      "q": "The Louisiana Purchase did what to the size of the United States?",
+      "choices": [
+        "Doubled it",
+        "Cut it in half",
+        "Made it ten times bigger",
+        "Nothing"
+      ],
+      "answer": 0,
+      "explain": "It doubled the size of the U.S., for about $15 million.",
+      "review": "Louisiana Purchase doubled the U.S."
+    },
+    {
+      "topic": "In America",
+      "q": "About how much did the U.S. pay for Louisiana?",
+      "choices": [
+        "$15 million",
+        "$15 thousand",
+        "$1 billion",
+        "$500"
+      ],
+      "answer": 0,
+      "explain": "About $15 million, roughly 3 cents an acre."
+    },
+    {
+      "topic": "In America",
+      "q": "Why was New Orleans so important to the U.S.?",
+      "choices": [
+        "A free port for trade down the Mississippi",
+        "It had gold mines",
+        "It was the capital of Texas",
+        "It had the most missions"
+      ],
+      "answer": 0,
+      "explain": "Farmers shipped goods down the Mississippi to the port of New Orleans; owning it kept trade free."
+    },
+    {
+      "topic": "In America",
+      "q": "Which expedition explored the Louisiana Purchase?",
+      "choices": [
+        "Lewis and Clark",
+        "Nolan and Bean",
+        "Hidalgo and Allende",
+        "Austin and Barr"
+      ],
+      "answer": 0,
+      "explain": "Lewis and Clark set out in 1804 to explore the new land."
+    },
+    {
+      "topic": "In America",
+      "q": "Why did the Louisiana Purchase worry Spain about Texas?",
+      "choices": [
+        "The U.S. was now Texas's next-door neighbor",
+        "France was coming back",
+        "Texas was sold too",
+        "Mexico attacked"
+      ],
+      "answer": 0,
+      "explain": "Now Americans bordered Texas, and some, like filibusters, wanted it."
+    },
+    {
+      "topic": "Father Hidalgo",
+      "q": "Mexicans were becoming unhappy with...",
+      "choices": [
+        "Spanish rule",
+        "American rule",
+        "French rule",
+        "the missions closing"
+      ],
+      "answer": 0,
+      "explain": "People in New Spain were tired of Spanish rule."
+    },
+    {
+      "topic": "Father Hidalgo",
+      "q": "Father Miguel Hidalgo y Costilla was a...",
+      "choices": [
+        "Catholic priest",
+        "Spanish general",
+        "American trader",
+        "pirate"
+      ],
+      "answer": 0,
+      "explain": "Hidalgo was a Catholic priest in the town of Dolores.",
+      "review": "Hidalgo was a priest"
+    },
+    {
+      "topic": "Father Hidalgo",
+      "q": "Hidalgo's 1810 call to fight for independence is called the...",
+      "choices": [
+        "Grito de Dolores (Cry of Dolores)",
+        "Declaration of Independence",
+        "Louisiana Purchase",
+        "Treaty of Paris"
+      ],
+      "answer": 0,
+      "explain": "On September 16, 1810 he rang the church bell in Dolores and called people to rise up: the Grito de Dolores.",
+      "review": "Grito de Dolores, 1810"
+    },
+    {
+      "topic": "Father Hidalgo",
+      "type": "type",
+      "q": "In what year did Hidalgo call for independence? (number)",
+      "accept": [
+        "1810"
+      ],
+      "explain": "1810. Mexico celebrates it every September 16."
+    },
+    {
+      "topic": "Father Hidalgo",
+      "q": "Which was NOT one of the problems Hidalgo's army had?",
+      "choices": [
+        "Too many cannons",
+        "No military training",
+        "No equipment",
+        "Lack of discipline"
+      ],
+      "answer": 0,
+      "explain": "His army was mostly farmers and workers: no training, little equipment, little discipline."
+    },
+    {
+      "topic": "Father Hidalgo",
+      "q": "Name a problem with Hidalgo's army.",
+      "choices": [
+        "No military training",
+        "Too many soldiers in uniform",
+        "Too much money",
+        "Too many generals"
+      ],
+      "answer": 0,
+      "explain": "No training, no equipment and lack of discipline."
+    },
+    {
+      "topic": "Father Hidalgo",
+      "q": "What happened to Father Hidalgo in 1811?",
+      "choices": [
+        "He was captured and executed",
+        "He became king of Mexico",
+        "He moved to Texas",
+        "He won the war"
+      ],
+      "answer": 0,
+      "explain": "After defeats he fled north, was captured and executed in 1811.",
+      "review": "Hidalgo captured + executed 1811"
+    },
+    {
+      "topic": "Father Hidalgo",
+      "q": "In what year did Mexico finally win independence?",
+      "choices": [
+        "1821",
+        "1811",
+        "1810",
+        "1803"
+      ],
+      "answer": 0,
+      "explain": "1821: ten years after Hidalgo died, and Texas became part of Mexico.",
+      "review": "Mexican independence 1821"
+    },
+    {
+      "topic": "Father Hidalgo",
+      "q": "Hidalgo is known as the...",
+      "choices": [
+        "Father of the Nation (Mexico)",
+        "King of Texas",
+        "First filibuster",
+        "Founder of San Antonio"
+      ],
+      "answer": 0,
+      "explain": "Hidalgo's call inspired the whole movement, so he is called the Father of Mexican Independence."
+    },
+    {
+      "topic": "Put it in order",
+      "q": "Which came FIRST?",
+      "choices": [
+        "Seven Years War ends (1763)",
+        "13 colonies declare independence (1776)",
+        "Louisiana Purchase (1803)",
+        "Grito de Dolores (1810)"
+      ],
+      "answer": 0,
+      "explain": "1763, then 1776, 1803, 1810, 1811, 1821."
+    },
+    {
+      "topic": "Put it in order",
+      "q": "Which came LAST?",
+      "choices": [
+        "Mexico wins independence (1821)",
+        "Hidalgo executed (1811)",
+        "Grito de Dolores (1810)",
+        "Louisiana Purchase (1803)"
+      ],
+      "answer": 0,
+      "explain": "1821 is the end of Spanish Texas."
+    },
+    {
+      "topic": "What is a filibuster?",
+      "q": "In Texas history, a filibuster was someone who...",
+      "choices": [
+        "came from another country and tried to take land and power from the government by force",
+        "gave very long speeches to delay a vote",
+        "was a Spanish soldier guarding the border",
+        "was a priest who started missions"
+      ],
+      "answer": 0,
+      "explain": "In Spanish Texas a filibuster was a foreign adventurer who came to fight the government for land, power and personal gain. (The long-speech meaning in Congress came later.)",
+      "review": "the four filibuster criteria"
+    },
+    {
+      "topic": "What is a filibuster?",
+      "type": "type",
+      "q": "Which government decided who counted as a filibuster in Texas? (one word)",
+      "accept": [
+        "Spanish",
+        "Spain",
+        "the Spanish"
+      ],
+      "explain": "Texas belonged to Spain until 1821, so it was the Spanish government that called these intruders filibusters."
+    },
+    {
+      "topic": "The four criteria",
+      "q": "Criterion 1: a filibuster was from a ______ country (not Spanish).",
+      "choices": [
+        "foreign",
+        "neighboring Spanish",
+        "native",
+        "friendly"
+      ],
+      "answer": 0,
+      "explain": "A filibuster was a foreigner. Someone born in Spain or New Spain could rebel, but would not be called a filibuster."
+    },
+    {
+      "topic": "The four criteria",
+      "type": "type",
+      "q": "Criterion 2: a filibuster came to ______ the government. (one word)",
+      "accept": [
+        "fight",
+        "attack",
+        "overthrow"
+      ],
+      "explain": "Filibusters came prepared to fight the Spanish government, usually with a small private army."
+    },
+    {
+      "topic": "The four criteria",
+      "q": "Criterion 3: a filibuster wanted...",
+      "choices": [
+        "land and power",
+        "religious freedom",
+        "to learn Spanish",
+        "to trade peacefully"
+      ],
+      "answer": 0,
+      "explain": "They wanted to grab land and power in Texas for themselves."
+    },
+    {
+      "topic": "The four criteria",
+      "q": "Criterion 4: a filibuster wanted personal gain, meaning they wanted to...",
+      "choices": [
+        "get rich",
+        "help the Spanish king",
+        "spread their religion",
+        "protect Native Americans"
+      ],
+      "answer": 0,
+      "explain": "Personal gain means wealth: filibusters hoped to get rich."
+    },
+    {
+      "topic": "The four criteria",
+      "q": "How many of the four criteria must a person meet to be a filibuster?",
+      "choices": [
+        "All four",
+        "Any one",
+        "Any two",
+        "Just 'foreigner'"
+      ],
+      "answer": 0,
+      "explain": "On the worksheet, only people with a check in every column are filibusters. Missing even one (like not fighting the government) makes it a NO."
+    },
+    {
+      "topic": "The people",
+      "q": "Philip Nolan: filibuster or not?",
+      "choices": [
+        "Filibuster",
+        "Not a filibuster"
+      ],
+      "answer": 0,
+      "explain": "Nolan was an American horse trader who led armed men into Texas without permission. He meets all four criteria. Spanish troops killed him in 1801."
+    },
+    {
+      "topic": "The people",
+      "q": "Moses Austin: filibuster or not?",
+      "choices": [
+        "Filibuster",
+        "Not a filibuster"
+      ],
+      "answer": 1,
+      "explain": "Austin was a foreigner who wanted land and wealth, but he asked Spain for permission to bring settlers (1821). He was not prepared to fight the government, so he is a NO.",
+      "review": "Moses Austin asked permission, did not fight"
+    },
+    {
+      "topic": "The people",
+      "q": "Peter Ellis Bean: filibuster or not?",
+      "choices": [
+        "Filibuster",
+        "Not a filibuster"
+      ],
+      "answer": 0,
+      "explain": "Bean was an American who rode with Philip Nolan. He was captured by the Spanish when Nolan was killed. Foreigner, fought, wanted land and gain: all four checks."
+    },
+    {
+      "topic": "The people",
+      "q": "Barr: filibuster or not?",
+      "choices": [
+        "Filibuster",
+        "Not a filibuster"
+      ],
+      "answer": 1,
+      "explain": "Barr was a foreigner (an Irish-born trader in Nacogdoches) who wanted land and money, but he traded with Spain's permission instead of fighting it. No fighting, so NO.",
+      "review": "Barr helped, did not fight"
+    },
+    {
+      "topic": "The people",
+      "q": "Father Miguel Hidalgo: filibuster or not?",
+      "choices": [
+        "Filibuster",
+        "Not a filibuster"
+      ],
+      "answer": 1,
+      "explain": "Hidalgo did fight the government (he started Mexico's war for independence in 1810), but he was born in New Spain, not a foreigner. So he is a NO.",
+      "review": "Father Hidalgo was not a foreigner"
+    },
+    {
+      "topic": "The people",
+      "q": "James Long: filibuster or not?",
+      "choices": [
+        "Filibuster",
+        "Not a filibuster"
+      ],
+      "answer": 0,
+      "explain": "Long was an American who led armed expeditions into Texas (starting 1819) and declared Texas independent. All four checks."
+    },
+    {
+      "topic": "The people",
+      "q": "Jean Lafitte: filibuster or not?",
+      "choices": [
+        "Filibuster",
+        "Not a filibuster"
+      ],
+      "answer": 0,
+      "explain": "Lafitte was a French-born pirate based on Galveston Island who wanted riches and helped filibusters like James Long. Your worksheet counts him as a filibuster."
+    },
+    {
+      "topic": "Why the answer",
+      "q": "Father Hidalgo fought the Spanish government. What criterion is he MISSING?",
+      "choices": [
+        "He was not a foreigner",
+        "He did not fight",
+        "He did not want power",
+        "He was too old"
+      ],
+      "answer": 0,
+      "explain": "Fighting is not enough. Hidalgo was from New Spain (Mexico), so he fails the 'foreigner' test."
+    },
+    {
+      "topic": "Why the answer",
+      "q": "Moses Austin and Barr are both NO for the same reason. What is it?",
+      "choices": [
+        "They were not prepared to fight the government",
+        "They were Spanish",
+        "They did not want land",
+        "They never came to Texas"
+      ],
+      "answer": 0,
+      "explain": "Both were foreigners who wanted land and gain, but they worked with Spain instead of fighting it."
+    },
+    {
+      "topic": "Why the answer",
+      "q": "Who was Philip Nolan's companion that was captured by the Spanish?",
+      "choices": [
+        "Peter Ellis Bean",
+        "James Long",
+        "Moses Austin",
+        "Jean Lafitte"
+      ],
+      "answer": 0,
+      "explain": "Peter Ellis Bean rode with Nolan in 1801 and spent years as a Spanish prisoner."
+    },
+    {
+      "topic": "Why the answer",
+      "q": "Which filibuster was a pirate on Galveston Island?",
+      "choices": [
+        "Jean Lafitte",
+        "Philip Nolan",
+        "Peter Ellis Bean",
+        "Father Hidalgo"
+      ],
+      "answer": 0,
+      "explain": "Jean Lafitte ran a pirate base at Galveston."
+    },
+    {
+      "topic": "Why the answer",
+      "type": "type",
+      "q": "Name one person on the worksheet who is a filibuster.",
+      "accept": [
+        "Philip Nolan",
+        "Nolan",
+        "Peter Ellis Bean",
+        "Peter Bean",
+        "Bean",
+        "James Long",
+        "Long",
+        "Jean Lafitte",
+        "Lafitte"
+      ],
+      "explain": "The four filibusters on the sheet: Philip Nolan, Peter Ellis Bean, James Long and Jean Lafitte."
+    }
   ]
 }
