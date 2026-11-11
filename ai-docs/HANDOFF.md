@@ -8,10 +8,12 @@ Banner merged 2026-11-10 (PR #1, seed 2313760545); Discussions on. Social previe
 
 0.4.0 (2026-11-10, session 5): realms (subject worlds, challenge text per question, 3D hero + obstacles), hero picker on Start quest; Texas game rebuilt for the next test. Biology test is over (Mark).
 
-0.5.0 (2026-11-10, session 6): day-2 warm-up (last run's misses first) and read-aloud button; games rebuilt; not released or version-bumped in plugin.json yet.
+0.5.0 (2026-11-10, session 6): day-2 warm-up (last run's misses first) and read-aloud button.
+
+Session 7: boss round (timed pass over first-try misses) merged; games rebuilt. Plugin.json not bumped or released since 0.2.0.
 
 Next:
 0. When the Texas game has been played: run `sw.py records`, read records/INDEX.md, report shaky ideas; consider per-question `scene` text for Texas.
-1. Build ideas in skills/studywright/references/learning-design.md ("Ideas not built yet"), next: boss round, then two-player hot-seat; bump plugin version and tag a release once a batch is in.
+1. Build ideas in skills/studywright/references/learning-design.md ("Ideas not built yet"), next: two-player hot-seat; bump plugin version and tag a release once a batch is in.
 2. First everscout scan of beat learning-games; fold findings into RESEARCH.md.
 3. evergreen-test evals for the skill (trigger + build case).

@@ -29,3 +29,7 @@ Mark: biology test done; update Texas game to latest engine; questions should sh
 ## 2026-11-10 session 6
 - Texas game not played yet (sw.py records: nothing new).
 - Engine 0.5.0: day-2 warm-up (per-deck `miss` list + `last` local date in the deck key; next run queues misses first, title shows a warm-up line) and read-aloud button (speechSynthesis, reads the visible choices in shuffled order). All three games rebuilt. Scripted play-test in Chrome on 127.0.0.1:8791: 2 misses saved and queued first, warm-up text shown, button present, no errors; test hero and keys removed.
+
+## 2026-11-10 session 7
+- Texas game still not played (sw.py records: nothing new).
+- Engine: boss round (timed pass over first-try misses after the main run; bonus XP; `boss` field in the record; skip button). Games rebuilt. Scripted Chrome play-test on 127.0.0.1:8791: intro, timer bar, timeout counts as a miss, finish screen boss line, record field; no JS errors; test hero removed (localStorage restored).

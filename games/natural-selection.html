@@ -33,6 +33,8 @@ input[type=text]{font:inherit;width:100%;padding:12px;border-radius:12px;border:
 .row>button{flex:1}
 .pop{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);font-size:34px;font-weight:800;color:var(--gold);text-shadow:0 2px 12px #000;pointer-events:none;z-index:5;animation:pop 1s forwards}
 @keyframes pop{0%{opacity:0;transform:translate(-50%,-20%) scale(.6)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-120%) scale(1)}}
+.timer i{background:linear-gradient(90deg,var(--bad),var(--gold));transition:width .25s linear}
+.boss{border:2px solid var(--bad)}
 .shake{animation:shake .35s}
 @keyframes shake{25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-4px)}}
 ul.rev{padding-left:20px} ul.rev li{margin:6px 0}
@@ -110,7 +112,7 @@ const REALM=REALMS[RID]||REALMS.quest;
 const fill=(x,h,t)=>x.replace(/\{h\}/g,'<b>'+esc(h)+'</b>').replace(/\{t\}/g,esc(t||'this'));
 function chal(qi){const q=DECK.questions[qi];if(q.scene)return[q.scene,q.win||REALM.c[0][1],q.lose||REALM.c[0][2]];return REALM.c[(qi*7+3)%REALM.c.length]}
 // ---------- run ----------
-function newRun(){const rec=store.get(KEY);const miss=(rec&&rec.miss||[]).filter(i=>i<DECK.questions.length);const rest=DECK.questions.map((_,i)=>i).filter(i=>!miss.includes(i));S={warm:miss.length,queue:shuffle(miss).concat(shuffle(rest)),mastered:new Set(),firstMiss:new Set(),seen:new Set(),xp:0,streak:0,best:0,answered:0,correct:0,log:{},keen:false,wind:false,started:new Date().toISOString()}}
+function newRun(){const rec=store.get(KEY);const miss=(rec&&rec.miss||[]).filter(i=>i<DECK.questions.length);const rest=DECK.questions.map((_,i)=>i).filter(i=>!miss.includes(i));S={warm:miss.length,queue:shuffle(miss).concat(shuffle(rest)),mastered:new Set(),firstMiss:new Set(),seen:new Set(),xp:0,streak:0,best:0,answered:0,correct:0,log:{},keen:false,wind:false,boss:null,started:new Date().toISOString()}}
 const app=document.getElementById('app');
 function hud(){const h=H.cur();const pct=100*S.mastered.size/DECK.questions.length;const L=heroLvl(h);const lo=L>1?need(L-1):0;
  return `<div class="hud"><span>${CLASSES[h.cls].icon} <b>${esc(h.name)}</b></span><span>Lv <b>${L}</b> <span class="small">(${h.xp-lo}/${need(L)-lo})</span></span><span>${esc(STAT)} <b>${area(h,STAT).lvl}</b></span><span>Streak <b>${S.streak}</b>${S.streak>=goldAt()?' 🔥':''}</span><div class="bar" title="mastered"><i style="width:${pct}%"></i></div><span class="small">${S.mastered.size}/${DECK.questions.length} mastered</span></div>`}
@@ -150,27 +152,32 @@ function sheet(){const h=H.cur();const recs=(store.get(RKEY)||[]).filter(r=>r.he
  <div class="row"><button id="dl">Download all records</button><button class="go" id="bk">Back</button></div></div>`;
  document.getElementById('bk').onclick=title;document.getElementById('dl').onclick=()=>download('studywright-all-records-'+stamp()+'.json',{studywright_records:1,heroes:H.all(),records:store.get(RKEY)||[]})}
 function importHero(){const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=()=>{const f=i.files[0];if(!f)return;f.text().then(t=>{try{const j=JSON.parse(t);const hs=j.hero?[j.hero]:(j.heroes&&j.heroes.list)||[];if(!hs.length)throw 0;hs.forEach(h=>H.put(h));if(j.records){const all=store.get(RKEY)||[];j.records.forEach(r=>{if(!all.some(x=>x.finished===r.finished))all.push(r)});store.set(RKEY,all)}title()}catch(e){popup('No hero in that file')}})};i.click()}
-function next(){const h=H.cur();if(h.picks>0)return levelUp();if(!S.queue.length)return finish();const qi=S.queue[0];const q=DECK.questions[qi];
+function bossIntro(){const n=S.firstMiss.size;app.innerHTML=hud()+`<div class="card boss"><h1>👹 Boss of ${esc(REALM.name)}!</h1><p>The boss knows the ${n} question${n>1?'s':''} that tripped you up. Beat each one before the timer runs out. Every hit is +15 bonus XP.</p><p class="small">Misses here do not change your score. They just go on the review list.</p><div class="row"><button class="go" id="fight">Fight! ⚔️</button><button id="skip">Skip the boss</button></div></div>`;
+ document.getElementById('fight').onclick=()=>{S.boss={max:n,hits:0,list:[...S.firstMiss]};S.queue=shuffle([...S.firstMiss]);Sound.lvl();next()};document.getElementById('skip').onclick=()=>{S.boss={max:n,hits:0,list:[...S.firstMiss],skipped:true};finish()}}
+const BOSS_SECS=q=>q.type==='type'?30:20;
+function next(){const h=H.cur();if(h.picks>0)return levelUp();if(!S.queue.length){if(S.boss)return finish();if(S.firstMiss.size)return bossIntro();return finish()}const qi=S.queue[0];const q=DECK.questions[qi];
  let body='';
  if(q.type==='type'){body=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer"><div class="row"><button class="go" id="check">Check</button></div>`}
  else{const order=shuffle(q.choices.map((c,i)=>i));body=`<div class="choices">${order.map((i,k)=>`<button data-i="${i}">${String.fromCharCode(65+k)}. ${q.choices[i]}</button>`).join('')}</div>${hasFeat(h,'keen')&&!S.keen&&q.choices.length>2?'<div class="row"><button id="keen">🔍 Keen Eye: strike a wrong choice (once per quest)</button></div>':''}`}
  app.innerHTML=hud()+`<div class="card" id="card"><div class="topic">${REALM.icon} ${esc(REALM.name)} · ${q.topic||''}</div><p class="scene">${fill(chal(qi)[0],h.name,q.topic)}</p><h2>${q.q}</h2>${body}${'speechSynthesis' in window?'<div class="row"><button id="say" title="Read aloud">🔊 Read it to me</button></div>':''}<div class="fb" id="fb"></div></div>`;
+ if(S.boss){const card=document.getElementById('card');card.classList.add('boss');card.insertAdjacentHTML('afterbegin',`<div class="topic">👹 Boss: ${S.boss.max-S.queue.length+1} of ${S.boss.max}</div><div class="bar timer"><i id="tm" style="width:100%"></i></div>`);const T=BOSS_SECS(q),t0=Date.now();
+  S.tick=setInterval(()=>{const left=1-(Date.now()-t0)/1000/T;const tm=document.getElementById('tm');if(tm)tm.style.width=Math.max(0,100*left)+'%';if(left<=0){app.querySelectorAll('.choices button').forEach(x=>{x.disabled=true;if(+x.dataset.i===q.answer)x.classList.add('right')});answer(qi,false,'(time ran out)')}},250)}
  const sb=document.getElementById('say');if(sb)sb.onclick=()=>say(q);
  const kb=document.getElementById('keen');if(kb)kb.onclick=()=>{S.keen=true;const w=shuffle([...app.querySelectorAll('.choices button')].filter(b=>+b.dataset.i!==q.answer))[0];w.disabled=true;w.classList.add('struck');kb.remove()};
  if(q.type==='type'){const inp=document.getElementById('ans');inp.focus();const go=()=>answer(qi,typedOk(q,inp.value),inp.value);document.getElementById('check').onclick=go;inp.onkeydown=e=>{if(e.key==='Enter'){e.stopPropagation();go()}}}
  else app.querySelectorAll('.choices button').forEach(b=>b.onclick=()=>{const pick=+b.dataset.i;app.querySelectorAll('.choices button').forEach(x=>{x.disabled=true;if(+x.dataset.i===q.answer)x.classList.add('right')});if(pick!==q.answer)b.classList.add('wrong');answer(qi,pick===q.answer,q.choices[pick])})}
-function answer(qi,ok,given){const q=DECK.questions[qi];const h=H.cur();S.queue.shift();S.answered++;
+function answer(qi,ok,given){clearInterval(S.tick);const q=DECK.questions[qi];const h=H.cur();S.queue.shift();S.answered++;const boss=!!S.boss;
  const first=!S.seen.has(qi);S.seen.add(qi);(S.log[qi]=S.log[qi]||[]).push({given:String(given),ok});
  if(ok){S.correct++;S.streak++;S.best=Math.max(S.best,S.streak);S.mastered.add(qi);const gold=S.streak>=goldAt();
   const a=h.areas[STAT]=h.areas[STAT]||{use:0,train:0};const before=area(h,STAT).lvl;a.use++;
-  let gain=(gold?20:10)+area(h,STAT).lvl;if(q.type==='type'&&hasFeat(h,'scribe'))gain+=5;if(!first&&hasFeat(h,'grit'))gain+=10;if(hasFeat(h,'sage:'+STAT))gain+=3;
+  let gain=(gold?20:10)+area(h,STAT).lvl;if(q.type==='type'&&hasFeat(h,'scribe'))gain+=5;if(!first&&hasFeat(h,'grit'))gain+=10;if(hasFeat(h,'sage:'+STAT))gain+=3;if(boss){gain+=15;S.boss.hits++}
   const L0=heroLvl(h);S.xp+=gain;h.xp+=gain;const L1=heroLvl(h);h.picks+=L1-L0;H.put(h);
   World.add(gold);Sound.ok();popup('+'+gain+' XP'+(gold?' 🔥':''));
   if(L1>L0){setTimeout(()=>popup('LEVEL UP! Lv '+L1),500);World.burst();Sound.lvl()}else if(area(h,STAT).lvl>before)setTimeout(()=>popup(STAT+' skill up!'),500)}
- else{if(first)S.firstMiss.add(qi);if(hasFeat(h,'wind')&&!S.wind)S.wind=true;else S.streak=0;S.queue.splice(Math.min(3,S.queue.length),0,qi);World.wobble();Sound.no();document.getElementById('card').classList.add('shake')}
+ else{if(first)S.firstMiss.add(qi);if(hasFeat(h,'wind')&&!S.wind)S.wind=true;else S.streak=0;if(!boss)S.queue.splice(Math.min(3,S.queue.length),0,qi);World.wobble();Sound.no();document.getElementById('card').classList.add('shake')}
  const right=q.type==='type'?q.accept[0]:q.choices[q.answer];
  const fb=document.getElementById('fb');fb.className='fb '+(ok?'ok':'no');
- fb.innerHTML=`<p class="scene">${fill(chal(qi)[ok?1:2],h.name,q.topic)}</p><strong>${ok?'Correct!':'Not quite.'}</strong> ${ok?'':`The answer is <b>${right}</b>.`}<p>${q.explain}</p>${ok?'':'<p class="small">This one will come back in a few questions.</p>'}<div class="row"><button class="go" id="nx">Next ▶ <span class="small">(Enter)</span></button></div>`;
+ fb.innerHTML=`<p class="scene">${boss?(ok?'👹 A clean hit! The boss staggers.':'👹 Too slow or off the mark. The boss shrugs it off.'):fill(chal(qi)[ok?1:2],h.name,q.topic)}</p><strong>${ok?'Correct!':'Not quite.'}</strong> ${ok?'':`The answer is <b>${right}</b>.`}<p>${q.explain}</p>${ok||boss?'':'<p class="small">This one will come back in a few questions.</p>'}<div class="row"><button class="go" id="nx">Next ▶ <span class="small">(Enter)</span></button></div>`;
  const inp=document.getElementById('ans');if(inp)inp.disabled=true;const c=document.getElementById('check');if(c)c.disabled=true;const kb=document.getElementById('keen');if(kb)kb.remove();
  const nx=document.getElementById('nx');nx.focus();nx.onclick=next;
  app.querySelector('.hud').outerHTML=hud()}
@@ -181,7 +188,7 @@ function levelUp(){const h=H.cur();const opts=[{k:'train',label:`+1 ${esc(STAT)}
 const stamp=()=>new Date().toISOString().slice(0,16).replace(/[:T]/g,'-');
 function download(name,obj){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,1)],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){}}
 function record(score){const h=H.cur();return{studywright_record:1,deck:DECK.id,title:DECK.title,subject:DECK.subject,area:STAT,follows:DECK.follows||null,started:S.started,finished:new Date().toISOString(),
- score_first_try:score,best_streak:S.best,answers:S.answered,questions_total:DECK.questions.length,run_xp:S.xp,
+ score_first_try:score,best_streak:S.best,answers:S.answered,questions_total:DECK.questions.length,run_xp:S.xp,boss:S.boss?{questions:S.boss.max,hits:S.boss.hits,skipped:!!S.boss.skipped}:null,
  hero:JSON.parse(JSON.stringify(h)),
  first_try_misses:[...S.firstMiss].map(i=>{const q=DECK.questions[i];return{n:i+1,topic:q.topic||'',q:q.q,answer:q.type==='type'?q.accept[0]:q.choices[q.answer],tries:S.log[i]}}),
  items:DECK.questions.map((q,i)=>({n:i+1,topic:q.topic||'',tries:(S.log[i]||[]).length,first_ok:!!(S.log[i]&&S.log[i][0].ok)}))}}
@@ -192,6 +199,7 @@ function finish(){const n=DECK.questions.length;const score=Math.round(100*(n-S.
 function finishScreen(){const h=H.cur();const score=S.score;const stars=score>=90?3:score>=70?2:1;
  const topics={};S.firstMiss.forEach(i=>{const t=DECK.questions[i].topic||'Other';(topics[t]=topics[t]||[]).push(DECK.questions[i])});
  app.innerHTML=hud()+`<div class="card"><h1>Quest complete! ${'⭐'.repeat(stars)}</h1><p><b>${score}%</b> right on the first try. Top streak: <b>${S.best}</b>. Tower height: <b>${S.correct}</b> blocks. ${esc(h.name)} earned <b>${S.xp} XP</b>.</p>
+ ${S.boss&&!S.boss.skipped?`<p>👹 Boss: <b>${S.boss.hits}/${S.boss.max}</b> beaten in time${S.boss.hits===S.boss.max?'. The boss is defeated!':'.'}</p>`:''}
  ${S.firstMiss.size?`<h2>Review these before the test</h2><ul class="rev">${Object.entries(topics).map(([t,qs])=>`<li><b>${t}</b>: ${qs.map(q=>(q.review||q.q)+' → <b>'+(q.type==='type'?q.accept[0]:q.choices[q.answer])+'</b>').join('<br>')}</li>`).join('')}</ul>`:'<p>Perfect run. You are ready.</p>'}
  <p class="small">Record saved to Downloads as ${S.fname}.</p>
  <div class="row"><button class="go" id="again">Play again ↻</button><button id="save">Save record again 💾</button><button id="home">Character</button></div></div>`;
