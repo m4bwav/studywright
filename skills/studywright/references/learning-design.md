@@ -23,11 +23,11 @@ Rules the engine and decks follow, with the evidence base they come from. Check 
 ## Built in 0.5.0
 
 - Day-2 warm-up: each finish stores that run's first-try misses per deck; the next run serves them first and the title screen says so.
+- Boss round: after the main run, first-try misses come back once more, each on a timer (20 s choice, 30 s typed). Retrieval under light pressure; +15 XP per hit, no requeue, score unchanged, result in the record as `boss`. Skippable.
 - Read-aloud: a "Read it to me" button speaks the question and the choices in on-screen order (speechSynthesis).
 
 ## Ideas not built yet
 
 - Gear or titles for mastering a whole deck (e.g. "Naturalist" title after a 90%+ follow-up).
 
-- Boss round: a timed final pass over first-try misses.
 - Two-player hot-seat for parent and child.
