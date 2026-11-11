@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-10 (session 3)
+- README banner: Z-Image Turbo 1536x640 on the Mac, four seeds, picked seed 2313760545 (only take with no fake lettering on the worksheet). Workflow and prompt in .github/images. PR #1 merged. Discussions enabled.
+- Social preview crop not uploaded (no API).
+
 ## 2026-11-10 (session 2)
 - Mark: row 4 name is Barr (deck changed from Baron de Bastrop; Barr explained as an Irish-born Nacogdoches trader working with Spain, still NO).
 - Added 28 questions from the "Louisiana Purchase and Father Hidalgo" study guide. Student blanks taught correctly: 13 colonies blank is the year 1776; Rubi kept San Antonio and La Bahia (sheet had "Texas"); purchase about $15 million; Hidalgo a Catholic priest, Grito de Dolores 1810; fled north (not to Guadalajara) before capture.
