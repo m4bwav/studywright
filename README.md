@@ -1,5 +1,7 @@
 # studywright
 
+![A worksheet on a study desk with glowing quiz cards, gems and a small block tower rising from it](https://raw.githubusercontent.com/m4bwav/studywright/main/.github/images/banner.jpg)
+
 Photos of a worksheet in, a study game out. Each game is one HTML file that runs offline in any browser:
 
 - asks about every blank and every row of the sheet, multiple choice and typed answers (typos forgiven);
