@@ -14,3 +14,11 @@ python skills/studywright/scripts/sw.py build skills/studywright/decks/natural-s
 ```
 
 Deck format and the learning design rules are in [skills/studywright/SKILL.md](skills/studywright/SKILL.md).
+
+## Works with
+
+- **[ludowright](https://github.com/m4bwav/ludowright)**: designing a commercial game belongs to ludowright; studywright builds learning games and decks.
+- **[everscout](https://github.com/m4bwav/everscout)**: the `learning-games` beat feeds new research and tools into studywright's refreshes.
+- **[askwright](https://github.com/m4bwav/askwright)**: choices about a learner's deck or schedule that need a person (what to drop, how hard to push) can go on an askwright page.
+
+The wiki's [Works with](https://github.com/m4bwav/studywright/wiki/Works-with) page describes each pairing in more detail.

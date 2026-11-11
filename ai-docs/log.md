@@ -39,3 +39,6 @@ Mark: biology test done; update Texas game to latest engine; questions should sh
 - Engine: two-player hot-seat (duoPick, startDuo, duoTurn; per-hero tally in S.duo.p; record `duo`; the partner gets a record copy and a quest count; World.tint recolors the 3D hero each turn). Finish line says "The team earned" in duo mode.
 - Scripted Chrome play-test on 127.0.0.1:8791: turns alternate A,B,A,B; scoreboard and boss shown; 2 records (one per hero); 1 download; no JS errors; localStorage restored.
 - Version 0.6.0 (covers 0.5.0 warm-up/read-aloud, boss round, hot-seat).
+
+## [2026-11-11] docs | Works with section
+README gained a Works with section (ludowright, everscout, askwright); the wiki gained a Works-with page linked from the sidebar and Home. Each entry describes a handoff found in the skill files on one side or the other.
