@@ -36,9 +36,11 @@ The engine is [templates/game.html](templates/game.html); `SW build` fills it. `
   {"topic":"People","q":"Moses Austin: filibuster or not?","choices":["Filibuster","Not a filibuster"],"answer":1,"explain":"...","review":"Austin asked permission"}]}
 ```
 
-Optional deck keys: `realm` (history, biology, math, science, words or quest; guessed from the subject if missing: each subject is a themed 3D world and every question opens with a challenge the hero overcomes), per-question `scene`/`win`/`lose` (custom challenge text; `{h}` = hero name, `{t}` = topic), `stat` (the hero study area this deck trains; default is the subject before the colon) and `follows` (id of the deck this one re-tests).
+Optional deck keys: `realm` (history, biology, math, science, words or quest; guessed from the subject if missing: each subject is a themed 3D world and every question opens with a challenge the hero overcomes), per-question `scene`/`win`/`lose` (custom challenge text; `{h}` = hero name, `{t}` = topic), `variants` (list of rewordings of the same idea, each a full mc or type item; a miss comes back in the next wording), `steps` (2-3 smaller sub-questions asked right after the first miss, before the full question returns; use them for every key idea), `foe` (emoji shown in the scene), `stat` (the hero study area this deck trains; default is the subject before the colon) and `follows` (id of the deck this one re-tests).
 
 `type` defaults to `mc`; choices are shuffled at play time, `answer` indexes the list as written.
+
+Every main question should carry at least one `variant`; key ideas also get `steps`. The engine locks Next for 3 seconds after each answer so the reason gets read, shows a scene of the hero against the foe (gold, loot and hearts on a right answer; damage or dropped gold on a miss; fainting only sends the hero back to camp), and the hero builder (class, weapon, skin, hair, outfit, pet) draws a unique hero with an inventory.
 
 ## Learning design (why the engine works this way)
 

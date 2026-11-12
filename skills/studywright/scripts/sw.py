@@ -15,6 +15,25 @@ HERE = Path(__file__).resolve().parent
 TEMPLATE = HERE.parent / "templates" / "game.html"
 
 
+def check_item(q, tag):
+    errs = []
+    t = q.get("type", "mc")
+    if t == "mc":
+        ch = q.get("choices", [])
+        if len(ch) < 2:
+            errs.append(f"{tag}: mc needs 2+ choices")
+        if not isinstance(q.get("answer"), int) or not 0 <= q["answer"] < len(ch):
+            errs.append(f"{tag}: answer must index into choices")
+        if len(set(ch)) != len(ch):
+            errs.append(f"{tag}: duplicate choices")
+    elif t == "type":
+        if not q.get("accept"):
+            errs.append(f"{tag}: type needs 'accept' list")
+    else:
+        errs.append(f"{tag}: unknown type {t}")
+    return errs
+
+
 def check(deck):
     errs = []
     for k in ("id", "title", "subject", "intro", "questions"):
@@ -31,20 +50,16 @@ def check(deck):
         seen.add(q.get("q"))
         if not q.get("explain"):
             errs.append(f"{tag}: needs 'explain' (the why, shown after every answer)")
-        t = q.get("type", "mc")
-        if t == "mc":
-            ch = q.get("choices", [])
-            if len(ch) < 2:
-                errs.append(f"{tag}: mc needs 2+ choices")
-            if not isinstance(q.get("answer"), int) or not 0 <= q["answer"] < len(ch):
-                errs.append(f"{tag}: answer must index into choices")
-            if len(set(ch)) != len(ch):
-                errs.append(f"{tag}: duplicate choices")
-        elif t == "type":
-            if not q.get("accept"):
-                errs.append(f"{tag}: type needs 'accept' list")
-        else:
-            errs.append(f"{tag}: unknown type {t}")
+        errs += check_item(q, tag)
+        for k in ("variants", "steps"):
+            v = q.get(k, [])
+            if not isinstance(v, list):
+                errs.append(f"{tag}: '{k}' must be a list of questions")
+                continue
+            for j, sub in enumerate(v, 1):
+                if not sub.get("q"):
+                    errs.append(f"{tag}.{k}{j}: needs 'q'")
+                errs += check_item(sub, f"{tag}.{k}{j}")
     return errs
 
 

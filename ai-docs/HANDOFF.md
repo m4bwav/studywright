@@ -14,7 +14,11 @@ Session 8: two-player hot-seat built; plugin bumped to 0.6.0 and released (see l
 
 Session 7: boss round (timed pass over first-try misses) merged; games rebuilt. Plugin.json not bumped or released since 0.2.0.
 
+0.7.0 (2026-11-11, session 9): read lock, variants + steps, hero scenes with hp/gold/loot, hero builder with inventory; new deck natural-selection-3 for the son's next biology test (How Natural Selection Works to Key Takeaways). Older decks have no variants/steps yet.
+
 Next:
+0a. After the son plays natural-selection-3: `sw.py records`, report misses.
+0b. Add variants/steps to texas-filibusters.
 0. When the Texas game has been played: run `sw.py records`, read records/INDEX.md, report shaky ideas; consider per-question `scene` text for Texas.
 1. Build ideas in skills/studywright/references/learning-design.md ("Ideas not built yet"), next: gear/titles for mastering a deck; release once a batch is in.
 2. First everscout scan of beat learning-games; fold findings into RESEARCH.md.

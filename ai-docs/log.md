@@ -42,3 +42,10 @@ Mark: biology test done; update Texas game to latest engine; questions should sh
 
 ## [2026-11-11] docs | Works with section
 README gained a Works with section (ludowright, everscout, askwright); the wiki gained a Works-with page linked from the sidebar and Home. Each entry describes a handoff found in the skill files on one side or the other.
+- Version 0.6.0 (covers 0.5.0 warm-up/read-aloud, boss round, hot-seat).
+
+## 2026-11-11 session 9
+- Mark asked: 3 s read lock after each answer, question variants and step-downs after a miss, hero scenes with damage/gold/loot, unique-looking builds with inventory, and a new test from "How Natural Selection Works" to Key Takeaways (son's sheet photo, all his blanks correct: variation, population, asexual, sexual, reproduction, mixing, faster, higher, diversity, mistakes, populations, generations).
+- Engine 0.7.0: READ_SECS lock (Next disabled with countdown, Enter blocked); queue entries can be {p,s} steps; itemOf picks variants by ask count; outcome() hp/gold/loot/potion/faint (no game over); SVG avatar() from hero.look; heroCreate builder; 3D hero dressed from look; old heroes migrated by fixHero.
+- sw.py check validates variants and steps.
+- New deck natural-selection-3 "Wilds of Selection" (18 q, every q has variants, most have steps). Chrome play-test on 127.0.0.1:18765: miss queued 2 steps, lock held 3 s, variant shown on return, inventory/gold/hp change.

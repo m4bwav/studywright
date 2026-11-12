@@ -1,0 +1,159 @@
+{
+ "id": "natural-selection-3",
+ "title": "Wilds of Selection",
+ "subject": "Science: How Natural Selection Works",
+ "accent": "#3ddc84",
+ "realm": "biology",
+ "follows": "natural-selection-2",
+ "intro": "The three steps, asexual vs sexual reproduction, mutations, and the key takeaways (populations, generations, the hawk and the mice). Miss one and it comes back in new words, or broken into smaller steps.",
+ "questions": [
+  {"topic": "How it works", "type": "type", "q": "Step 1 of natural selection: ______ exists in a population.", "accept": ["variation", "variety", "genetic variation"],
+   "explain": "First there must be variation: the members of a population are different from each other (colour, size, speed...).",
+   "review": "Step 1: variation exists",
+   "variants": [
+    {"q": "Some mice are black and some are tan. Which step of natural selection is this?", "type": "mc", "choices": ["Step 1: variation exists in the population", "Step 2: helpful traits survive better", "Step 3: the trait becomes more common", "It is not part of natural selection"], "answer": 0},
+    {"q": "Before nature can 'select' anything, the organisms in a population must be ______ from each other.", "type": "mc", "choices": ["different", "identical", "friends", "separated"], "answer": 0}],
+   "steps": [
+    {"q": "'Variation' means the members of a group are...", "type": "mc", "choices": ["different from each other", "all exactly the same", "getting older", "moving to a new place"], "answer": 0},
+    {"q": "Natural selection needs something to choose between. So step 1 is: ______ exists.", "type": "mc", "choices": ["variation", "a predator", "a mutation", "a population"], "answer": 0}]},
+
+  {"topic": "How it works", "q": "Step 2: organisms with helpful adaptations ______ better and ______ more than those without them.", "choices": ["survive ... reproduce", "grow ... eat", "move ... sleep", "change ... learn"], "answer": 0,
+   "explain": "Helpful traits (like camouflage) help an organism stay alive AND have more babies than the others.",
+   "review": "Step 2: helpful traits survive and reproduce more",
+   "variants": [
+    {"q": "On dark rocks, black mice are eaten less by hawks than tan mice. Which step of natural selection is this?", "choices": ["Step 2: helpful traits survive and reproduce more", "Step 1: variation exists", "Step 3: the trait becomes common in the population", "A mutation"], "answer": 0},
+    {"q": "Step 2 needs TWO things to happen for the organisms with helpful traits. Which pair?", "choices": ["They survive better and reproduce more", "They get bigger and stronger", "They learn faster and teach others", "They move away and hide"], "answer": 0}],
+   "steps": [
+    {"q": "An 'adaptation' is a trait that...", "choices": ["helps an organism survive in its environment", "an organism chooses to grow", "always hurts the organism", "only appears in old animals"], "answer": 0},
+    {"q": "Why does surviving longer matter for natural selection?", "choices": ["Survivors live long enough to have offspring", "Survivors become a new species right away", "Survivors stop needing food", "It does not matter"], "answer": 0}]},
+
+  {"topic": "How it works", "type": "type", "q": "Step 3: over generations, these beneficial traits become more common in the ______.", "accept": ["population", "populations"],
+   "explain": "Because helpful-trait organisms have more babies, the trait spreads through the whole population over the generations.",
+   "review": "Step 3: trait becomes more common in the population",
+   "variants": [
+    {"q": "After many generations on dark rocks, most of the mice are black. Which step is this?", "type": "mc", "choices": ["Step 3: the trait became more common in the population", "Step 1: variation exists", "Step 2: black mice survive better", "Each mouse turned black"], "answer": 0},
+    {"q": "Put the steps in order: (A) the helpful trait becomes common, (B) variation exists, (C) helpful traits survive and reproduce more.", "type": "mc", "choices": ["B, C, A", "A, B, C", "C, B, A", "B, A, C"], "answer": 0}],
+   "steps": [
+    {"q": "A 'population' is...", "type": "mc", "choices": ["all the organisms of one kind living in one area", "one single animal", "the number of predators", "a kind of mutation"], "answer": 0},
+    {"q": "If black mice have more babies every generation, black mice become more ______.", "type": "mc", "choices": ["common", "rare", "tan", "hungry"], "answer": 0}]},
+
+  {"topic": "How it works", "q": "Which is the correct order of natural selection?", "choices": ["Variation exists → helpful traits survive and reproduce more → the trait becomes common", "The trait becomes common → variation exists → helpful traits survive", "Organisms decide to change → they pass it on → variation exists", "Helpful traits survive → variation exists → the trait disappears"], "answer": 0,
+   "explain": "Variation comes first, then survival and reproduction, then the trait spreads over generations.",
+   "variants": [
+    {"q": "Rabbits: (1) most rabbits are now white, (2) some rabbits are white and some brown, (3) white rabbits hide in snow and survive more. Correct order?", "choices": ["2, 3, 1", "1, 2, 3", "3, 2, 1", "2, 1, 3"], "answer": 0}]},
+
+  {"topic": "Reproduction", "type": "type", "q": "______ reproduction: offspring are genetically identical to the parent. NO variation.", "accept": ["asexual"],
+   "explain": "Asexual reproduction uses one parent, so the offspring are copies (clones) with no variation.",
+   "review": "Asexual = identical copies",
+   "variants": [
+    {"q": "A bacterium splits into two copies of itself. What kind of reproduction is this?", "type": "mc", "choices": ["Asexual", "Sexual", "Mutation", "Selection"], "answer": 0},
+    {"q": "Which kind of reproduction makes offspring with NO variation?", "type": "mc", "choices": ["Asexual", "Sexual", "Both", "Neither"], "answer": 0}],
+   "steps": [
+    {"q": "How many parents are needed in ASEXUAL reproduction?", "type": "mc", "choices": ["One", "Two", "Three", "None"], "answer": 0},
+    {"q": "'Genetically identical' means the offspring...", "type": "mc", "choices": ["have the exact same DNA as the parent", "look a little different", "are a different species", "have no DNA"], "answer": 0}]},
+
+  {"topic": "Reproduction", "type": "type", "q": "______ reproduction: offspring HAVE variation from each other and their parents.", "accept": ["sexual"],
+   "explain": "Sexual reproduction mixes genes from two parents, so every offspring is a bit different.",
+   "review": "Sexual = variation",
+   "variants": [
+    {"q": "Two cats have a litter of kittens. Every kitten looks a little different. What kind of reproduction made this happen?", "type": "mc", "choices": ["Sexual", "Asexual", "Mutation only", "Cloning"], "answer": 0},
+    {"q": "Why do brothers and sisters look different from each other?", "type": "mc", "choices": ["Sexual reproduction mixes their parents' genes differently each time", "They chose different looks", "Asexual reproduction copies the parent", "They ate different food as babies"], "answer": 0}],
+   "steps": [
+    {"q": "How many parents are needed in SEXUAL reproduction?", "type": "mc", "choices": ["Two", "One", "None", "Ten"], "answer": 0}]},
+
+  {"topic": "Reproduction", "type": "type", "q": "Sexual reproduction results in a ______ of the parents' genes.", "accept": ["mixing", "mix", "mixture", "combination"],
+   "explain": "Each offspring gets a mix of genes from mom and dad, so offspring differ from the parents AND from their siblings.",
+   "review": "Sexual = mixing of genes",
+   "variants": [
+    {"q": "A puppy gets some genes from its mother and some from its father. This is called a ______ of the parents' genes.", "type": "mc", "choices": ["mixing", "copy", "mutation", "loss"], "answer": 0}],
+   "steps": [
+    {"q": "Where do a baby's genes come from in sexual reproduction?", "type": "mc", "choices": ["Some from each parent", "All from the mother", "All from the father", "From what it eats"], "answer": 0}]},
+
+  {"topic": "Reproduction", "q": "Evolution through natural selection happens much ______ in populations that reproduce sexually.", "choices": ["faster", "slower", "the same", "never"], "answer": 0,
+   "explain": "Sexual reproduction makes more variation, and variation is what natural selection works on, so change happens faster.",
+   "review": "Sexual reproduction → faster evolution",
+   "variants": [
+    {"q": "Fish A reproduces sexually. Fish B makes clones of itself. The lake gets warmer. Which can adapt faster?", "choices": ["Fish A, because its babies have more variation", "Fish B, because clones are stronger", "Both the same", "Neither can ever adapt"], "answer": 0},
+    {"q": "True or false: evolution happens SLOWER in organisms that reproduce sexually.", "choices": ["False: it happens faster", "True"], "answer": 0}],
+   "steps": [
+    {"q": "Which makes MORE variation?", "choices": ["Sexual reproduction", "Asexual reproduction"], "answer": 0},
+    {"q": "More variation gives natural selection more to choose from. So change happens...", "choices": ["faster", "slower"], "answer": 0}]},
+
+  {"topic": "Reproduction", "type": "type", "q": "It is faster in sexual reproducers due to ______ genetic diversity.", "accept": ["higher", "more", "greater", "high"],
+   "explain": "Mixing genes gives a population higher genetic diversity, so there are more traits for nature to select from.",
+   "review": "Higher genetic diversity",
+   "variants": [
+    {"q": "A population that reproduces sexually has ______ genetic diversity than one that makes clones.", "type": "mc", "choices": ["higher", "lower", "the same", "zero"], "answer": 0}],
+   "steps": [
+    {"q": "'Genetic diversity' means...", "type": "mc", "choices": ["how different the genes in a population are", "how many animals there are", "how fast animals run", "how old the population is"], "answer": 0}]},
+
+  {"topic": "Mutation", "type": "type", "q": "Mutation: ______ in DNA when it replicates (copies itself).", "accept": ["mistakes", "mistake", "errors", "error", "changes", "change"],
+   "explain": "A mutation is a mistake made when DNA copies itself. It can create a trait not found in either parent.",
+   "review": "Mutation = a mistake in copied DNA",
+   "variants": [
+    {"q": "A bacterium copies its DNA and makes a small mistake. Now it has a brand-new trait. This is a ______.", "type": "mc", "choices": ["mutation", "adaptation choice", "sexual reproduction", "population"], "answer": 0},
+    {"q": "A kitten has a coat colour that NEITHER parent has. What most likely caused it?", "type": "mc", "choices": ["A mutation in its DNA", "It chose a new colour", "The sun changed its fur", "Asexual reproduction"], "answer": 0}],
+   "steps": [
+    {"q": "When does DNA 'replicate'?", "type": "mc", "choices": ["When it copies itself", "When the animal eats", "When the animal sleeps", "Never"], "answer": 0},
+    {"q": "A mistake while copying DNA is called a...", "type": "mc", "choices": ["mutation", "generation", "population", "selection"], "answer": 0}]},
+
+  {"topic": "Mutation", "q": "A mutation can result in different traits that are...", "choices": ["not found in the parents", "always exactly like the parents", "chosen by the organism", "learned during life"], "answer": 0,
+   "explain": "Because the DNA changed, the offspring can have a trait neither parent had.",
+   "variants": [
+    {"q": "Mutations matter for natural selection because they...", "choices": ["add brand-new variation", "remove all variation", "make organisms identical", "stop evolution"], "answer": 0}]},
+
+  {"topic": "Key takeaways", "type": "type", "q": "Natural selection leads to changes in ______ over time, NOT individuals.", "accept": ["populations", "population"],
+   "explain": "One tan mouse can't turn black. The POPULATION changes because more black mice survive and have babies.",
+   "review": "Populations change, not individuals",
+   "variants": [
+    {"q": "Over 100 years, a moth population changes from mostly light to mostly dark. What changed?", "type": "mc", "choices": ["The population: more dark moths each generation", "Each light moth turned dark", "The moths chose to be dark", "Nothing changed"], "answer": 0},
+    {"q": "Can one tan mouse turn black during its life because of hawks?", "type": "mc", "choices": ["No: individuals don't change; the population does", "Yes, if it tries hard", "Yes, after it gets scared", "Only in winter"], "answer": 0}],
+   "steps": [
+    {"q": "An 'individual' is...", "type": "mc", "choices": ["one single organism", "a whole group", "a gene", "a predator"], "answer": 0},
+    {"q": "Natural selection changes the whole ______, not one animal.", "type": "mc", "choices": ["population", "individual", "parent", "predator"], "answer": 0}]},
+
+  {"topic": "Key takeaways", "q": "Traits that help organisms survive and reproduce become more ______.", "choices": ["common", "rare", "harmful", "hidden"], "answer": 0,
+   "explain": "Helpful traits get passed on more often, so over time more of the population has them.",
+   "review": "Helpful traits become more common",
+   "variants": [
+    {"q": "Finches with thick beaks crack the only seeds left after a drought. In later generations, thick beaks become...", "choices": ["more common", "less common", "gone", "thinner on purpose"], "answer": 0}],
+   "steps": [
+    {"q": "Organisms with a helpful trait have MORE babies. Their babies often...", "choices": ["have the same helpful trait", "have no traits", "choose a new trait", "are all different species"], "answer": 0}]},
+
+  {"topic": "Key takeaways", "type": "type", "q": "This process happens over many ______.", "accept": ["generations", "generation"],
+   "explain": "Natural selection is slow. You see the change only after many generations of parents and offspring.",
+   "review": "Over many generations",
+   "variants": [
+    {"q": "How long does it take for most of a mouse population to become black?", "type": "mc", "choices": ["Many generations", "One afternoon", "One mouse's lifetime", "It happens instantly"], "answer": 0},
+    {"q": "Why do bacteria evolve resistance in months, but elephants take thousands of years?", "type": "mc", "choices": ["Bacteria go through generations much faster", "Elephants are too big to change", "Bacteria choose to change", "Elephants have no DNA"], "answer": 0}],
+   "steps": [
+    {"q": "A 'generation' is...", "type": "mc", "choices": ["one step from parents to their offspring", "one day", "a kind of animal", "a mutation"], "answer": 0}]},
+
+  {"topic": "Mice and hawk", "q": "Mice move to an area with very dark rocks. Some mice are black, some tan. Which mice do the hawks spot more easily?", "choices": ["Tan mice", "Black mice", "Both the same", "Neither"], "answer": 0,
+   "scene": "A hawk circles over the dark rocks of a new valley where {h} watches a family of mice.", "foe": "🦅",
+   "win": "{h} spots it too. The hawk swoops on the easy target and {h} records the result.", "lose": "The hawk screeches and dives at {h} instead!",
+   "explain": "Tan stands out against dark rocks, so hawks see and eat tan mice more often.",
+   "variants": [
+    {"q": "A white rabbit and a brown rabbit live in a snowy forest. Which will owls see more easily?", "choices": ["The brown rabbit", "The white rabbit", "Both the same", "Neither"], "answer": 0}]},
+
+  {"topic": "Mice and hawk", "q": "Because tan mice are eaten more, what does the next generation of mice look like?", "choices": ["A higher fraction of black mice than before", "A higher fraction of tan mice", "All mice turn grey", "Exactly the same as before"], "answer": 0,
+   "scene": "Seasons pass in the dark valley. {h} returns to count the mice.", "foe": "🐭",
+   "explain": "Black mice survive to reproductive age more often and leave more offspring, so the next generation has more black mice.",
+   "variants": [
+    {"q": "Beetles on brown bark come in red, blue and brown. Birds eat the bright ones. After many generations most beetles will be...", "choices": ["brown", "red", "blue", "an even mix"], "answer": 0}],
+   "steps": [
+    {"q": "Which mice survive long enough to have babies?", "choices": ["Mostly the black mice", "Mostly the tan mice"], "answer": 0},
+    {"q": "Black parents mostly have ______ babies.", "choices": ["black", "tan"], "answer": 0}]},
+
+  {"topic": "Mice and hawk", "q": "In the mice story, which part shows Step 1 (variation)?", "choices": ["Due to genetic variation, some mice are black and others tan", "Hawks eat tan mice more often", "The next generation has more black mice", "The mice moved to a new area"], "answer": 0,
+   "explain": "Variation means differences already in the population: some black, some tan. That is step 1.",
+   "variants": [
+    {"q": "In the mice story, which part shows Step 2 (helpful traits survive and reproduce more)?", "choices": ["Black mice are eaten less and leave more offspring", "Some mice are black and some tan", "The mice moved to dark rocks", "A hawk exists"], "answer": 0},
+    {"q": "In the mice story, which part shows Step 3 (the trait becomes common)?", "choices": ["Each generation has a higher fraction of black mice", "Some mice are tan", "A hawk catches a mouse", "The rocks are dark"], "answer": 0}]},
+
+  {"topic": "Key takeaways", "q": "Giraffes have long necks. Which explanation fits natural selection?", "choices": ["Giraffes born with longer necks reached more food, survived and had more babies", "Each giraffe stretched its neck and passed the stretch on", "Giraffes decided they wanted long necks", "Long necks appeared all at once in one generation"], "answer": 0,
+   "explain": "Natural selection works on traits organisms are BORN with. Stretching during life is not passed on in DNA.",
+   "variants": [
+    {"q": "A dog learns to open doors. Will her puppies be born knowing how?", "choices": ["No: learned skills are not in the DNA", "Yes, always", "Only the first puppy", "Yes, if she teaches them before birth"], "answer": 0}]}
+ ]
+}

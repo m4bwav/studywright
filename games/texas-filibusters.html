@@ -43,6 +43,22 @@ ul.rev{padding-left:20px} ul.rev li{margin:6px 0}
 .hero{display:flex;gap:12px;align-items:center;background:#ffffff0d;border-radius:12px;padding:10px;margin-top:10px}.hero .big{font-size:40px}
 button.struck{opacity:.35;text-decoration:line-through}
 a{color:var(--accent)}
+.stage{position:relative;height:150px;border-radius:12px;overflow:hidden;margin:8px 0;background:linear-gradient(#0000,#0006),var(--sky,#1a2a3a)}
+.stage .gnd{position:absolute;left:0;right:0;bottom:0;height:34px;background:var(--gnd,#2d5a2a)}
+.stage .ha{position:absolute;left:12%;bottom:18px;width:96px;height:120px;transition:transform .35s}
+.stage .foe{position:absolute;right:14%;bottom:24px;font-size:70px;line-height:1;transition:transform .35s,opacity .5s,filter .3s}
+.stage .fx{position:absolute;left:50%;top:30%;transform:translateX(-50%);font-size:26px;font-weight:800;text-shadow:0 2px 8px #000;opacity:0}
+.stage.win .ha{transform:translateX(150%)}.stage.win .foe{transform:translate(60px,-30px) rotate(35deg);opacity:0}
+.stage.win .fx{color:var(--gold);animation:fxup 1.6s forwards}.stage.lose .fx{color:var(--bad);animation:fxup 1.6s forwards}
+.stage.lose .foe{animation:lunge .5s}.stage.lose .ha{animation:hurt .6s;filter:drop-shadow(0 0 10px #f33)}
+@keyframes fxup{0%{opacity:0;top:40%}20%{opacity:1}80%{opacity:1}100%{opacity:0;top:5%}}
+@keyframes lunge{50%{transform:translateX(-160px) scale(1.2)}}
+@keyframes hurt{20%,60%{transform:translateX(-14px) rotate(-8deg)}40%,80%{transform:translateX(6px)}}
+.wait{opacity:.55}
+.inv{display:flex;flex-wrap:wrap;gap:6px}.inv span{background:#ffffff14;border-radius:8px;padding:3px 8px;font-size:14px}
+.opts{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}.opts button{padding:6px 10px;font-size:15px}.opts button.sel{border-color:var(--gold);background:#ffd16633}
+.sw{display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:middle;border:1px solid #fff6}
+.step{border:2px dashed var(--gold)}
 @media (max-width:520px){html,body{font-size:16px}h2{font-size:20px}}
 </style>
 </head>
@@ -71,18 +87,41 @@ const FEATS={keen:{name:'Keen Eye',desc:'Once per quest, strike out one wrong ch
  focus:{name:'Battle Focus',desc:'Gold streaks start at 2 in a row instead of 3.'},
  sage:{name:'Sage',desc:'+3 XP per right answer in one study area (needs that area at level 3).',area:true}};
 const H={all(){return store.get(HKEY)||{active:null,list:[]}},save(d){store.set(HKEY,d)},
- cur(){const d=H.all();return d.list.find(h=>h.id===d.active)||null},
+ cur(){const d=H.all();return fixHero(d.list.find(h=>h.id===d.active)||null)},
  put(h){const d=H.all();const i=d.list.findIndex(x=>x.id===h.id);if(i<0)d.list.push(h);else d.list[i]=h;d.active=h.id;H.save(d)}};
 const need=L=>50*L*(L+1); // total XP needed to reach level L+1
 function heroLvl(h){let L=1;while(h.xp>=need(L))L++;return L}
 function area(h,s){const a=h.areas[s]||{use:0,train:0};return{...a,lvl:Math.floor(a.use/15)+a.train}}
 function hasFeat(h,f){return !!h&&h.feats.includes(f)}
 function featName(f){const[b,ar]=f.split(':');return FEATS[b].name+(ar?' ('+esc(ar)+')':'')}
-function newHero(name,cls){return{id:'h'+Date.now().toString(36),name,cls,xp:0,areas:{},feats:[CLASSES[cls].feat],picks:0,created:new Date().toISOString(),quests:0}}
+// ---------- looks and inventory: every build draws a different hero ----------
+const LOOK={skin:['#f6d3b3','#e0ac7e','#b9794f','#8a5233','#5c3820'],
+ hair:{Black:'#1c1c22',Brown:'#5a3418',Blond:'#e6c35c',Red:'#b8401c',Silver:'#d8dce6',Blue:'#3a7bd5'},
+ style:['Short','Long','Spiky','Bun','Bald'],
+ outfit:{Teal:'#2bb3a8',Crimson:'#c0304a',Forest:'#3b8a3e',Royal:'#4a5bd8',Gold:'#d9a520',Violet:'#8a4fd0',Charcoal:'#4a4f5a'},
+ gear:{Scholar:['Quill','Lantern','Tome'],Ranger:['Bow','Spear','Slingshot'],Knight:['Sword','Hammer','Lance'],Mage:['Staff','Wand','Orb']},
+ pet:['None','Owl','Fox','Cat','Dragonling','Frog']};
+const PETI={Owl:'🦉',Fox:'🦊',Cat:'🐈',Dragonling:'🐉',Frog:'🐸'};
+const KIT={Scholar:['📜 Map of the Realms','🕯️ Candle'],Ranger:['🪢 Rope','🧭 Compass'],Knight:['🛡️ Shield','🍖 Trail Rations'],Mage:['🔮 Crystal','📖 Spellbook']};
+const LOOT=['🧪 Healing Potion','🧪 Healing Potion','💎 Gem','🪶 Lucky Feather','🗝️ Old Key','🍎 Apple','🧿 Charm','🪙 Silver Coin','🦴 Fossil','🌰 Strange Seed'];
+function defLook(h){const n=[...h.name].reduce((a,c)=>a+c.charCodeAt(0),0);const pick=(a,k)=>a[(n+k)%a.length];return{skin:pick(LOOK.skin,1),hair:pick(Object.keys(LOOK.hair),2),style:pick(LOOK.style,3),outfit:pick(Object.keys(LOOK.outfit),4),gear:LOOK.gear[h.cls][0],pet:'None'}}
+function fixHero(h){if(!h)return h;h.look=h.look||defLook(h);if(!h.inv)h.inv={gold:10,hp:maxHp(h),items:KIT[h.cls].concat(['🧪 Healing Potion'])};return h}
+const maxHp=h=>h.cls==='Knight'?12:10;
+function avatar(h,w=96){const L=h.look||defLook(h),sk=L.skin,hr=LOOK.hair[L.hair]||'#333',of=LOOK.outfit[L.outfit]||'#888';
+ const hair=L.style==='Bald'?'':L.style==='Long'?`<path d="M30 40 Q48 10 66 40 L70 78 L62 78 L62 44 L34 44 L34 78 L26 78Z" fill="${hr}"/>`:L.style==='Spiky'?`<path d="M30 40 L32 22 L40 32 L44 16 L50 30 L56 16 L60 32 L66 22 L66 40Z" fill="${hr}"/>`:L.style==='Bun'?`<circle cx="48" cy="18" r="8" fill="${hr}"/><path d="M30 42 Q48 16 66 42Z" fill="${hr}"/>`:`<path d="M30 42 Q48 16 66 42 L66 36 Q48 26 30 36Z" fill="${hr}"/>`;
+ const hat=h.cls==='Mage'?`<path d="M28 34 L48 -2 L68 34Z" fill="${of}"/><circle cx="48" cy="2" r="3" fill="#ffd166"/>`:h.cls==='Knight'?`<path d="M31 40 Q48 14 65 40 L65 46 L31 46Z" fill="#c0c8d8"/><rect x="46" y="18" width="4" height="12" fill="${of}"/>`:h.cls==='Ranger'?`<path d="M28 44 Q48 6 68 44 L64 46 Q48 22 32 46Z" fill="#3a5a2a"/>`:`<rect x="32" y="22" width="32" height="6" fill="#222"/><path d="M26 22 L48 14 L70 22 L48 28Z" fill="#222"/>`;
+ const gi={Quill:`<path d="M80 60 L92 30" stroke="#eee" stroke-width="4"/>`,Lantern:`<rect x="78" y="62" width="12" height="16" rx="2" fill="#ffd166" stroke="#553" stroke-width="2"/>`,Tome:`<rect x="76" y="64" width="16" height="20" fill="#7a2a2a" stroke="#ffd166"/>`,
+  Bow:`<path d="M84 40 Q100 70 84 100" stroke="#8a5a2a" stroke-width="4" fill="none"/><line x1="84" y1="40" x2="84" y2="100" stroke="#ddd"/>`,Spear:`<line x1="86" y1="30" x2="86" y2="110" stroke="#8a5a2a" stroke-width="4"/><path d="M80 34 L86 18 L92 34Z" fill="#ccc"/>`,Slingshot:`<path d="M86 96 L86 76 L80 64 M86 76 L92 64" stroke="#8a5a2a" stroke-width="4" fill="none"/>`,
+  Sword:`<line x1="86" y1="30" x2="86" y2="84" stroke="#dde" stroke-width="5"/><line x1="78" y1="80" x2="94" y2="80" stroke="#b08d3a" stroke-width="4"/>`,Hammer:`<line x1="86" y1="44" x2="86" y2="96" stroke="#8a5a2a" stroke-width="4"/><rect x="74" y="34" width="24" height="12" fill="#999"/>`,Lance:`<path d="M84 110 L86 12 L90 110Z" fill="#ccd"/>`,
+  Staff:`<line x1="86" y1="26" x2="86" y2="112" stroke="#8a5a2a" stroke-width="4"/><circle cx="86" cy="24" r="7" fill="#7cf"/>`,Wand:`<line x1="80" y1="74" x2="94" y2="52" stroke="#eee" stroke-width="3"/><circle cx="94" cy="52" r="3" fill="#ffd166"/>`,Orb:`<circle cx="86" cy="66" r="9" fill="#b388ff" stroke="#fff"/>`}[L.gear]||'';
+ const pet=PETI[L.pet]?`<text x="2" y="118" font-size="24">${PETI[L.pet]}</text>`:'';
+ return `<svg viewBox="-4 -6 104 128" width="${w}" height="${w*1.25}" class="avatar"><rect x="34" y="78" width="10" height="30" fill="#333"/><rect x="52" y="78" width="10" height="30" fill="#333"/><path d="M28 50 Q48 44 68 50 L72 84 L24 84Z" fill="${of}"/><rect x="24" y="74" width="48" height="5" fill="#0005"/><rect x="68" y="54" width="10" height="24" rx="4" fill="${of}"/><circle cx="76" cy="76" r="5" fill="${sk}"/><rect x="18" y="54" width="10" height="24" rx="4" fill="${of}"/>${hair}<circle cx="48" cy="38" r="14" fill="${sk}"/><circle cx="43" cy="37" r="1.8" fill="#222"/><circle cx="53" cy="37" r="1.8" fill="#222"/><path d="M43 44 Q48 47 53 44" stroke="#522" fill="none"/>${hat}${gi}${pet}</svg>`}
+function invStr(h){return `<div class="inv">${h.inv.items.map(i=>`<span>${esc(i)}</span>`).join('')||'<span>empty</span>'}</div>`}
+function newHero(name,cls,look){const h={id:'h'+Date.now().toString(36),name,cls,xp:0,areas:{},feats:[CLASSES[cls].feat],picks:0,created:new Date().toISOString(),quests:0,look};fixHero(h);h.inv.items.unshift('⚔️ '+look.gear);if(PETI[look.pet])h.inv.items.push(PETI[look.pet]+' '+look.pet+' (pet)');return h}
 const goldAt=()=>hasFeat(H.cur(),'focus')?2:3;
 // ---------- realms: each subject is a world; each question is a challenge the hero overcomes ----------
 const REALMS={
- history:{name:'The Frontier of Ages',icon:'🏜️',sky:0x2a1a12,fog:0xb8794a,ground:0xa0663a,prop:'mission',obstacle:'gate',
+ history:{name:'The Frontier of Ages',icon:'🏜️',sky:0x2a1a12,fog:0xb8794a,ground:0xa0663a,prop:'mission',obstacle:'gate',foes:['🚪','💂','🌊','✉️','🗺️','🌪️','🏰'],
   c:[['{h} reaches a mission gate barred shut. The old padre will lift the bar only for someone who knows <b>{t}</b>.','The bar lifts and the gate creaks open. {h} rides on.','The padre shakes his head. The gate stays shut for now.'],
    ['A Spanish patrol stops {h} on the Camino Real. The captain wants proof that {h} is no filibuster: a question about <b>{t}</b>.','The captain salutes and waves {h} through.','The captain frowns. {h} must circle back and try again.'],
    ['A flooded river blocks the trail. The ferryman only takes travelers who can answer him about <b>{t}</b>.','The ferry pushes off. {h} crosses the river.','The ferryman pushes back from the bank. The river waits.'],
@@ -90,32 +129,43 @@ const REALMS={
    ['An old map is torn in two. The missing half is found only by knowing <b>{t}</b>.','The map pieces fit. {h} finds the next trail.','The map stays torn. The trail is hidden for now.'],
    ['A dust storm rolls across the plains. A traveler at the campfire offers shelter in trade for knowledge of <b>{t}</b>.','The storm howls past while {h} rests safe by the fire.','The storm drives {h} back a mile. It will come round again.'],
    ['A fort commander will open the armory only to someone who knows <b>{t}</b>.','The armory doors swing wide. {h} gears up.','The doors stay locked. The commander will ask again later.']]},
- biology:{name:'The Living Wilds',icon:'🌿',sky:0x0b2418,fog:0x2f7a4a,ground:0x2d5a2a,prop:'tree',obstacle:'vine',
+ biology:{name:'The Living Wilds',icon:'🌿',sky:0x0b2418,fog:0x2f7a4a,ground:0x2d5a2a,prop:'tree',obstacle:'vine',foes:['🌿','🪲','🐦','🚪','🦟','🌳'],
   c:[['A wall of thorny vines grows across the jungle path. The vines wither only before someone who knows <b>{t}</b>.','The vines shrivel and part. {h} pushes deeper into the wilds.','The vines tighten. They will test {h} again soon.'],
    ['A giant beetle guards a rotting log bridge. It clicks a question about <b>{t}</b>.','The beetle steps aside. {h} crosses the log.','The beetle snaps its jaws. {h} backs away for now.'],
    ['The island finches will only sing the way forward to one who understands <b>{t}</b>.','The finches burst into song and show {h} the path.','The finches fall silent. Ask them again later.'],
    ['A hidden field lab sits upriver. Its door opens for knowledge of <b>{t}</b>.','The lab door hisses open. {h} gathers new samples.','The door stays sealed. {h} paddles back downstream.'],
    ['A swarm of mosquitoes rises from the swamp. Only knowing <b>{t}</b> will keep them off.','The swarm drifts away. {h} wades through the swamp.','The swarm buzzes closer. {h} retreats to try again.'],
    ['An ancient tree spirit blocks the trail and asks about <b>{t}</b>.','The spirit smiles and the roots lift into a bridge.','The roots stay tangled. The spirit will ask again.']]},
- math:{name:'The Clockwork Spires',icon:'⚙️',sky:0x10152a,fog:0x46507a,ground:0x55607a,prop:'gear',obstacle:'lock',
+ math:{name:'The Clockwork Spires',icon:'⚙️',sky:0x10152a,fog:0x46507a,ground:0x55607a,prop:'gear',obstacle:'lock',foes:['🔒','🌉'],
   c:[['A clockwork lock holds a tower door shut. Its dials turn only for the right answer about <b>{t}</b>.','The gears click into place. The door swings open.','The gears grind and jam. They will reset soon.'],
    ['A bridge of floating number-stones is missing a stone: <b>{t}</b>.','The stone glows into place. {h} crosses.','The gap stays open. {h} steps back.']]},
- science:{name:'The Storm Laboratory',icon:'⚗️',sky:0x0e1030,fog:0x4a3a8a,ground:0x3a3560,prop:'crystal',obstacle:'orb',
+ science:{name:'The Storm Laboratory',icon:'⚗️',sky:0x0e1030,fog:0x4a3a8a,ground:0x3a3560,prop:'crystal',obstacle:'orb',foes:['⚡','🤖'],
   c:[['A crackling energy barrier blocks the lab hall. It powers down only for someone who knows <b>{t}</b>.','The barrier fizzles out. {h} walks through.','The barrier sparks brighter. Try again soon.'],
    ['A runaway robot asks a question about <b>{t}</b> before it will stand down.','The robot powers down politely.','The robot whirs on. It will ask again.']]},
- words:{name:'The Library of Echoes',icon:'📚',sky:0x1a1028,fog:0x6a4a7a,ground:0x5a3a4a,prop:'book',obstacle:'gate',
+ words:{name:'The Library of Echoes',icon:'📚',sky:0x1a1028,fog:0x6a4a7a,ground:0x5a3a4a,prop:'book',obstacle:'gate',foes:['📕'],
   c:[['A talking book blocks the stairs and will move only for someone who knows <b>{t}</b>.','The book flutters aside. {h} climbs higher.','The book snaps shut. It will ask again later.']]},
  quest:{name:'The Endless Tower',icon:'🏰',sky:0x0d1020,fog:0x0d1020,ground:0x2a2f55,prop:'crystal',obstacle:'orb',
   c:[['A guardian blocks the next floor of the tower and asks about <b>{t}</b>.','The guardian steps aside. {h} climbs on.','The guardian holds firm. It will ask again soon.']]}};
 const RID=DECK.realm||(()=>{const s=(DECK.subject+' '+DECK.title).toLowerCase();return /hist|texas|war|civics|government|social/.test(s)?'history':/bio|evolution|selection|cell|life|ecolog|genet/.test(s)?'biology':/math|algebra|geometr|fraction|number/.test(s)?'math':/science|chem|physic|earth|space/.test(s)?'science':/english|reading|spelling|grammar|vocab|language/.test(s)?'words':'quest'})();
 const REALM=REALMS[RID]||REALMS.quest;
 const fill=(x,h,t)=>x.replace(/\{h\}/g,'<b>'+esc(h)+'</b>').replace(/\{t\}/g,esc(t||'this'));
-function chal(qi){const q=DECK.questions[qi];if(q.scene)return[q.scene,q.win||REALM.c[0][1],q.lose||REALM.c[0][2]];return REALM.c[(qi*7+3)%REALM.c.length]}
+function chal(qi){const q=DECK.questions[qi];const k=(qi*7+3)%REALM.c.length;const foe=q.foe||(REALM.foes||[])[q.scene?0:k]||REALM.icon;if(q.scene)return[q.scene,q.win||REALM.c[0][1],q.lose||REALM.c[0][2],foe];return[...REALM.c[k],foe]}
+const hex=n=>'#'+n.toString(16).padStart(6,'0');
+// a queue entry is a question index, or {p,s} for step s of question p (asked after a first miss)
+function itemOf(e){if(typeof e==='number'){const b=DECK.questions[e];const n=S.asks[e]||0;const vs=b.variants||[];const v=n>0&&vs.length?vs[(n-1)%vs.length]:null;return{qi:e,q:v?{...b,...v,type:v.type||(v.accept?'type':'mc')}:b,step:false}}
+ const b=DECK.questions[e.p];return{qi:e.p,q:{topic:b.topic,explain:b.explain,...b.steps[e.s]},step:true,k:e.s,n:b.steps.length}}
+const rnd=(a,b)=>a+(Math.random()*(b-a+1)|0);
+function outcome(h,ok,gold,boss,foe){const I=h.inv;const out=[];
+ if(ok){const g=rnd(2,4)+(gold?2:0);I.gold+=g;out.push('+'+g+' 🪙');if(Math.random()<.22){const it=LOOT[rnd(0,LOOT.length-1)];I.items.push(it);out.push('found '+it)}if(I.hp<maxHp(h)&&Math.random()<.3){I.hp++;out.push('+1 ❤️')}}
+ else{if(boss||I.gold<1||Math.random()<.6){const d=boss?1:rnd(1,3);I.hp=Math.max(0,I.hp-d);out.push(foe+' hits! −'+d+' ❤️')}else{const g=Math.min(I.gold,rnd(1,4));I.gold-=g;out.push('dropped '+g+' 🪙 running away')}
+  const pi=I.items.indexOf('🧪 Healing Potion');if(I.hp<=3&&I.hp>0&&pi>=0){I.items.splice(pi,1);I.hp=Math.min(maxHp(h),I.hp+5);out.push('drank a 🧪 potion: +5 ❤️')}
+  if(I.hp<=0){const g=Math.min(I.gold,5);I.gold-=g;I.hp=maxHp(h);out.push('fainted! Woke at camp, healed, −'+g+' 🪙')}}
+ return out}
 // ---------- run ----------
-function newRun(){const rec=store.get(KEY);const miss=(rec&&rec.miss||[]).filter(i=>i<DECK.questions.length);const rest=DECK.questions.map((_,i)=>i).filter(i=>!miss.includes(i));S={warm:miss.length,queue:shuffle(miss).concat(shuffle(rest)),mastered:new Set(),firstMiss:new Set(),seen:new Set(),xp:0,streak:0,best:0,answered:0,correct:0,log:{},keen:false,wind:false,boss:null,started:new Date().toISOString()}}
+function newRun(){const rec=store.get(KEY);const miss=(rec&&rec.miss||[]).filter(i=>i<DECK.questions.length);const rest=DECK.questions.map((_,i)=>i).filter(i=>!miss.includes(i));S={warm:miss.length,queue:shuffle(miss).concat(shuffle(rest)),mastered:new Set(),firstMiss:new Set(),seen:new Set(),xp:0,streak:0,best:0,answered:0,correct:0,log:{},keen:false,wind:false,boss:null,asks:{},split:new Set(),steps:{},started:new Date().toISOString()}}
 const app=document.getElementById('app');
 function hud(){const h=H.cur();const pct=100*S.mastered.size/DECK.questions.length;const L=heroLvl(h);const lo=L>1?need(L-1):0;
- return `<div class="hud">${S.duo?'<span class="small">👥 Turn:</span>':''}<span>${CLASSES[h.cls].icon} <b>${esc(h.name)}</b></span><span>Lv <b>${L}</b> <span class="small">(${h.xp-lo}/${need(L)-lo})</span></span><span>${esc(STAT)} <b>${area(h,STAT).lvl}</b></span><span>Streak <b>${S.streak}</b>${S.streak>=goldAt()?' 🔥':''}</span><div class="bar" title="mastered"><i style="width:${pct}%"></i></div><span class="small">${S.mastered.size}/${DECK.questions.length} mastered</span></div>`}
+ return `<div class="hud">${S.duo?'<span class="small">👥 Turn:</span>':''}<span>${CLASSES[h.cls].icon} <b>${esc(h.name)}</b></span><span>Lv <b>${L}</b> <span class="small">(${h.xp-lo}/${need(L)-lo})</span></span><span>${esc(STAT)} <b>${area(h,STAT).lvl}</b></span><span>❤️ <b>${h.inv.hp}</b>/${maxHp(h)}</span><span>🪙 <b>${h.inv.gold}</b></span><span>Streak <b>${S.streak}</b>${S.streak>=goldAt()?' 🔥':''}</span><div class="bar" title="mastered"><i style="width:${pct}%"></i></div><span class="small">${S.mastered.size}/${DECK.questions.length} mastered</span></div>`}
 // ---------- screens ----------
 function title(){const h=H.cur();if(!h)return heroCreate(false);const rec=store.get(KEY);const a=area(h,STAT);
  app.innerHTML=`<div class="card"><div class="topic">${esc(DECK.subject)}</div><h1>${esc(DECK.title)}</h1><p>${DECK.intro}</p>
@@ -123,7 +173,7 @@ function title(){const h=H.cur();if(!h)return heroCreate(false);const rec=store.
  <p class="small">Every right answer stacks a block on your tower and trains your hero. Streaks make gold blocks and double XP. Miss one and it comes back later until you get it.</p>
  ${rec?`<p class="small">Best so far: ${rec.score}% right on first try, top streak ${rec.best}.</p>`:''}
  ${rec&&rec.miss&&rec.miss.length?`<p class="small">🔁 Warm-up: the ${rec.miss.length} question${rec.miss.length>1?'s':''} you missed last time (${esc(rec.last||'')}) come first.</p>`:''}
- <div class="hero"><div class="big">${CLASSES[h.cls].icon}</div><div><b>${esc(h.name)}</b> the ${h.cls} · Level ${heroLvl(h)} · ${h.quests} quests<br><span class="small">${esc(STAT)} level ${a.lvl} · Feats: ${h.feats.map(featName).join(', ')}</span></div></div>
+ <div class="hero"><div>${avatar(h,80)}</div><div><b>${esc(h.name)}</b> the ${h.cls} · Level ${heroLvl(h)} · ${h.quests} quests · ❤️ ${h.inv.hp}/${maxHp(h)} · 🪙 ${h.inv.gold}<br><span class="small">${esc(STAT)} level ${a.lvl} · Feats: ${h.feats.map(featName).join(', ')}</span>${invStr(h)}</div></div>
  <div class="row"><button class="go" id="start">Start quest ▶</button><button id="sheet">Character sheet</button><button id="switch">Switch hero</button></div></div>`;
  document.getElementById('start').onclick=pickHero;
  document.getElementById('sheet').onclick=sheet;document.getElementById('switch').onclick=switcher}
@@ -141,18 +191,28 @@ function duoPick(){const d=H.all();const sel=[];
  document.getElementById('go').onclick=()=>{newRun();startDuo(sel);World.reset();next()};document.getElementById('nh').onclick=()=>heroCreate(true);document.getElementById('bk').onclick=pickHero}
 function startDuo(ids){S.duo={ids:ids.slice(),turn:0,p:Object.fromEntries(ids.map(id=>[id,{right:0,first:0,asked:0,xp:0}]))}}
 function duoTurn(){if(!S||!S.duo)return;const d=H.all();d.active=S.duo.ids[S.duo.turn%2];H.save(d);World.tint()}
-function heroCreate(back){app.innerHTML=`<div class="card"><h1>Create your hero</h1><p>Your hero levels up in every studywright game you play. You can make more heroes later and switch between them.</p>
- <input type="text" id="hn" maxlength="24" placeholder="Hero name" autocomplete="off"><h2>Pick a class</h2><div class="choices">${Object.entries(CLASSES).map(([c,v])=>`<button data-c="${c}">${v.icon} <b>${c}</b>: starts with ${FEATS[v.feat].name}. <span class="small">${FEATS[v.feat].desc}</span></button>`).join('')}</div>
- <div class="row">${back?'<button id="bk">Back</button>':''}<button id="imp">Load hero from a saved record</button></div></div>`;
- app.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{const n=document.getElementById('hn').value.trim();if(!n){document.getElementById('hn').focus();popup('Name your hero first');return}H.put(newHero(n,b.dataset.c));title()});
- if(back)document.getElementById('bk').onclick=title;document.getElementById('imp').onclick=importHero}
+function heroCreate(back){const st={cls:'Ranger',look:{skin:LOOK.skin[1],hair:'Brown',style:'Short',outfit:'Forest',gear:'Bow',pet:'None'}};
+ const opt=(k,vals,lab)=>`<div class="small">${lab}</div><div class="opts">${vals.map(v=>`<button data-k="${k}" data-v="${esc(v)}" class="${st.look[k]===v?'sel':''}">${k==='skin'?`<span class="sw" style="background:${v}"></span>`:k==='hair'?`<span class="sw" style="background:${LOOK.hair[v]}"></span> ${v}`:k==='outfit'?`<span class="sw" style="background:${LOOK.outfit[v]}"></span> ${v}`:k==='pet'&&PETI[v]?PETI[v]+' '+v:v}</button>`).join('')}</div>`;
+ function draw(){const nm=(document.getElementById('hn')||{}).value||'';const fake={name:nm||'Hero',cls:st.cls,look:st.look};
+  app.innerHTML=`<div class="card"><h1>Create your hero</h1><p>Your hero levels up in every studywright game you play. Every choice changes how they look and what they carry.</p>
+  <input type="text" id="hn" maxlength="24" placeholder="Hero name" autocomplete="off" value="${esc(nm)}">
+  <div class="hero"><div>${avatar(fake,96)}</div><div><b>${esc(nm||'Your hero')}</b> the ${st.cls}<br><span class="small">Starts with ${FEATS[CLASSES[st.cls].feat].name}: ${FEATS[CLASSES[st.cls].feat].desc}</span><br><span class="small">Pack: ⚔️ ${esc(st.look.gear)}, ${KIT[st.cls].join(', ')}, 🧪 Healing Potion${PETI[st.look.pet]?', '+PETI[st.look.pet]+' '+st.look.pet:''} · ❤️ ${maxHp(fake)} HP · 🪙 10 gold</span></div></div>
+  <h2>Class</h2><div class="opts">${Object.entries(CLASSES).map(([c,v])=>`<button data-c="${c}" class="${st.cls===c?'sel':''}">${v.icon} ${c}</button>`).join('')}</div>
+  ${opt('gear',LOOK.gear[st.cls],'Weapon / tool')}${opt('skin',LOOK.skin,'Skin')}${opt('hair',Object.keys(LOOK.hair),'Hair colour')}${opt('style',LOOK.style,'Hair style')}${opt('outfit',Object.keys(LOOK.outfit),'Outfit')}${opt('pet',LOOK.pet,'Companion')}
+  <div class="row"><button class="go" id="mk">Create hero ▶</button>${back?'<button id="bk">Back</button>':''}<button id="imp">Load hero from a saved record</button></div></div>`;
+  app.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{st.cls=b.dataset.c;st.look.gear=LOOK.gear[st.cls][0];draw()});
+  app.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{st.look[b.dataset.k]=b.dataset.v;draw()});
+  document.getElementById('hn').oninput=e=>{const p=app.querySelector('.hero b');if(p)p.textContent=e.target.value||'Your hero'};
+  document.getElementById('mk').onclick=()=>{const n=document.getElementById('hn').value.trim();if(!n){document.getElementById('hn').focus();popup('Name your hero first');return}H.put(newHero(n,st.cls,{...st.look}));World.tint();title()};
+  if(back)document.getElementById('bk').onclick=title;document.getElementById('imp').onclick=importHero}
+ draw()}
 function switcher(){const d=H.all();app.innerHTML=`<div class="card"><h1>Heroes</h1><div class="choices">${d.list.map(h=>`<button data-h="${h.id}">${CLASSES[h.cls].icon} <b>${esc(h.name)}</b> the ${h.cls} · Level ${heroLvl(h)}${h.id===d.active?' · <i>playing</i>':''}</button>`).join('')}</div>
  <div class="row"><button class="go" id="nh">New hero +</button><button id="bk">Back</button></div></div>`;
  app.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{d.active=b.dataset.h;H.save(d);title()});
  document.getElementById('nh').onclick=()=>heroCreate(true);document.getElementById('bk').onclick=title}
 function sheet(){const h=H.cur();const recs=(store.get(RKEY)||[]).filter(r=>r.hero&&r.hero.id===h.id);
  const games={};recs.forEach(r=>{const g=games[r.deck]=games[r.deck]||{title:r.title,runs:[]};g.runs.push(r)});
- app.innerHTML=`<div class="card"><h1>${CLASSES[h.cls].icon} ${esc(h.name)}</h1><p>${h.cls} · Level ${heroLvl(h)} · ${h.xp} XP · ${h.quests} quests finished</p>
+ app.innerHTML=`<div class="card"><div class="hero"><div>${avatar(h,110)}</div><div><h1>${esc(h.name)}</h1><p>${h.cls} · Level ${heroLvl(h)} · ${h.xp} XP · ${h.quests} quests finished<br>❤️ ${h.inv.hp}/${maxHp(h)} · 🪙 ${h.inv.gold} gold</p></div></div><h2>Inventory</h2>${invStr(h)}
  <h2>Study areas</h2><p class="small">Areas rise by use (every 15 right answers) and by training from level-ups. Each level adds +1 XP per right answer in that area.</p>
  <ul class="rev">${Object.keys(h.areas).length?Object.keys(h.areas).map(s=>{const a=area(h,s);return`<li><b>${esc(s)}</b> level ${a.lvl} <span class="small">(${a.use} right answers, ${a.train} trained)</span></li>`}).join(''):'<li>None yet. Finish a quest!</li>'}</ul>
  <h2>Feats</h2><ul class="rev">${h.feats.map(f=>`<li><b>${featName(f)}</b>: ${FEATS[f.split(':')[0]].desc}</li>`).join('')}</ul>
@@ -163,31 +223,42 @@ function importHero(){const i=document.createElement('input');i.type='file';i.ac
 function bossIntro(){const n=S.firstMiss.size;app.innerHTML=hud()+`<div class="card boss"><h1>👹 Boss of ${esc(REALM.name)}!</h1><p>The boss knows the ${n} question${n>1?'s':''} that tripped you up. Beat each one before the timer runs out. Every hit is +15 bonus XP.</p><p class="small">Misses here do not change your score. They just go on the review list.</p><div class="row"><button class="go" id="fight">Fight! ⚔️</button><button id="skip">Skip the boss</button></div></div>`;
  document.getElementById('fight').onclick=()=>{S.boss={max:n,hits:0,list:[...S.firstMiss]};S.queue=shuffle([...S.firstMiss]);Sound.lvl();next()};document.getElementById('skip').onclick=()=>{S.boss={max:n,hits:0,list:[...S.firstMiss],skipped:true};finish()}}
 const BOSS_SECS=q=>q.type==='type'?30:20;
-function next(){duoTurn();const h=H.cur();if(h.picks>0)return levelUp();if(!S.queue.length){if(S.boss)return finish();if(S.firstMiss.size)return bossIntro();return finish()}const qi=S.queue[0];const q=DECK.questions[qi];
+function next(){duoTurn();const h=H.cur();if(h.picks>0)return levelUp();if(!S.queue.length){if(S.boss)return finish();if(S.firstMiss.size)return bossIntro();return finish()}const e=S.queue[0];const it=itemOf(e);const qi=it.qi,q=it.q;if(!it.step)S.asks[qi]=(S.asks[qi]||0)+1;const C=chal(qi);
  let body='';
  if(q.type==='type'){body=`<input type="text" id="ans" autocomplete="off" placeholder="Type your answer"><div class="row"><button class="go" id="check">Check</button></div>`}
- else{const order=shuffle(q.choices.map((c,i)=>i));body=`<div class="choices">${order.map((i,k)=>`<button data-i="${i}">${String.fromCharCode(65+k)}. ${q.choices[i]}</button>`).join('')}</div>${hasFeat(h,'keen')&&!S.keen&&q.choices.length>2?'<div class="row"><button id="keen">🔍 Keen Eye: strike a wrong choice (once per quest)</button></div>':''}`}
- app.innerHTML=hud()+`<div class="card" id="card">${S.duo?`<p class="scene">👥 ${CLASSES[h.cls].icon} <b>${esc(h.name)}</b>, your turn!</p>`:''}<div class="topic">${REALM.icon} ${esc(REALM.name)} · ${q.topic||''}</div><p class="scene">${fill(chal(qi)[0],h.name,q.topic)}</p><h2>${q.q}</h2>${body}${'speechSynthesis' in window?'<div class="row"><button id="say" title="Read aloud">🔊 Read it to me</button></div>':''}<div class="fb" id="fb"></div></div>`;
+ else{const order=shuffle(q.choices.map((c,i)=>i));body=`<div class="choices">${order.map((i,k)=>`<button data-i="${i}">${String.fromCharCode(65+k)}. ${q.choices[i]}</button>`).join('')}</div>${hasFeat(h,'keen')&&!S.keen&&!it.step&&q.choices.length>2?'<div class="row"><button id="keen">🔍 Keen Eye: strike a wrong choice (once per quest)</button></div>':''}`}
+ const stage=`<div class="stage" id="stage" style="--sky:linear-gradient(${hex(REALM.fog)},${hex(REALM.sky)});--gnd:${hex(REALM.ground)}"><div class="gnd"></div><div class="ha">${avatar(h,96)}</div><div class="foe">${it.step?'🧩':C[3]}</div><div class="fx" id="fx"></div></div>`;
+ const intro=it.step?`<div class="topic">🪜 Break it down: step ${it.k+1} of ${it.n}</div><p class="scene">${fill('{h} studies the clue one small piece at a time.',h.name)}</p>`:`<p class="scene">${fill(C[0],h.name,q.topic)}</p>`;
+ app.innerHTML=hud()+`<div class="card${it.step?' step':''}" id="card">${S.duo?`<p class="scene">👥 ${CLASSES[h.cls].icon} <b>${esc(h.name)}</b>, your turn!</p>`:''}<div class="topic">${REALM.icon} ${esc(REALM.name)} · ${q.topic||''}${!it.step&&S.asks[qi]>1?' · new wording':''}</div>${stage}${intro}<h2>${q.q}</h2>${body}${'speechSynthesis' in window?'<div class="row"><button id="say" title="Read aloud">🔊 Read it to me</button></div>':''}<div class="fb" id="fb"></div></div>`;
  if(S.boss){const card=document.getElementById('card');card.classList.add('boss');card.insertAdjacentHTML('afterbegin',`<div class="topic">👹 Boss: ${S.boss.max-S.queue.length+1} of ${S.boss.max}</div><div class="bar timer"><i id="tm" style="width:100%"></i></div>`);const T=BOSS_SECS(q),t0=Date.now();
-  S.tick=setInterval(()=>{const left=1-(Date.now()-t0)/1000/T;const tm=document.getElementById('tm');if(tm)tm.style.width=Math.max(0,100*left)+'%';if(left<=0){app.querySelectorAll('.choices button').forEach(x=>{x.disabled=true;if(+x.dataset.i===q.answer)x.classList.add('right')});answer(qi,false,'(time ran out)')}},250)}
+  S.tick=setInterval(()=>{const left=1-(Date.now()-t0)/1000/T;const tm=document.getElementById('tm');if(tm)tm.style.width=Math.max(0,100*left)+'%';if(left<=0){app.querySelectorAll('.choices button').forEach(x=>{x.disabled=true;if(+x.dataset.i===q.answer)x.classList.add('right')});answer(it,false,'(time ran out)')}},250)}
  const sb=document.getElementById('say');if(sb)sb.onclick=()=>say(q);
  const kb=document.getElementById('keen');if(kb)kb.onclick=()=>{S.keen=true;const w=shuffle([...app.querySelectorAll('.choices button')].filter(b=>+b.dataset.i!==q.answer))[0];w.disabled=true;w.classList.add('struck');kb.remove()};
- if(q.type==='type'){const inp=document.getElementById('ans');inp.focus();const go=()=>answer(qi,typedOk(q,inp.value),inp.value);document.getElementById('check').onclick=go;inp.onkeydown=e=>{if(e.key==='Enter'){e.stopPropagation();go()}}}
- else app.querySelectorAll('.choices button').forEach(b=>b.onclick=()=>{const pick=+b.dataset.i;app.querySelectorAll('.choices button').forEach(x=>{x.disabled=true;if(+x.dataset.i===q.answer)x.classList.add('right')});if(pick!==q.answer)b.classList.add('wrong');answer(qi,pick===q.answer,q.choices[pick])})}
-function answer(qi,ok,given){clearInterval(S.tick);const q=DECK.questions[qi];const h=H.cur();S.queue.shift();S.answered++;const boss=!!S.boss;
- const first=!S.seen.has(qi);S.seen.add(qi);if(S.duo){const P=S.duo.p[h.id];P.asked++;if(ok){P.right++;if(first)P.first++}S.duo.turn++}(S.log[qi]=S.log[qi]||[]).push({given:String(given),ok});
+ if(q.type==='type'){const inp=document.getElementById('ans');inp.focus();const go=()=>answer(it,typedOk(q,inp.value),inp.value);document.getElementById('check').onclick=go;inp.onkeydown=e=>{if(e.key==='Enter'){e.stopPropagation();go()}}}
+ else app.querySelectorAll('.choices button').forEach(b=>b.onclick=()=>{const pick=+b.dataset.i;app.querySelectorAll('.choices button').forEach(x=>{x.disabled=true;if(+x.dataset.i===q.answer)x.classList.add('right')});if(pick!==q.answer)b.classList.add('wrong');answer(it,pick===q.answer,q.choices[pick])})}
+const READ_SECS=3; // the Next button stays locked this long so the reason gets read
+function answer(it,ok,given){clearInterval(S.tick);if(S.answeredNow===it)return;S.answeredNow=it;const qi=it.qi,q=it.q;const h=H.cur();S.queue.shift();const boss=!!S.boss;const C=chal(qi);let fx=[],tail='';
+ if(it.step){(S.steps[qi]=S.steps[qi]||[]).push({k:it.k,given:String(given),ok});
+  if(ok){const gain=5;S.xp+=gain;const L0=heroLvl(h);h.xp+=gain;h.picks+=heroLvl(h)-L0;h.inv.gold+=1;fx=['+'+gain+' XP','+1 🪙'];Sound.ok()}else{Sound.no();fx=['no harm: steps are practice']}
+  H.put(h);tail=ok?'<p class="small">Good. Put the pieces together: the full question comes back soon.</p>':'<p class="small">Now you know this piece. The full question comes back soon.</p>'}
+ else{S.answered++;
+ const first=!S.seen.has(qi);S.seen.add(qi);if(S.duo){const P=S.duo.p[h.id];P.asked++;if(ok){P.right++;if(first)P.first++}S.duo.turn++}(S.log[qi]=S.log[qi]||[]).push({q:q.q,given:String(given),ok});
  if(ok){S.correct++;S.streak++;S.best=Math.max(S.best,S.streak);S.mastered.add(qi);const gold=S.streak>=goldAt();
   const a=h.areas[STAT]=h.areas[STAT]||{use:0,train:0};const before=area(h,STAT).lvl;a.use++;
   let gain=(gold?20:10)+area(h,STAT).lvl;if(q.type==='type'&&hasFeat(h,'scribe'))gain+=5;if(!first&&hasFeat(h,'grit'))gain+=10;if(hasFeat(h,'sage:'+STAT))gain+=3;if(boss){gain+=15;S.boss.hits++}
-  if(S.duo)S.duo.p[h.id].xp+=gain;const L0=heroLvl(h);S.xp+=gain;h.xp+=gain;const L1=heroLvl(h);h.picks+=L1-L0;H.put(h);
+  if(S.duo)S.duo.p[h.id].xp+=gain;const L0=heroLvl(h);S.xp+=gain;h.xp+=gain;const L1=heroLvl(h);h.picks+=L1-L0;fx=['+'+gain+' XP',...outcome(h,true,gold,boss,C[3])];H.put(h);
   World.add(gold);Sound.ok();popup('+'+gain+' XP'+(gold?' 🔥':''));
   if(L1>L0){setTimeout(()=>popup('LEVEL UP! Lv '+L1),500);World.burst();Sound.lvl()}else if(area(h,STAT).lvl>before)setTimeout(()=>popup(STAT+' skill up!'),500)}
- else{if(first)S.firstMiss.add(qi);if(hasFeat(h,'wind')&&!S.wind)S.wind=true;else S.streak=0;if(!boss)S.queue.splice(Math.min(3,S.queue.length),0,qi);World.wobble();Sound.no();document.getElementById('card').classList.add('shake')}
+ else{if(first)S.firstMiss.add(qi);if(hasFeat(h,'wind')&&!S.wind)S.wind=true;else S.streak=0;fx=outcome(h,false,false,boss,C[3]);H.put(h);
+  if(!boss){const st=DECK.questions[qi].steps||[];if(st.length&&!S.split.has(qi)){S.split.add(qi);S.queue.unshift(...st.map((_,k)=>({p:qi,s:k})));S.queue.splice(Math.min(st.length+2,S.queue.length),0,qi);if(S.duo)S.duo.turn--;tail="<p class=\"small\">🪜 Let's break this one into smaller steps first. Then it comes back with new wording.</p>"}
+   else{S.queue.splice(Math.min(3,S.queue.length),0,qi);tail='<p class="small">This one will come back in a few questions, worded a new way.</p>'}}
+  World.wobble();Sound.no();document.getElementById('card').classList.add('shake')}}
  const right=q.type==='type'?q.accept[0]:q.choices[q.answer];
+ const stg=document.getElementById('stage');if(stg){stg.classList.add(ok?'win':'lose');document.getElementById('fx').innerHTML=fx.map(esc).join('<br>')}
  const fb=document.getElementById('fb');fb.className='fb '+(ok?'ok':'no');
- fb.innerHTML=`<p class="scene">${boss?(ok?'👹 A clean hit! The boss staggers.':'👹 Too slow or off the mark. The boss shrugs it off.'):fill(chal(qi)[ok?1:2],h.name,q.topic)}</p><strong>${ok?'Correct!':'Not quite.'}</strong> ${ok?'':`The answer is <b>${right}</b>.`}<p>${q.explain}</p>${ok||boss?'':'<p class="small">This one will come back in a few questions.</p>'}<div class="row"><button class="go" id="nx">Next ▶ <span class="small">(Enter)</span></button></div>`;
+ fb.innerHTML=`<p class="scene">${it.step?(ok?'The piece clicks into place.':'Not that piece.'):boss?(ok?'👹 A clean hit! The boss staggers.':'👹 Too slow or off the mark. The boss shrugs it off.'):fill(C[ok?1:2],h.name,q.topic)}</p><p class="small">${fx.map(esc).join(' · ')}</p><strong>${ok?'Correct!':'Not quite.'}</strong> ${ok?'':`The answer is <b>${right}</b>.`}<p>${q.explain}</p>${ok||boss?'':tail}${it.step&&ok?tail:''}<div class="row"><button class="go wait" id="nx" disabled>Read it… ${READ_SECS}</button></div>`;
  const inp=document.getElementById('ans');if(inp)inp.disabled=true;const c=document.getElementById('check');if(c)c.disabled=true;const kb=document.getElementById('keen');if(kb)kb.remove();
- const nx=document.getElementById('nx');nx.focus();nx.onclick=next;
+ try{fb.scrollIntoView({behavior:'smooth',block:'nearest'})}catch(e){}const nx=document.getElementById('nx');let left=READ_SECS;const t=setInterval(()=>{left--;if(!nx.isConnected)return clearInterval(t);if(left>0){nx.textContent='Read it… '+left;return}clearInterval(t);nx.disabled=false;nx.classList.remove('wait');nx.innerHTML='Next ▶ <span class="small">(Enter)</span>';nx.focus()},1000);nx.onclick=()=>{if(!nx.disabled)next()};
  app.querySelector('.hud').outerHTML=hud()}
 function levelUp(){const h=H.cur();const opts=[{k:'train',label:`+1 ${esc(STAT)} (training)`,desc:`Raise ${esc(STAT)} to level ${area(h,STAT).lvl+1}: +1 more XP per right answer in ${esc(STAT)}.`}];
  Object.keys(FEATS).forEach(f=>{if(FEATS[f].area){if(area(h,STAT).lvl>=3&&!hasFeat(h,'sage:'+STAT))opts.push({k:'sage:'+STAT,label:'Feat: Sage of '+esc(STAT),desc:FEATS.sage.desc})}else if(!hasFeat(h,f))opts.push({k:f,label:'Feat: '+FEATS[f].name,desc:FEATS[f].desc})});
@@ -217,7 +288,7 @@ function finishScreen(){const h=H.cur();const score=S.score;const stars=score>=9
  if(h.picks>0)setTimeout(levelUp,2500)}
 function say(q){try{speechSynthesis.cancel();const t=document.createElement('div');t.innerHTML=q.q;const ch=[...document.querySelectorAll('.choices button:not(:disabled)')].map(x=>x.textContent);const u=new SpeechSynthesisUtterance([t.textContent,...ch].join('. '));u.rate=.95;speechSynthesis.speak(u)}catch(e){}}
 function popup(t){const d=document.createElement('div');d.className='pop';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1000)}
-document.addEventListener('keydown',e=>{const ae=document.activeElement;if(ae&&ae.tagName==='INPUT')return;if(e.key==='Enter'){const nx=document.getElementById('nx');if(nx&&ae!==nx){e.preventDefault();nx.click()}}
+document.addEventListener('keydown',e=>{const ae=document.activeElement;if(ae&&ae.tagName==='INPUT')return;if(e.key==='Enter'){const nx=document.getElementById('nx');if(nx&&(nx.disabled||ae!==nx)){e.preventDefault();if(!nx.disabled)nx.click()}}
  const k=e.key.toUpperCase().charCodeAt(0)-65;const bs=app.querySelectorAll('#card .choices button');if(e.key.length===1&&k>=0&&k<bs.length&&!bs[k].disabled)bs[k].click()});
 // ---------- sound ----------
 const Sound=(()=>{let ctx;function tone(f,d,t='sine',when=0){try{ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(.12,ctx.currentTime+when);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+when+d);o.connect(g).connect(ctx.destination);o.start(ctx.currentTime+when);o.stop(ctx.currentTime+when+d)}catch(e){}}
@@ -243,7 +314,11 @@ const World=(()=>{const none={add(){},wobble(){},burst(){},reset(){},tint(){}};i
  const props=new THREE.Group();sc.add(props);for(let i=0;i<14;i++){const p=prop(REALM.prop);const a=i/14*Math.PI*2+Math.random()*.3,rr=8+Math.random()*10;p.position.set(Math.cos(a)*rr,-.4,Math.sin(a)*rr);p.rotation.y=Math.random()*6;p.scale.setScalar(.8+Math.random()*.6);props.add(p)}
  const heroCol={Scholar:0x4cc9f0,Ranger:0x3ddc84,Knight:0xc0c8d8,Mage:0xb388ff};const hc=(H.cur()&&heroCol[H.cur().cls])||0xffd166;
  const hero=new THREE.Group();const hb=new THREE.Mesh(new THREE.CylinderGeometry(.22,.32,.7,10),M(hc,{metalness:.3}));hb.position.y=.35;hero.add(hb);const hh=new THREE.Mesh(new THREE.SphereGeometry(.2,12,10),M(0xf2c9a0));hh.position.y=.9;hero.add(hh);
- const cape=new THREE.Mesh(new THREE.ConeGeometry(.35,.75,10,1,true),M(0xaa2233,{side:THREE.DoubleSide}));cape.position.set(0,.4,-.08);hero.add(cape);sc.add(hero);let heroY=0,jump=0;
+ const cape=new THREE.Mesh(new THREE.ConeGeometry(.35,.75,10,1,true),M(0xaa2233,{side:THREE.DoubleSide}));cape.position.set(0,.4,-.08);hero.add(cape);const hair=new THREE.Mesh(new THREE.SphereGeometry(.21,12,8,0,Math.PI*2,0,Math.PI/2),M(0x333333));hair.position.y=.93;hero.add(hair);const extra=new THREE.Group();hero.add(extra);sc.add(hero);
+ function dress(){const c=H.cur();if(!c)return;const L=c.look;hb.material.color.set(LOOK.outfit[L.outfit]||'#888');hh.material.color.set(L.skin);hair.material.color.set(LOOK.hair[L.hair]||'#333');hair.visible=L.style!=='Bald';cape.material.color.set(LOOK.outfit[L.outfit]||'#888').offsetHSL(0,0,-.2);extra.clear();
+  if(c.cls==='Mage'){const h=new THREE.Mesh(new THREE.ConeGeometry(.24,.5,12),M(LOOK.outfit[L.outfit]));h.position.y=1.25;extra.add(h)}else if(c.cls==='Knight'){const h=new THREE.Mesh(new THREE.SphereGeometry(.23,12,8,0,Math.PI*2,0,Math.PI/2),M(0xc0c8d8,{metalness:.8}));h.position.y=.92;extra.add(h);hair.visible=false}
+  const w=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,.9,6),M(/Staff|Spear|Bow|Hammer|Slingshot/.test(L.gear)?0x8a5a2a:0xdde0ee,{metalness:.5}));w.position.set(.32,.5,.1);w.rotation.z=-.2;extra.add(w);
+  if(PETI[L.pet]){const pt=new THREE.Mesh(new THREE.SphereGeometry(.13,8,8),M({Owl:0x8a6a4a,Fox:0xd9752a,Cat:0x777777,Dragonling:0x3ddc84,Frog:0x4caf50}[L.pet]));pt.position.set(-.4,.13,.2);extra.add(pt)}}dress();let heroY=0,jump=0;
  function obstacle(){const g=new THREE.Group();const k=REALM.obstacle;
   if(k==='gate'){const w=M(0x6a4422);[-.55,.55].forEach(x=>{const p=new THREE.Mesh(new THREE.BoxGeometry(.18,1.3,.18),w);p.position.set(x,.65,0);g.add(p)});const bar=new THREE.Mesh(new THREE.BoxGeometry(1.3,.14,.14),M(0x3a2410));bar.position.y=.9;g.add(bar);const bar2=bar.clone();bar2.position.y=.45;g.add(bar2)}
   else if(k==='vine'){for(let i=0;i<5;i++){const v=new THREE.Mesh(new THREE.TorusGeometry(.4+i*.05,.06,5,12,Math.PI*1.5),M(0x2f6a1f));v.position.y=.6;v.rotation.set(Math.random()*3,Math.random()*3,0);g.add(v)}const th=new THREE.Mesh(new THREE.SphereGeometry(.15,8,6),M(0xcc3355));th.position.y=1.1;g.add(th)}
@@ -260,7 +335,7 @@ const World=(()=>{const none={add(){},wobble(){},burst(){},reset(){},tint(){}};i
  function add(gold){const n=tower.children.length;const m=new THREE.Mesh(new THREE.BoxGeometry(1.6,.5,1.6),new THREE.MeshStandardMaterial({color:gold?0xffd166:accent.clone().offsetHSL((n*.03)%1,0,0),emissive:gold?0x664400:0x000000,metalness:.3,roughness:.4}));
   m.position.set((Math.random()-.5)*.25,n*.52+6,(Math.random()-.5)*.25);m.rotation.y=n*.35;m.userData.ty=n*.52+.25;tower.add(m);if(obs)shatter(obs.position,REALM.obstacle==='vine'?0x2f6a1f:0x8a6a3a);heroY=(n+1)*.52;jump=1;setTimeout(newObs,350)}
  function burst(){const top=tower.children.length*.52;for(let i=0;i<60;i++){const p=new THREE.Mesh(new THREE.SphereGeometry(.07,6,6),new THREE.MeshBasicMaterial({color:new THREE.Color().setHSL(Math.random(),1,.6)}));p.position.set(0,top,0);p.userData.v=new THREE.Vector3((Math.random()-.5)*.3,Math.random()*.3,(Math.random()-.5)*.3);p.userData.life=80;parts.add(p)}}
- function reset(){tower.clear();parts.clear();heroY=0;newObs();const c=H.cur();if(c&&heroCol[c.cls])hb.material.color.setHex(heroCol[c.cls])}newObs();
+ function reset(){tower.clear();parts.clear();heroY=0;newObs();dress()}newObs();
  let t=0;(function loop(){requestAnimationFrame(loop);t+=.005;
   tower.children.forEach(m=>{m.position.y+=(m.userData.ty-m.position.y)*.15});
   tower.rotation.z=Math.sin(wob*20)*wob*.15;
@@ -269,7 +344,7 @@ const World=(()=>{const none={add(){},wobble(){},burst(){},reset(){},tint(){}};i
   props.children.forEach(p=>{if(p.userData.spin)p.userData.spin.rotation.z+=.01});wob*=.92;
   parts.children.slice().forEach(p=>{p.position.add(p.userData.v);p.userData.v.y-=.006;if(--p.userData.life<=0)parts.remove(p)});
   const h=tower.children.length*.52;camY+=((h+3)-camY)*.05;cam.position.set(Math.sin(t)*10,camY+2,Math.cos(t)*10);cam.lookAt(0,Math.max(1,h-1),0);stars.rotation.y=t*.2;r.render(sc,cam)})();
- return{add,wobble(){wob=1},burst,reset,tint(){const c=H.cur();if(c&&heroCol[c.cls])hb.material.color.setHex(heroCol[c.cls])}}}catch(e){return none}})();
+ return{add,wobble(){wob=1},burst,reset,tint:dress}}catch(e){return none}})();
 title();
 </script>
 </body>
