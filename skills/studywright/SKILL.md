@@ -25,7 +25,7 @@ The engine is [templates/game.html](templates/game.html); `SW build` fills it. `
 3. **Build and check**: `SW build decks/<slug>.json games/<slug>.html`. Fix every ERROR.
 4. **Play it through** in a browser (serve `games/` on 127.0.0.1 if file:// is blocked; port 8765 may be refused on Windows, use 18765): answer some wrong, confirm the miss returns and the end screen lists it with its answer.
 5. **Follow-up tests.** Before writing one, read `records/INDEX.md` and the linked records (run `SW records` first to file new downloads). Write a new deck with `"follows": "<old id>"` that re-tests every first-try miss at least twice in NEW scenarios (apply it, not recall the sheet's wording), plus a few items the student got right as a check.
-6. Hand over the file paths; the pages work offline (three.js is optional, the quiz runs without it).
+6. Hand over each game as a copyable browser link in a code span, e.g. `file:///D:/path/to/games/<slug>.html` (forward slashes, spaces as %20), so the parent can paste it into a browser outside the agent harness; a clickable markdown link alone only opens inside the editor. The pages work offline (three.js is optional, the quiz runs without it).
 
 ## Deck format
 
