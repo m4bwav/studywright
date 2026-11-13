@@ -40,6 +40,7 @@ svg{max-width:100%;height:auto;display:block}
 <div id="app"></div>
 <script>
 const DECK = __DECK__;
+/*__KIT__*/
 // GEN-START (pure functions; tested by scripts/verify_lesson.js)
 function ri(a,b){return a+Math.floor(Math.random()*(b-a+1))}
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
@@ -148,11 +149,16 @@ const SK=DECK.skills;
 function newRun(){S={start:Date.now(),layer:0,route:[],gold:0,res:{},log:[],answers:0,hero:H.cur()}}
 const elapsed=()=>Math.round((Date.now()-S.start)/1000);
 const mmss=t=>Math.floor(t/60)+':'+String(t%60).padStart(2,'0');
-function hud(){const h=S.hero;return `<div class="hud"><span>${h?esc(h.name):'Hero'}</span><span>🪙 <b>${S.gold}</b></span><span>⏱ ${mmss(elapsed())}</span><span>Stage ${Math.min(S.layer+1,DECK.map.length)} of ${DECK.map.length}</span></div>`}
-function title(){const h=H.cur();
+function hud(){const h=S.hero;return `<div class="hud"><span style="display:inline-flex;align-items:center;gap:6px">${h?Kit.img(h,26)+esc(h.name):'Hero'}</span><span>🪙 <b>${S.gold}</b></span><span>⏱ ${mmss(elapsed())}</span><span>Stage ${Math.min(S.layer+1,DECK.map.length)} of ${DECK.map.length}</span></div>`}
+function mkHero(r){return{id:'h'+Date.now().toString(36),name:r.name,cls:r.cls,xp:0,areas:{},feats:[{Scholar:'scribe',Ranger:'keen',Knight:'wind',Mage:'focus'}[r.cls]],picks:0,created:new Date().toISOString(),quests:0,look:r.look}}
+function heroMake(edit){Kit.builder({mount:html=>{app.innerHTML=html;return app},edit,back:H.cur()?title:null,done:r=>{if(edit){edit.look=r.look;H.put(edit)}else H.put(mkHero(r));title()}})}
+function title(){const h=H.cur();if(!h)return heroMake();const d=H.all(),others=d.list.filter(x=>x.id!==h.id);
  app.innerHTML=`<div class="card pop"><div class="topic">${esc(DECK.subject)}</div><h1>${esc(DECK.title)}</h1><p>${esc(DECK.intro)}</p><p><b>You need paper and a pencil.</b> About ${DECK.minutes||10} minutes.</p>
- ${h?`<button class="go" id="go">Play as ${esc(h.name)} the ${esc(h.cls)} (level ${heroLvl(h)})</button>`:`<div class="row"><input class="num" style="width:12em" id="nm" placeholder="Hero name" maxlength="20"><button class="go" id="go">Start</button></div>`}</div>`;
- $('go').onclick=()=>{if(!h){const n=($('nm').value||'').trim()||'Wanderer';H.put({id:'h'+Date.now().toString(36),name:n,cls:'Scholar',xp:0,areas:{},feats:['scribe'],picks:0,created:new Date().toISOString(),quests:0})}newRun();map()}}
+ <div style="display:flex;gap:14px;align-items:center;margin:10px 0">${Kit.img(h,84)}<div><b>${esc(h.name)}</b> the ${esc(h.cls)} · level ${heroLvl(h)}<br><span class="small">The same hero plays every studywright game.</span></div></div>
+ <button class="go" id="go">Play as ${esc(h.name)} ▶</button>
+ <div class="row" style="margin-top:10px">${others.map(x=>`<button data-h="${x.id}">Play as ${esc(x.name)} the ${esc(x.cls)}</button>`).join('')}<button id="ed">🎨 Change how ${esc(h.name)} looks</button><button id="nh">➕ New hero</button></div></div>`;
+ $('go').onclick=()=>{newRun();map()};$('ed').onclick=()=>heroMake(h);$('nh').onclick=()=>heroMake();
+ app.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{d.active=b.dataset.h;store.set(HKEY,d);title()})}
 function map(){const L=DECK.map,W=360,rowH=64,Hh=(L.length+1)*rowH+40,X=[110,250],cy=i=>Hh-40-(i+1)*rowH;let g='';
  g+=`<circle cx="${W/2}" cy="${Hh-30}" r="12" fill="#a8b0d8"/><text x="${W/2}" y="${Hh-6}" fill="#a8b0d8" font-size="12" text-anchor="middle">start</text>`;
  const px=i=>i<0?W/2:X[S.route[i]==='solo'?1:0];
@@ -209,8 +215,9 @@ function finish(){const sec=elapsed(),h=H.cur(),skills=Object.keys(SK),firstOk=s
  app.innerHTML=`<div class="card pop"><div class="topic">${esc(DECK.goal||'Done')}</div><h1>🏰 You reached the top!</h1><p>Time: <b>${mmss(sec)}</b> · 🪙 ${S.gold} gold · +${xp} XP${lvUp?' · <b class="ok">Level up!</b> Pick your new feat next time you open a quest game.':''}</p>
  <table class="steps">${skills.map(k=>`<tr><td style="text-align:left">${esc(SK[k].name)}</td><td>${S.res[k]&&S.res[k].first_try?'<span class="ok">✓ first try</span>':'<span class="no">✗ needs another look</span>'}</td></tr>`).join('')}</table>
  <p><b>${esc(ready)}</b></p><p class="small">A record of this run was saved to Downloads (${esc(S.fname)}).</p>
+ ${Kit.notesHtml(R,S.fname)}
  <div class="row"><button class="go" id="again">Play again (new numbers)</button><button id="save">Save record again</button></div></div>`;
- $('again').onclick=()=>{newRun();map()};$('save').onclick=()=>download(S.fname,R)}
+ Kit.notesWire(R,S.fname);$('again').onclick=()=>{newRun();map()};$('save').onclick=()=>download(S.fname,R)}
 function download(name,obj){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,1)],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){}}
 setInterval(()=>{const t=document.querySelector('.hud span:nth-child(3)');if(t&&S&&S.layer<DECK.map.length)t.textContent='⏱ '+mmss(elapsed())},1000);
 title();

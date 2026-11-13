@@ -5,7 +5,7 @@ const fs=require('fs'),vm=require('vm');
 const [file,runsArg,bannedFile]=process.argv.slice(2),RUNS=+(runsArg||3000);
 const src=fs.readFileSync(file,'utf8').match(/<script>([\s\S]*)<\/script>/)[1];
 const el=()=>({set innerHTML(v){},get innerHTML(){return''},querySelectorAll:()=>[],classList:{toggle(){}},focus(){}});
-const ctx={document:{getElementById:el,querySelector:()=>null,createElement:el,body:{appendChild(){}}},localStorage:{getItem:()=>null,setItem(){}},setInterval(){},setTimeout(){},console,Math,JSON,Date,Number,String,Array,Set,Object,Error,URL:{},Blob:function(){}};
+const ctx={document:{getElementById:el,querySelector:()=>null,createElement:el,body:{appendChild(){}}},localStorage:{getItem:k=>k==='studywright:heroes'?JSON.stringify({active:'t',list:[{id:'t',name:'Tester',cls:'Scholar',xp:0,areas:{},feats:[],picks:0,quests:0}]}):null,setItem(){}},setInterval(){},setTimeout(){},console,Math,JSON,Date,Number,String,Array,Set,Object,Error,URL:{},Blob:function(){}};
 vm.createContext(ctx);vm.runInContext(src.replace(/\nconst (DECK|KINDS|SK)\b/g,'\nvar $1').replace(/\nlet S;/,'\nvar S;'),ctx);
 const banned=new Set((bannedFile?JSON.parse(fs.readFileSync(bannedFile,'utf8')):[]).map(v=>v.slice().sort((a,b)=>a-b).join(',')));
 let sets=[],fails=[];const og5=ctx.gen5,oga=ctx.genAround;

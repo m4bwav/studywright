@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__TITLE__</title>
+<style>
+:root{--ac:__ACCENT__;--bg:#0b0e1a;--card:#161b2e;--ink:#e8ecf8;--dim:#9aa3bd}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,Segoe UI,sans-serif;overflow:hidden}
+#hud{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;gap:10px;align-items:center;padding:6px 10px;background:#0b0e1ad9;border-bottom:1px solid #263050;flex-wrap:wrap}
+#hud .who{display:flex;gap:8px;align-items:center;font-weight:600}#hud canvas{background:#1d2440;border-radius:8px}
+#hud .bar{width:110px;height:8px;background:#263050;border-radius:4px;overflow:hidden}#hud .bar i{display:block;height:100%;background:var(--ac)}
+#hud .sp{flex:1}#hud button{padding:6px 10px;font-size:14px}
+button{font:inherit;color:var(--ink);background:#222a47;border:1px solid #36426b;border-radius:10px;padding:10px 14px;cursor:pointer;text-align:left}
+button:hover:not(:disabled){border-color:var(--ac)}button:disabled{opacity:.55;cursor:default}
+button.go{background:var(--ac);color:#08110b;border-color:var(--ac);font-weight:700}
+button.sel{outline:2px solid var(--ac);background:#2b3560}
+button.right{background:#1f6f3d;border-color:#35c26b}button.wrong{background:#7a2530;border-color:#e0566a}
+#cv{position:fixed;left:0;top:0;display:block;touch-action:none}
+#ov{position:fixed;inset:0;z-index:10;display:none;align-items:flex-start;justify-content:center;background:#060814cc;overflow:auto;padding:56px 12px 24px}
+.card{background:var(--card);border:1px solid #2b3560;border-radius:16px;padding:20px 22px;max-width:760px;width:100%;box-shadow:0 12px 40px #000a;animation:pop .22s ease-out}
+@keyframes pop{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
+.rm .card{animation:none}
+h1{margin:.1em 0 .4em;font-size:1.5em}h2{margin:1em 0 .3em;font-size:1.05em;color:var(--ac)}p{margin:.4em 0}
+.small{color:var(--dim);font-size:.86em}.choices{display:grid;gap:8px;margin:12px 0}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.opts{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 10px}.opts button{padding:6px 10px;font-size:14px}
+.sw{display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:-3px;border:1px solid #0006}
+input[type=text]{font:inherit;width:100%;padding:10px 12px;border-radius:10px;border:1px solid #36426b;background:#0f1428;color:var(--ink)}
+.scene{background:#0f1428;border-left:4px solid var(--ac);padding:8px 12px;border-radius:8px;margin-bottom:10px}
+.fb{margin-top:12px;padding:10px 12px;border-radius:10px}.fb.ok{background:#16351f;border:1px solid #35c26b}.fb.no{background:#3a1820;border:1px solid #e0566a}
+.chips span{display:inline-block;background:#222a47;border-radius:999px;padding:2px 10px;margin:4px 4px 0 0;font-size:.9em}
+ul.rev{padding-left:1.1em}ul.rev li{margin:.35em 0}
+.builder{display:flex;gap:16px;flex-wrap:wrap}.builder .pv{text-align:center}.builder .pv canvas{background:radial-gradient(#2b3560,#141a30);border-radius:14px}
+textarea{width:100%;height:150px;background:#0f1428;color:var(--ink);border:1px solid #36426b;border-radius:10px;padding:8px;font:13px/1.35 ui-monospace,Consolas,monospace}
+#banner{position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:8;pointer-events:none;display:flex;flex-direction:column;gap:6px;align-items:center}
+#banner div{background:#0b0e1aee;border:1px solid var(--ac);border-radius:999px;padding:6px 16px;font-weight:600;animation:ban 2.6s forwards}
+@keyframes ban{0%{opacity:0;transform:translateY(-8px) scale(.9)}8%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0}}
+#flash{position:fixed;inset:0;z-index:7;pointer-events:none;opacity:0;box-shadow:inset 0 0 120px 40px #e0566a;transition:opacity .25s}
+#pad{position:fixed;right:14px;bottom:14px;z-index:6;display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(3,52px);gap:4px;opacity:.8}
+#pad button{padding:0;text-align:center;font-size:22px;border-radius:14px;touch-action:none;user-select:none}
+#hint{position:fixed;left:12px;bottom:12px;z-index:6;color:var(--dim);font-size:.85em;background:#0b0e1acc;padding:4px 10px;border-radius:8px;max-width:60vw}
+</style></head><body>
+<div id="hud"></div><canvas id="cv"></canvas><div id="banner"></div><div id="flash"></div>
+<div id="pad"><span></span><button data-d="0,-1">▲</button><span></span><button data-d="-1,0">◀</button><span></span><button data-d="1,0">▶</button><span></span><button data-d="0,1">▼</button><span></span></div>
+<div id="hint">Move: arrow keys, WASD or tap. Walk into creatures, signs and doors. M = map, N = notes.</div>
+<div id="ov"></div>
+<script>
+const DECK = __DECK__;
+/*__KIT__*/
+// ---------- tunables: rules ----------
+const TS=48, VIEW_R=5, MOVE_MS=125, READ_OK_MS=1200, READ_NO_MS=3000, XP_RIGHT=10, XP_FIRST=5, XP_NOTES=5, XP_DISCOVER=5, GOLD_RIGHT=3, GOLD_FIRST=2, CHEST_GOLD=15, BUILD_MAX=3;
+// ---------- tunables: juice (every effect is gated by a setting in J) ----------
+const SHAKE_BUMP=.18, SHAKE_MISS=.65, SHAKE_MAX_PX=9, SHAKE_DECAY=2.4, HITSTOP_MS=70, PARTICLES_MAX=140, BURST_N=24, FLASH_MS=260, PITCH_VAR=.07, HOP_PX=6, POP_MS=450, SQUASH=.14, VOLUME=.14;
+// ---------- storage (same keys as the quest games, so heroes and records are shared) ----------
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const KEY='studywright:'+DECK.id, HKEY='studywright:heroes', RKEY='studywright:records', WKEY='studywright:world', JKEY='studywright:settings';
+const STAT=DECK.stat||String(DECK.subject).split(':')[0].trim()||'Study';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $=id=>document.getElementById(id);
+const J=Object.assign({sound:true,shakeScale:1,reduceMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,hitStop:true,flashes:true},store.get(JKEY)||{});
+const Q=DECK.questions, REG=DECK.regions;
+const ansOf=q=>q.type==='type'?q.accept[0]:q.choices[q.answer];
+// ---------- heroes ----------
+const CLASSES={Scholar:{icon:'📜',feat:'scribe',perk:'+5 XP for every typed answer you get right.'},Ranger:{icon:'🏹',feat:'keen',perk:'Sees one tile farther, so the map fills in faster.'},Knight:{icon:'🛡️',feat:'wind',perk:'Tough: 12 hearts instead of 10.'},Mage:{icon:'🔮',feat:'focus',perk:'+2 gold for every right answer.'}};
+const {LOOK,PETI,drawHero,heroCanvas}=Kit;
+const KIT={Scholar:['📜 Map of the Realms','🕯️ Candle'],Ranger:['🪢 Rope','🧭 Compass'],Knight:['🛡️ Shield','🍖 Trail Rations'],Mage:['🔮 Crystal','📖 Spellbook']};
+const H={all(){return store.get(HKEY)||{active:null,list:[]}},save(d){store.set(HKEY,d)},
+ cur(){const d=H.all();return fixHero(d.list.find(h=>h.id===d.active)||null)},
+ put(h){const d=H.all();const i=d.list.findIndex(x=>x.id===h.id);if(i<0)d.list.push(h);else d.list[i]=h;d.active=h.id;H.save(d)}};
+const need=L=>50*L*(L+1);
+function heroLvl(h){let L=1;while(h.xp>=need(L))L++;return L}
+const maxHp=h=>h.cls==='Knight'?12:10;
+const defLook=Kit.defLook;
+function fixHero(h){if(!h)return h;h.look=h.look||defLook(h);if(!h.inv)h.inv={gold:10,hp:maxHp(h),items:KIT[h.cls].concat(['🧪 Healing Potion'])};h.areas=h.areas||{};h.feats=h.feats||[];return h}
+function newHero(name,cls,look){const h={id:'h'+Date.now().toString(36),name,cls,xp:0,areas:{},feats:[CLASSES[cls].feat],picks:0,created:new Date().toISOString(),quests:0,look};fixHero(h);h.inv.items.unshift('⚔️ '+look.gear);if(PETI[look.pet])h.inv.items.push(PETI[look.pet]+' '+look.pet+' (pet)');return h}
+// ---------- sound (WebAudio, no files) ----------
+const Sound=(()=>{let ctx;const v=()=>1+(Math.random()*2-1)*PITCH_VAR;
+ function tone(f,d,type='sine',when=0,vol=1,slide=0){if(!J.sound)return;try{ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();const t=ctx.currentTime+when,o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,f*slide),t+d);g.gain.setValueAtTime(VOLUME*vol,t);g.gain.exponentialRampToValueAtTime(.0008,t+d);o.connect(g).connect(ctx.destination);o.start(t);o.stop(t+d+.02)}catch(e){}}
+ function noise(d,vol=1,hp=800){if(!J.sound)return;try{ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();const n=Math.floor(ctx.sampleRate*d),b=ctx.createBuffer(1,n,ctx.sampleRate),a=b.getChannelData(0);for(let i=0;i<n;i++)a[i]=(Math.random()*2-1)*(1-i/n);const s=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();f.type='highpass';f.frequency.value=hp;g.gain.value=VOLUME*vol;s.buffer=b;s.connect(f).connect(g).connect(ctx.destination);s.start()}catch(e){}}
+ return{step(){noise(.05,.35,1800*v())},bump(){tone(110*v(),.12,'square',0,.5,.6)},ok(){tone(660*v(),.12);tone(990,.2,'sine',.08)},no(){tone(196,.3,'sawtooth',0,.6,.55)},
+  coin(){tone(1320*v(),.07,'square',0,.4);tone(1760,.14,'square',.06,.4)},key(){[880,1175,1568].forEach((f,i)=>tone(f,.16,'triangle',i*.07))},door(){tone(140,.35,'sawtooth',0,.5,1.8);noise(.25,.4,300)},
+  locked(){tone(220,.08,'square',0,.5);tone(180,.12,'square',.09,.5)},sign(){noise(.12,.4,2500);tone(520*v(),.1,'triangle',.02,.5)},discover(){[523,659,784].forEach((f,i)=>tone(f,.25,'triangle',i*.1))},
+  build(){tone(300*v(),.08,'triangle',0,.7,2);noise(.08,.5,1200)},chest(){[659,784,988,1319].forEach((f,i)=>tone(f,.18,'square',i*.08,.4))},faint(){tone(400,.6,'sine',0,.7,.3)},
+  lvl(){[523,659,784,1046].forEach((f,i)=>tone(f,.22,'triangle',i*.09))},win(){[523,659,784,1046,784,1046,1319].forEach((f,i)=>tone(f,.24,'triangle',i*.11))},click(){tone(700*v(),.04,'square',0,.3)}}})();
+// ---------- the shared world: one land for every world game, mapped and built up from play to play ----------
+const W=Object.assign({v:1,seen:{},builds:{},decks:{},opened:{},found:{}},store.get(WKEY)||{});
+if(!W.decks[DECK.id]){const SP=[[0,0],[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1],[-1,-1],[1,-1],[2,0],[0,2],[-2,0],[0,-2]],p=SP[Object.keys(W.decks).length%SP.length];W.decks[DECK.id]={ox:p[0]*76,oy:p[1]*62}}
+Object.assign(W.decks[DECK.id],{title:DECK.title,regions:REG.map(r=>({n:r.name,b:r.biome,w:r.walls?1:0,h:r.hall?1:0}))});
+const OX=W.decks[DECK.id].ox, OY=W.decks[DECK.id].oy;
+let wTimer=0;function saveWorld(now){const go=()=>{wTimer=0;const o={};SEEN.forEach((a,k)=>{o[k]=Array.from(a,b=>b.toString(16).padStart(2,'0')).join('')});W.seen=o;store.set(WKEY,W)};if(now){clearTimeout(wTimer);go()}else if(!wTimer)wTimer=setTimeout(go,1500)}
+const SEEN=new Map();Object.entries(W.seen||{}).forEach(([k,hex])=>{const a=new Uint8Array(32);for(let i=0;i<32;i++)a[i]=parseInt(hex.substr(i*2,2),16)||0;SEEN.set(k,a)});
+const ck=(x,y)=>(x>>4)+','+(y>>4), bit=(x,y)=>(x&15)+(y&15)*16;
+function isSeen(x,y){const a=SEEN.get(ck(x,y));if(!a)return false;const b=bit(x,y);return !!(a[b>>3]&(1<<(b&7)))}
+function setSeen(x,y){const k=ck(x,y);let a=SEEN.get(k);if(!a){a=new Uint8Array(32);SEEN.set(k,a)}const b=bit(x,y);if(a[b>>3]&(1<<(b&7)))return 0;a[b>>3]|=1<<(b&7);return 1}
+function hash(x,y,s){let h=(x*374761393+y*668265263+s*1274126177)|0;h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return(h>>>0)/4294967296}
+function noise(x,y,s){const x0=Math.floor(x),y0=Math.floor(y),fx=x-x0,fy=y-y0,sm=t=>t*t*(3-2*t),a=hash(x0,y0,s),b=hash(x0+1,y0,s),c=hash(x0,y0+1,s),d=hash(x0+1,y0+1,s),u=sm(fx),v=sm(fy);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v}
+const PROC=new Map(), K=(x,y)=>(x+32768)*65536+(y+32768);
+function proc(x,y){const k=K(x,y);let t=PROC.get(k);if(t)return t;const e=noise(x/14,y/14,1)*.65+noise(x/5,y/5,2)*.35,m=noise(x/9,y/9,3),h=hash(x,y,4);
+ t=e<.34?'w':e>.70?'m':e<.375?'s':m>.56&&h>.42?'t':h<.004?'c':h>.93?'f':'g';PROC.set(k,t);return t}
+const BIO={farm:{g:'#6fae4a',g2:'#69a745',edge:['🌻','🌾','🌻'],foes:['🐄','🐖','🐑','🐔','🐐','🦆','🐇'],build:['🌱','🌾','🏡']},
+ ranch:{g:'#c2ad55',g2:'#baa54e',edge:['🌾','🌽','🪵'],foes:['🐂','🐓','🐎','🦃','🐏','🐃'],build:['🧺','🚜','🏠']},
+ mill:{g:'#8fb86a',g2:'#88b063',edge:['🌳','🪨','🌳'],foes:['🐴','🐝','🐿️','🦢','🐁','🦔'],build:['🪵','⚙️','🏭']},
+ kennel:{g:'#7f9f6c',g2:'#789765',edge:['🪨','🌲','🪵'],foes:['🐕','🐩','🐈','🐺','🦮','🐕‍🦺'],build:['🦴','⛑️','🏥']},
+ wild:{g:'#4f8a4a',g2:'#4a8345',edge:['🌲','🌳','🪨'],foes:['🐌','🦎','🪲','🦋','🐦','🦌','🐸','🦊','🐍','🦉'],build:['🌼','🌳','🏕️']},
+ lab:{g:'#cfd6e4',g2:'#bcc5d6',indoor:1,foes:['🧬','🔬','🧪','🦸','🦹','🤖','👶'],build:['💡','🖥️','🏆']},
+ hall:{g:'#d8c9a0',g2:'#cbbb8f',indoor:1,foes:['👑','🧙','🐉','🗿','🦅','🦁'],build:['🕯️','🏅','🏛️']},
+ town:{g:'#b9b2a6',g2:'#b0a99d',edge:['🌳','⛲','🪨'],foes:['🧑‍🏫','💂','🧑‍🔬','🧑‍🌾','🧑‍🎨'],build:['🧱','🏠','🏰']}};
+const bio=b=>BIO[b]||BIO.wild;
+const DIRS=[[0,0],[18,0],[0,13],[-18,0],[0,-13],[18,-13],[18,13],[-18,13],[-18,-13]], RW=5, RH=4;
+const OV=new Map();
+function stampDeck(id,info){const ox=info.ox,oy=info.oy,regs=(info.regions||[]).slice(0,DIRS.length);
+ regs.forEach((r,i)=>{if(!i)return;const[dx,dy]=DIRS[i];let x=ox,y=oy;const road=()=>OV.set(K(x,y),{t:'r',d:id});while(x!==ox+dx){x+=Math.sign(dx);road()}while(y!==oy+dy){y+=Math.sign(dy);road()}});
+ regs.forEach((r,i)=>{const[dx,dy]=DIRS[i],cx=ox+dx,cy=oy+dy,ind=bio(r.b).indoor,door=r.w?(dy<0?[cx,cy+RH]:dy>0?[cx,cy-RH]:dx>0?[cx-RW,cy]:[cx+RW,cy]):null;
+  for(let y=cy-RH;y<=cy+RH;y++)for(let x=cx-RW;x<=cx+RW;x++){const edge=x===cx-RW||x===cx+RW||y===cy-RH||y===cy+RH,k=K(x,y),was=OV.get(k),isRoad=was&&was.t==='r',o={d:id,r:i,b:r.b};
+   if(edge){if(r.w)o.t=door[0]===x&&door[1]===y?'D':'W';else if(isRoad)o.t='r';else o.t=hash(x,y,7)<.5?'E':'G'}else o.t=isRoad&&!ind?'r':'G';OV.set(k,o)}
+  OV.set(K(cx-1,cy-1),{t:'S',d:id,r:i,b:r.b});if(!i)OV.set(K(cx+1,cy-1),{t:'C',d:id,r:i,b:r.b});if(r.h)OV.set(K(cx,cy),{t:'X',d:id,r:i,b:r.b})})}
+Object.entries(W.decks).forEach(([id,info])=>{if(id!==DECK.id)stampDeck(id,info)});stampDeck(DECK.id,W.decks[DECK.id]);
+const RC=REG.map((r,i)=>({x:OX+DIRS[i][0],y:OY+DIRS[i][1]}));
+function rng(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s>>>=0;s^=s>>>17;s^=s<<5;s>>>=0;return s/4294967296}}
+const SITE=[];{const dh=[...DECK.id].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
+ REG.forEach((r,i)=>{const c=RC[i],cells=[],rnd=rng(dh+i*977);for(let y=c.y-RH+1;y<c.y+RH;y++)for(let x=c.x-RW+1;x<c.x+RW;x++)if(x!==c.x&&y!==c.y&&((x+y)%2+2)%2===0&&!(Math.abs(x-c.x)===1&&y===c.y-1))cells.push([x,y]);
+  for(let j=cells.length-1;j>0;j--){const k=Math.floor(rnd()*(j+1));[cells[j],cells[k]]=[cells[k],cells[j]]}
+  let n=0;Q.forEach((q,qi)=>{if((q.r||REG[0].id)!==r.id)return;const p=cells[n++];if(!p)return;const b=bio(r.biome);SITE[qi]={x:p[0],y:p[1],r:i,foe:q.foe||b.foes[(n-1)%b.foes.length]};OV.set(K(p[0],p[1]),{t:'Q',q:qi,d:DECK.id,r:i,b:r.biome})})})}
+const tileAt=(x,y)=>OV.get(K(x,y))||{t:proc(x,y)};
+const regOf=qi=>SITE[qi].r, qsOf=ri=>Q.map((_,i)=>i).filter(i=>SITE[i]&&SITE[i].r===ri);
+// ---------- run state ----------
+let S=null, hero=null;
+const P={x:OX,y:OY,fx:OX,fy:OY,t0:-1e9,face:'d',px:OX,py:OY,sq:0};
+function newRun(){S={started:new Date().toISOString(),t0:Date.now(),done:[],firstMiss:[],log:{},asks:{},cool:{},answered:0,streak:0,best:0,xp:0,keys:0,keyed:[],doors:[],read:[],route:[],moves:0,newTiles:0,x:OX,y:OY,finished:false}}
+function saveRun(){if(!S)return;S.x=P.x;S.y=P.y;S.el=Date.now()-S.t0;const rec=store.get(KEY)||{};rec.run=S.finished?null:S;store.set(KEY,rec)}
+const isDone=qi=>S.done.includes(qi);
+const canAsk=qi=>!(qi in S.cool)||S.answered>S.cool[qi]||!Q.some((_,i)=>i!==qi&&SITE[i]&&!isDone(i)&&!(i in S.cool)&&reachable(i));
+const reachable=qi=>{const r=REG[SITE[qi].r];return !r.walls||!r.locked||S.doors.includes(SITE[qi].r)||S.keys>=r.locked};
+function itemOf(qi){const q=Q[qi],v=q.variants||[],n=S.asks[qi]||0,it=n&&v.length?[q,...v][n%(v.length+1)]:q;return{...it,explain:it.explain||q.explain,topic:q.topic}}
+// ---------- rendering ----------
+const cv=$('cv'),cx=cv.getContext('2d');let VW=0,VH=0,DPR=1;
+function size(){DPR=Math.min(2,window.devicePixelRatio||1);VW=innerWidth;VH=innerHeight;cv.width=VW*DPR;cv.height=VH*DPR;cv.style.width=VW+'px';cv.style.height=VH+'px'}
+addEventListener('resize',size);size();
+const EM=new Map();function em(e,s){const k=e+s;let c=EM.get(k);if(!c){c=document.createElement('canvas');c.width=c.height=Math.ceil(s*1.4*2);const g=c.getContext('2d');g.scale(2,2);g.font=s+'px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(e,s*.7,s*.74);EM.set(k,c)}return c}
+function emoji(e,x,y,s,sc=1){const c=em(e,s),w=s*1.4*sc;cx.drawImage(c,x-w/2,y-w/2,w,w)}
+const parts=[],floats=[],pops=new Map();let trauma=0,hitUntil=0,camX=OX*TS,camY=OY*TS,lastT=performance.now(),clock=0;
+function shake(a){if(J.reduceMotion)return;trauma=Math.min(1,trauma+a*J.shakeScale)}
+function burst(wx,wy,cols,n=BURST_N){if(J.reduceMotion)n=Math.ceil(n/4);for(let i=0;i<n&&parts.length<PARTICLES_MAX;i++){const a=Math.random()*6.28,sp=60+Math.random()*160;parts.push({x:wx,y:wy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-80,life:.5+Math.random()*.5,t:0,col:cols[i%cols.length],r:2+Math.random()*3})}}
+function floatText(wx,wy,txt,col='#fff'){floats.push({x:wx,y:wy,txt,col,t:0})}
+function flash(){if(!J.flashes)return;const f=$('flash');f.style.opacity=.9;setTimeout(()=>f.style.opacity=0,FLASH_MS)}
+function banner(t){const d=document.createElement('div');d.textContent=t;$('banner').appendChild(d);setTimeout(()=>d.remove(),2700)}
+const GRASS=['#5d9c45','#59973f','#62a24a'];
+function drawTile(x,y,sx,sy){const T=tileAt(x,y),t=T.t,h=hash(x,y,9),c=cx,mid=sx+TS/2,my=sy+TS/2,B=T.b?bio(T.b):null;
+ const fill=col=>{c.fillStyle=col;c.fillRect(sx,sy,TS+1,TS+1)};
+ const ground=()=>{if(B){fill(B.indoor?(((x+y)%2+2)%2?B.g:B.g2):(h<.5?B.g:B.g2));if(B.indoor){c.strokeStyle='#0001';c.strokeRect(sx+.5,sy+.5,TS,TS)}}else fill(GRASS[Math.floor(h*3)])};
+ if(t==='w'){fill('#3a78c2');c.fillStyle='#5a98dc';const o=J.reduceMotion?0:Math.sin(clock*1.6+x*.9+y*.6)*5;c.fillRect(sx+8+o,sy+12,16,3);c.fillRect(sx+22-o,sy+30,14,3)}
+ else if(t==='m'){fill('#6f7480');emoji(h<.5?'⛰️':'🏔️',mid,my,34)}
+ else if(t==='s'){fill('#d9c98a');if(h<.12)emoji('🐚',mid,my,16)}
+ else if(t==='t'){fill(GRASS[1]);emoji(h<.6?'🌲':'🌳',mid,my-2,36)}
+ else if(t==='f'){fill(GRASS[Math.floor(h*3)]);emoji(h<.965?'🌼':'🍄',mid,my+4,16)}
+ else if(t==='g'){fill(GRASS[Math.floor(h*3)]);if(h<.25){c.fillStyle='#4e8a3a';c.fillRect(sx+10+h*90,sy+14+h*60,3,7)}}
+ else if(t==='c'){fill(GRASS[0]);if(!W.opened[x+','+y])emoji('🎁',mid,my+(J.reduceMotion?0:Math.sin(clock*3+x)*2),28)}
+ else if(t==='r'){const pw=proc(x,y)==='w';fill(pw?'#8a5a2a':'#b9986a');c.fillStyle=pw?'#6e451c':'#a88759';if(pw){for(let i=0;i<4;i++)c.fillRect(sx,sy+i*12+10,TS,2)}else{c.fillRect(sx+6+h*24,sy+10,5,4);c.fillRect(sx+26-h*14,sy+30,6,4)}}
+ else if(t==='W'){fill('#3d425c');c.fillStyle='#565c7c';for(let r=0;r<3;r++)for(let q=0;q<2;q++)c.fillRect(sx+q*24+(r%2?12:0)-6,sy+r*16+2,20,12);c.fillStyle='#2a2e44';c.fillRect(sx,sy+TS-4,TS,4)}
+ else if(t==='D'){ground();const open=T.d===DECK.id?S&&S.doors.includes(T.r):true;if(open){c.fillStyle='#0004';c.fillRect(sx,sy,6,TS);c.fillRect(sx+TS-6,sy,6,TS)}else{fill('#3d425c');emoji('🚪',mid,my,36);emoji('🔒',mid+12,my+12,16)}}
+ else{ground();
+  if(t==='E')emoji(B.edge[Math.floor(h*B.edge.length)],mid,my,32);
+  else if(t==='S')emoji('🪧',mid,my,32,S&&T.d===DECK.id&&!S.read.includes(T.r)?1+(J.reduceMotion?0:Math.sin(clock*4)*.06):1);
+  else if(t==='C'){emoji('⛺',mid,my-2,36);emoji('🔥',mid+16,my+12,14)}
+  else if(t==='X')emoji(S&&S.finished?'🏆':'🧰',mid,my,34);
+  else if(t==='Q'){const st=SITE[T.q],bd=W.builds[x+','+y],k=K(x,y),pp=pops.get(k);let sc=1;if(pp){const u=(clock-pp)/(POP_MS/1000);if(u>=1)pops.delete(k);else sc=1+Math.sin(u*Math.PI)*.5*(1-u)+(u<.15?-.3:0)}
+   if(S&&isDone(T.q))emoji(B.build[Math.min(BUILD_MAX,(bd&&bd.l)||1)-1],mid,my,34,sc);
+   else{if(bd)emoji(B.build[Math.min(BUILD_MAX,bd.l)-1],mid-12,my-12,14);emoji(st.foe,mid,my+(J.reduceMotion?0:Math.sin(clock*3+x*2+y)*2.5),32);if(S&&T.q in S.cool&&!canAsk(T.q))emoji('💢',mid+13,my-13,15);else emoji('❓',mid+13,my-13,13)}}}
+ if(T.d&&T.d!==DECK.id&&t==='G'){const b=W.builds[x+','+y];if(b)emoji(bio(T.b).build[Math.min(BUILD_MAX,b.l)-1],mid,my,32)}}
+function frame(now){const dtR=Math.min(.05,(now-lastT)/1000);lastT=now;const frozen=now<hitUntil,dt=frozen?0:dtR;clock+=dt;
+ const mt=Math.min(1,(now-P.t0)/MOVE_MS),ease=mt*(2-mt);P.px=P.fx+(P.x-P.fx)*ease;P.py=P.fy+(P.y-P.fy)*ease;const moving=mt<1;
+ const tx=P.px*TS+TS/2,ty=P.py*TS+TS/2;camX+=(tx-camX)*Math.min(1,dtR*9);camY+=(ty-camY)*Math.min(1,dtR*9);
+ trauma=Math.max(0,trauma-dtR*SHAKE_DECAY);const sh=trauma*trauma*SHAKE_MAX_PX,ox=Math.round(VW/2-camX+(Math.random()*2-1)*sh),oy=Math.round(VH/2+20-camY+(Math.random()*2-1)*sh);
+ cx.setTransform(DPR,0,0,DPR,0,0);cx.fillStyle='#070912';cx.fillRect(0,0,VW,VH);
+ const x0=Math.floor(-ox/TS)-1,x1=Math.floor((VW-ox)/TS)+1,y0=Math.floor(-oy/TS)-1,y1=Math.floor((VH-oy)/TS)+1;
+ for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){if(!isSeen(x,y))continue;drawTile(x,y,x*TS+ox,y*TS+oy)}
+ // soft fog edge
+ cx.fillStyle='#07091288';for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if(isSeen(x,y)&&(!isSeen(x+1,y)||!isSeen(x-1,y)||!isSeen(x,y+1)||!isSeen(x,y-1)))cx.fillRect(x*TS+ox,y*TS+oy,TS,TS);
+ if(hero){const hop=moving&&!J.reduceMotion?Math.sin(mt*Math.PI)*HOP_PX:0,hx=P.px*TS+TS/2+ox,hy=P.py*TS+TS-5+oy;P.sq=Math.max(0,P.sq-dtR*5);const s=J.reduceMotion?0:P.sq*SQUASH;
+  const pe=PETI[hero.look.pet];if(pe){P.petx=P.petx===undefined?P.px:P.petx+((P.px-(P.face==='r'?.7:P.face==='l'?-.7:.55))-P.petx)*Math.min(1,dtR*5);P.pety=P.pety===undefined?P.py:P.pety+((P.py-(P.face==='d'?.6:P.face==='u'?-.5:0))-P.pety)*Math.min(1,dtR*5);emoji(pe,P.petx*TS+TS/2+ox,P.pety*TS+TS/2+8+oy+(J.reduceMotion?0:Math.abs(Math.sin(clock*6))*-3),20)}
+  drawHero(cx,hx,hy-hop,1.28,hero,clock,moving,P.face,1+s,1-s)}
+ for(let i=parts.length-1;i>=0;i--){const p=parts[i];p.t+=dt;if(p.t>p.life){parts.splice(i,1);continue}p.vy+=420*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;cx.globalAlpha=1-p.t/p.life;cx.fillStyle=p.col;cx.fillRect(p.x+ox-p.r,p.y+oy-p.r,p.r*2,p.r*2)}
+ cx.globalAlpha=1;cx.font='bold 16px system-ui';cx.textAlign='center';
+ for(let i=floats.length-1;i>=0;i--){const f=floats[i];f.t+=dt;if(f.t>1.3){floats.splice(i,1);continue}cx.globalAlpha=1-Math.max(0,f.t-.8)/.5;cx.fillStyle='#000a';cx.fillText(f.txt,f.x+ox+1,f.y+oy-f.t*46+1);cx.fillStyle=f.col;cx.fillText(f.txt,f.x+ox,f.y+oy-f.t*46)}
+ cx.globalAlpha=1;
+ if(held&&!moving&&!modal()&&S)move(held[0],held[1]);
+ requestAnimationFrame(frame)}
+// ---------- movement and interaction ----------
+const ov=$('ov'),modal=()=>ov.style.display==='flex';
+function show(html){ov.innerHTML=html;ov.style.display='flex';ov.scrollTop=0;held=null}
+function hide(){ov.style.display='none';ov.innerHTML='';hud()}
+let held=null;
+function reveal(){const r=VIEW_R+(hero&&hero.cls==='Ranger'?1:0);let n=0;for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)if(dx*dx+dy*dy<=r*r+1)n+=setSeen(P.x+dx,P.y+dy);if(n){S.newTiles+=n;saveWorld()}}
+function place(x,y){P.x=P.fx=P.px=x;P.y=P.fy=P.py=y;P.petx=P.pety=undefined;camX=x*TS+TS/2;camY=y*TS+TS/2;reveal()}
+function bump(msg){Sound.bump();shake(SHAKE_BUMP);if(msg)banner(msg)}
+function move(dx,dy){if(!S||modal()||performance.now()-P.t0<MOVE_MS)return;P.face=dx<0?'l':dx>0?'r':dy<0?'u':'d';const nx=P.x+dx,ny=P.y+dy,T=tileAt(nx,ny),t=T.t,mine=T.d===DECK.id;
+ if(t==='Q'){held=null;if(isDone(T.q)){Sound.click();const q=Q[T.q];banner('✔ '+(q.review||ansOf(q)))}else if(!canAsk(T.q))bump('💢 Still grumpy. Help another creature first, then come back.');else openQ(T.q);return}
+ if(t==='S'){held=null;if(mine)openNotes(T.r);else bump();return}
+ if(t==='C'){held=null;hero.inv.hp=maxHp(hero);H.put(hero);Sound.sign();banner('⛺ You rest at camp. Hearts are full.');hud();return}
+ if(t==='X'){held=null;if(!mine)return bump();const left=qsOf(T.r).filter(i=>!isDone(i)).length;if(S.finished)banner('🏆 The trophy is yours.');else if(left)bump('🧰 Sealed. '+left+' champion'+(left>1?'s':'')+' still to beat in this hall.');else{Sound.chest();hero.inv.gold+=50;H.put(hero);finish()}return}
+ if(t==='D'&&mine&&!S.doors.includes(T.r)){held=null;const r=REG[T.r],needK=r.locked||0;if(S.keys>=needK){S.doors.push(T.r);Sound.door();banner('🚪 The door of '+r.name+' swings open.');burst(nx*TS+TS/2,ny*TS+TS/2,['#ffd166','#fff']);saveRun()}else{Sound.locked();shake(SHAKE_BUMP);banner('🔒 '+r.name+' needs '+needK+' 🗝️ (you have '+S.keys+'). Master every creature in a region to earn its key.')}return}
+ if(t==='c'&&!W.opened[nx+','+ny]){held=null;W.opened[nx+','+ny]=1;hero.inv.gold+=CHEST_GOLD;H.put(hero);saveWorld();Sound.chest();burst(nx*TS+TS/2,ny*TS+TS/2,['#ffd166','#ffe9a8']);floatText(nx*TS+TS/2,ny*TS,'+'+CHEST_GOLD+' 🪙','#ffd166');hud();return}
+ if(!(t==='g'||t==='f'||t==='s'||t==='G'||t==='r'||t==='D'||t==='c')){bump();return}
+ P.fx=P.x;P.fy=P.y;P.x=nx;P.y=ny;P.t0=performance.now();P.sq=1;S.moves++;Sound.step();reveal();
+ if(mine&&T.r!==undefined&&S.route[S.route.length-1]!==REG[T.r].id){S.route.push(REG[T.r].id);const fk=DECK.id+':'+T.r;if(!W.found[fk]){W.found[fk]=1;saveWorld();Sound.discover();banner('🧭 Discovered: '+REG[T.r].name);gainXp(XP_DISCOVER)}else banner('📍 '+REG[T.r].name)}
+ if(S.moves%8===0)saveRun()}
+function gainXp(n){const L0=heroLvl(hero);hero.xp+=n;S.xp+=n;const L1=heroLvl(hero);if(L1>L0){hero.picks=(hero.picks||0)+L1-L0;hero.inv.hp=maxHp(hero);hero.inv.gold+=20;Sound.lvl();banner('⬆️ Level '+L1+'! Hearts refilled, +20 🪙');burst(P.x*TS+TS/2,P.y*TS,['#ffd166','#7bd389','#fff'],40)}H.put(hero);hud()}
+addEventListener('keydown',e=>{const k=e.key,ae=document.activeElement;
+ if(modal()){if(ae&&ae.tagName==='INPUT'&&k!=='Escape')return;if(k==='Enter'){const nx=$('nx');if(nx&&!nx.disabled){e.preventDefault();nx.click()}}else if(k==='Escape'){const c=$('cl');if(c)c.click()}else if(k.length===1){const i=k.toUpperCase().charCodeAt(0)-65,bs=ov.querySelectorAll('#qa button');if(i>=0&&i<bs.length&&!bs[i].disabled)bs[i].click()}return}
+ const d={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0],w:[0,-1],s:[0,1],a:[-1,0],d:[1,0],W:[0,-1],S:[0,1],A:[-1,0],D:[1,0]}[k];
+ if(d){e.preventDefault();held=d;move(d[0],d[1])}else if(k==='m'||k==='M')openMap();else if(k==='n'||k==='N')openNotes()});
+addEventListener('keyup',()=>{held=null});addEventListener('blur',()=>{held=null});
+cv.addEventListener('pointerdown',e=>{if(!S||modal())return;const dx=e.clientX-VW/2,dy=e.clientY-(VH/2+20);if(Math.abs(dx)<TS/2&&Math.abs(dy)<TS/2)return;held=Math.abs(dx)>Math.abs(dy)?[Math.sign(dx),0]:[0,Math.sign(dy)];move(held[0],held[1])});
+addEventListener('pointerup',()=>{held=null});
+document.querySelectorAll('#pad button').forEach(b=>b.addEventListener('pointerdown',e=>{e.preventDefault();const d=b.dataset.d.split(',').map(Number);held=d;move(d[0],d[1])}));
+// ---------- HUD ----------
+function hud(){const el=$('hud');if(!hero||!S){el.innerHTML='';return}const L=heroLvl(hero),a=need(L-1),b=need(L),tot=Q.filter((_,i)=>SITE[i]).length;
+ el.innerHTML=`<div class="who" id="hc"></div><div><b>${esc(hero.name)}</b> <span class="small">${CLASSES[hero.cls].icon} Lv ${L}</span><div class="bar"><i style="width:${Math.round(100*(hero.xp-a)/(b-a))}%"></i></div></div>
+ <div>❤️ ${hero.inv.hp}/${maxHp(hero)}</div><div>🪙 ${hero.inv.gold}</div><div>🗝️ ${S.keys}</div><div title="creatures helped">✅ ${S.done.length}/${tot}</div><div>🔥 ${S.streak}</div><span class="sp"></span>
+ <button id="bm">🗺️ Map</button><button id="bn">📖 Notes</button><button id="bs">⚙️</button><button id="bf">🏁 Finish</button>`;
+ $('hc').appendChild(heroCanvas(hero,34,44,1.15));$('bm').onclick=openMap;$('bn').onclick=()=>openNotes();$('bs').onclick=settings;$('bf').onclick=askFinish}
+// ---------- questions ----------
+const norm=s=>String(s).toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\b(the|a|an)\b/g,' ').replace(/\s+/g,' ').trim();
+function lev(a,b){const d=[];for(let i=0;i<=a.length;i++){d[i]=[i];for(let j=1;j<=b.length;j++)d[i][j]=i?Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1)):j}return d[a.length][b.length]}
+function typedOk(q,v){const n=norm(v);if(!n)return false;return q.accept.some(a=>{const m=norm(a);return n===m||(m.length>=5&&lev(n,m)<=(m.length>=9?2:1))})}
+const SCENES=['{f} blocks the path in {r} and will only move for the right answer.','{f} looks up at {h}: "Help me with this and I will help build the valley."','{f} hops in front of {h}. A question hangs in the air.','In {r}, {f} guards a patch of empty land. Answer well and something will be built here.'];
+function openQ(qi){const q=Q[qi],it=itemOf(qi),st=SITE[qi],r=REG[st.r],first=!S.log[qi];Sound.sign();
+ const scene=(q.scene||SCENES[(qi+(S.asks[qi]||0))%SCENES.length]).replace(/\{f\}/g,st.foe).replace(/\{h\}/g,esc(hero.name)).replace(/\{r\}/g,esc(r.name));
+ let body;if(it.type==='type')body=`<input type="text" id="ti" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type your answer, then press Enter"><div class="row"><button class="go" id="sub">Answer</button></div>`;
+ else{const order=it.choices.map((_,i)=>i);for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}
+  body=`<div class="choices" id="qa">${order.map((ci,n)=>`<button data-i="${ci}"><b>${String.fromCharCode(65+n)}.</b> ${esc(it.choices[ci])}</button>`).join('')}</div>`}
+ show(`<div class="card"><div class="scene">${scene}</div><div class="small">${esc(r.name)} · ${esc(q.topic||'')}${first?'':' · try '+((S.asks[qi]||0)+1)}</div><h1 style="font-size:1.25em">${esc(it.q)}</h1>${body}<div id="fb"></div>
+ <div class="row"><button id="say">🔊 Read it to me</button><button id="peek">📖 Check the signpost notes (no penalty)</button></div></div>`);
+ $('say').onclick=()=>{try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance([it.q.replace(/_+/g,'blank'),...[...ov.querySelectorAll('#qa button')].map(b=>b.textContent)].join('. '));u.rate=.95;speechSynthesis.speak(u)}catch(e){}};
+ $('peek').onclick=()=>openNotes(st.r,()=>openQ(qi));
+ const done=(ok,given,btn)=>{$('say').remove();$('peek').remove();answer(qi,it,ok,given,btn)};
+ if(it.type==='type'){const ti=$('ti');setTimeout(()=>ti.focus(),30);const go=()=>{if(!ti.value.trim())return ti.focus();ti.disabled=true;$('sub').disabled=true;done(typedOk(it,ti.value),ti.value.trim())};$('sub').onclick=go;ti.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();go()}}}
+ else ov.querySelectorAll('#qa button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;ov.querySelectorAll('#qa button').forEach(x=>{x.disabled=true;if(+x.dataset.i===it.answer)x.classList.add('right')});if(i!==it.answer)b.classList.add('wrong');done(i===it.answer,it.choices[i])})}
+function answer(qi,it,ok,given){const first=!S.log[qi],st=SITE[qi],r=REG[st.r],wx=st.x*TS+TS/2,wy=st.y*TS+TS/2,chips=[];(S.log[qi]=S.log[qi]||[]).push({given,ok,q:it.q,at:Math.round((Date.now()-S.t0)/1000)});S.asks[qi]=(S.asks[qi]||0)+1;S.answered++;
+ let after=()=>{};
+ if(ok){S.done.push(qi);delete S.cool[qi];S.streak++;S.best=Math.max(S.best,S.streak);Sound.ok();if(J.hitStop&&!J.reduceMotion)hitUntil=performance.now()+HITSTOP_MS;
+  const xp=XP_RIGHT+(first?XP_FIRST:0)+(it.type==='type'&&hero.cls==='Scholar'?5:0)+(S.streak>=3?2:0),gold=GOLD_RIGHT+(first?GOLD_FIRST:0)+(hero.cls==='Mage'?2:0);
+  hero.inv.gold+=gold;const a=hero.areas[STAT]=hero.areas[STAT]||{use:0,train:0};a.use++;chips.push('+'+xp+' XP','+'+gold+' 🪙');if(S.streak>=3)chips.push('🔥 streak '+S.streak);
+  const bk=st.x+','+st.y,b=W.builds[bk]||{d:DECK.id,l:0};b.l=Math.min(BUILD_MAX,b.l+1);b.t=Q[qi].review||ansOf(Q[qi]);W.builds[bk]=b;saveWorld(true);const be=bio(r.biome).build[b.l-1];chips.push('Built '+be);
+  let key=false;if(!r.hall&&!S.keyed.includes(st.r)&&qsOf(st.r).every(isDone)){S.keyed.push(st.r);S.keys++;key=true;chips.push('🗝️ Key of '+r.name)}
+  after=()=>{pops.set(K(st.x,st.y),clock);Sound.build();burst(wx,wy,['#7bd389','#ffd166','#fff']);floatText(wx,wy-10,'+'+xp+' XP','#7bd389');floatText(wx,wy+12,'+'+gold+' 🪙','#ffd166');gainXp(xp);
+   if(key)setTimeout(()=>{Sound.key();banner('🗝️ You mastered '+r.name+' and earned its key!');burst(P.x*TS+TS/2,P.y*TS,['#ffd166','#fff'],36)},500);
+   if(!REG.some(x=>x.hall)&&Q.every((_,i)=>!SITE[i]||isDone(i)))setTimeout(finish,900)}}
+ else{if(first)S.firstMiss.push(qi);S.streak=0;S.cool[qi]=S.answered;Sound.no();flash();hero.inv.hp=Math.max(0,hero.inv.hp-1);chips.push('−1 ❤️','It will ask again in new words');
+  after=()=>{shake(SHAKE_MISS);floatText(wx,wy-10,'💢','#e0566a');if(hero.inv.hp<=0){hero.inv.hp=maxHp(hero);H.put(hero);Sound.faint();place(OX,OY);banner('😵 Out of hearts! You wake up at camp, rested. Nothing is lost.')}}}
+ H.put(hero);saveRun();
+ const lock=ok?READ_OK_MS:READ_NO_MS;
+ $('fb').innerHTML=`<div class="fb ${ok?'ok':'no'}"><b>${ok?'✔ Right!':'✖ Not yet.'}</b> ${ok?'':'The answer is <b>'+esc(ansOf(it))+'</b>. '}${esc(it.explain||'')}<div class="chips">${chips.map(c=>`<span>${esc(c)}</span>`).join('')}</div></div><div class="row"><button class="go" id="nx" disabled>Read…</button></div>`;
+ const nx=$('nx'),t0=Date.now(),tick=setInterval(()=>{const left=lock-(Date.now()-t0);if(left<=0){clearInterval(tick);nx.disabled=false;nx.textContent='Back to the valley ▶ (Enter)';nx.focus()}else nx.textContent='Read… '+Math.ceil(left/1000)},100);
+ nx.onclick=()=>{hide();after()}}
+// ---------- notes (teaching) ----------
+function openNotes(ri,back){const one=ri!==undefined,list=one?[ri]:REG.map((_,i)=>i).filter(i=>W.found[DECK.id+':'+i]);let gained=false;
+ if(one&&!S.read.includes(ri)){S.read.push(ri);gained=true}Sound.sign();
+ show(`<div class="card"><h1>🪧 ${one?esc(REG[ri].name)+': signpost':'Notes from the signposts'}</h1>${list.map(i=>`${one?'':'<h2>'+esc(REG[i].name)+'</h2>'}<ul class="rev">${(REG[i].teach||[]).map(t=>'<li>'+t+'</li>').join('')}</ul>`).join('')||'<p>No regions discovered yet.</p>'}
+ ${gained?'<p class="small">+'+XP_NOTES+' XP for reading. The creatures here ask about exactly this.</p>':''}<div class="row"><button class="go" id="cl">${back?'Back to the question ▶':'Got it ▶'}</button><button id="rd">🔊 Read it to me</button></div></div>`);
+ $('rd').onclick=()=>{try{speechSynthesis.cancel();const d=document.createElement('div');d.innerHTML=list.map(i=>(REG[i].teach||[]).join('. ')).join('. ');speechSynthesis.speak(new SpeechSynthesisUtterance(d.textContent))}catch(e){}};
+ $('cl').onclick=()=>{try{speechSynthesis.cancel()}catch(e){}if(back)back();else hide();if(gained){gainXp(XP_NOTES);saveRun()}}}
+// ---------- map of everything explored so far ----------
+function openMap(){if(!S)return;Sound.click();let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;SEEN.forEach((a,k)=>{const[c,d]=k.split(',').map(Number);x0=Math.min(x0,c*16);x1=Math.max(x1,c*16+15);y0=Math.min(y0,d*16);y1=Math.max(y1,d*16+15)});
+ const w=x1-x0+1,h=y1-y0+1,sc=Math.max(2,Math.min(8,Math.floor(Math.min(700/w,440/h))));let tiles=0;SEEN.forEach(a=>a.forEach(b=>{while(b){tiles+=b&1;b>>=1}}));
+ show(`<div class="card"><h1>🗺️ The known world</h1><p class="small">${tiles} tiles mapped, ${Object.keys(W.builds).length} things built, ${Object.keys(W.decks).length} land${Object.keys(W.decks).length>1?'s':''} found. The map and the buildings stay from game to game.</p><canvas id="mc" width="${w*sc}" height="${h*sc}" style="max-width:100%;background:#070912;border-radius:10px"></canvas><div class="row"><button class="go" id="cl">Close ▶</button></div></div>`);
+ const g=$('mc').getContext('2d'),col={w:'#3a78c2',m:'#8a8f9c',s:'#d9c98a',t:'#2f6b34',g:'#5d9c45',f:'#6fb04f',c:'#5d9c45',r:'#b9986a',W:'#3d425c',D:'#e0a040'};
+ for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){if(!isSeen(x,y))continue;const T=tileAt(x,y);g.fillStyle=col[T.t]||(T.b?bio(T.b).g:'#5d9c45');g.fillRect((x-x0)*sc,(y-y0)*sc,sc,sc);if(W.builds[x+','+y]){g.fillStyle='#ffd166';g.fillRect((x-x0)*sc,(y-y0)*sc,sc,sc)}else if(T.t==='Q'){g.fillStyle='#e0566a';g.fillRect((x-x0)*sc,(y-y0)*sc,sc,sc)}}
+ g.font='bold 12px system-ui';g.textAlign='center';Object.entries(W.decks).forEach(([id,d])=>{if(isSeen(d.ox,d.oy)){g.fillStyle='#000a';g.fillText(d.title||id,(d.ox-x0)*sc+1,(d.oy-y0-6)*sc+1);g.fillStyle='#fff';g.fillText(d.title||id,(d.ox-x0)*sc,(d.oy-y0-6)*sc)}});
+ g.font='10px system-ui';RC.forEach((c,i)=>{if(i&&W.found[DECK.id+':'+i]){g.fillStyle='#000a';g.fillText(REG[i].name,(c.x-x0)*sc+1,(c.y-y0-5)*sc+1);g.fillStyle='#ffe9a8';g.fillText(REG[i].name,(c.x-x0)*sc,(c.y-y0-5)*sc)}});
+ g.fillStyle='#fff';g.beginPath();g.arc((P.x-x0+.5)*sc,(P.y-y0+.5)*sc,sc+2,0,7);g.fill();g.fillStyle='#e0304a';g.beginPath();g.arc((P.x-x0+.5)*sc,(P.y-y0+.5)*sc,sc,0,7);g.fill();$('cl').onclick=hide}
+// ---------- settings ----------
+function settings(){const row=(k,l,d)=>`<button data-k="${k}" class="${J[k]?'sel':''}">${J[k]?'✅':'⬜'} <b>${l}</b><br><span class="small">${d}</span></button>`;
+ show(`<div class="card"><h1>⚙️ Settings</h1><div class="choices">${row('sound','Sound effects','Steps, coins, doors, right and wrong answers.')}${row('reduceMotion','Reduce motion','No screen shake, hops, bobbing or squash; fewer sparks.')}${row('flashes','Red flash on a miss','One soft flash at the screen edge.')}${row('hitStop','Hit pause','A tiny freeze when an answer lands.')}
+ <button id="shk">Screen shake strength: <b>${Math.round(J.shakeScale*100)}%</b> <span class="small">(click to change)</span></button></div><div class="row"><button class="go" id="cl">Close ▶</button><button id="sw">Change hero</button></div></div>`);
+ ov.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{J[b.dataset.k]=!J[b.dataset.k];store.set(JKEY,J);document.body.classList.toggle('rm',J.reduceMotion);Kit.still=J.reduceMotion;Sound.click();settings()});
+ $('shk').onclick=()=>{J.shakeScale=J.shakeScale>=1?0:J.shakeScale+.5;store.set(JKEY,J);shake(.6);settings()};$('cl').onclick=hide;$('sw').onclick=()=>{saveRun();title()}}
+document.body.classList.toggle('rm',J.reduceMotion);Kit.still=J.reduceMotion;
+// ---------- the log of each play, and the prompt that hands it to the notes ----------
+const stamp=()=>new Date().toISOString().slice(0,16).replace(/[:T]/g,'-');
+function download(name,obj){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,1)],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){}}
+function record(){const live=Q.map((_,i)=>i).filter(i=>SITE[i]),asked=live.filter(i=>S.log[i]),miss=asked.filter(i=>!S.log[i][0].ok);
+ return{studywright_record:1,mode:'world',deck:DECK.id,title:DECK.title,subject:DECK.subject,area:STAT,follows:DECK.follows||null,started:S.started,finished:new Date().toISOString(),elapsed_sec:Math.round((Date.now()-S.t0)/1000),
+  score_first_try:asked.length?Math.round(100*(asked.length-miss.length)/asked.length):0,best_streak:S.best,answers:S.answered,questions_total:asked.length,deck_total:live.length,mastered:S.done.length,run_xp:S.xp,keys:S.keys,steps_walked:S.moves,tiles_mapped:S.newTiles,regions_visited:S.route,notes_read:S.read.map(i=>REG[i].id),
+  hero:JSON.parse(JSON.stringify(hero)),
+  first_try_misses:miss.map(i=>({n:i+1,topic:Q[i].topic||'',region:REG[SITE[i].r].id,q:Q[i].q,answer:ansOf(Q[i]),tries:S.log[i]})),
+  unseen:live.filter(i=>!S.log[i]).map(i=>({n:i+1,topic:Q[i].topic||'',region:REG[SITE[i].r].id})),
+  items:live.map(i=>({n:i+1,topic:Q[i].topic||'',region:REG[SITE[i].r].id,tries:(S.log[i]||[]).length,first_ok:!!(S.log[i]&&S.log[i][0].ok),mastered:isDone(i)}))}}
+function askFinish(){const left=Q.filter((_,i)=>SITE[i]&&!isDone(i)).length;show(`<div class="card"><h1>🏁 Finish this quest?</h1><p>${left?left+' creature'+(left>1?'s are':' is')+' still waiting. You can finish now and the log will say what was not reached, or keep exploring.':'Everything is mastered.'}</p><div class="row"><button class="go" id="cl">Keep exploring ▶</button><button id="fin">Finish and save the log 💾</button></div></div>`);$('cl').onclick=hide;$('fin').onclick=finish}
+function finish(){const R=record(),fname='studywright-'+DECK.id+'-'+stamp()+'.json';S.finished=true;hero.quests=(hero.quests||0)+1;H.put(hero);const all=store.get(RKEY)||[];all.push(R);store.set(RKEY,all.slice(-200));
+ const rec=store.get(KEY)||{};store.set(KEY,{score:Math.max(R.score_first_try,rec.score||0),best:Math.max(S.best,rec.best||0),miss:S.firstMiss.slice(),last:new Date().toLocaleDateString('en-CA'),run:null});saveWorld(true);download(fname,R);Sound.win();burst(P.x*TS+TS/2,P.y*TS,['#ffd166','#7bd389','#fff','#4cc9f0'],80);
+ const sc=R.score_first_try,stars=sc>=90?3:sc>=70?2:1,topics={};R.first_try_misses.forEach(m=>{(topics[m.topic||'Other']=topics[m.topic||'Other']||[]).push(Q[m.n-1])});
+ show(`<div class="card"><h1>Quest complete! ${'⭐'.repeat(stars)}</h1><p><b>${sc}%</b> right on the first try (${R.questions_total-R.first_try_misses.length} of ${R.questions_total}). Mastered <b>${R.mastered}</b> of ${R.deck_total}. Best streak <b>${R.best_streak}</b>. ${esc(hero.name)} earned <b>${S.xp} XP</b>, walked ${S.moves} steps and mapped ${S.newTiles} new tiles.</p>
+ ${R.unseen.length?`<p class="small">${R.unseen.length} creature${R.unseen.length>1?'s were':' was'} not reached. Keep exploring to find them.</p>`:''}
+ ${R.first_try_misses.length?`<h2>Review these before the test</h2><ul class="rev">${Object.entries(topics).map(([t,qs])=>`<li><b>${esc(t)}</b>: ${qs.map(q=>esc(q.review||q.q)+' → <b>'+esc(ansOf(q))+'</b>').join('<br>')}</li>`).join('')}</ul>`:'<p>Nothing missed on the first try. You are ready.</p>'}
+ ${Kit.notesHtml(R,fname)}
+ <div class="row"><button id="sv">Save the log again 💾</button><button id="cl">Keep exploring</button><button id="ng">New quest ↻</button></div></div>`);
+ Kit.notesWire(R,fname);$('sv').onclick=()=>download(fname,R);$('cl').onclick=hide;$('ng').onclick=()=>{newRun();start()}}
+// ---------- title, hero picker and builder ----------
+function title(){hero=H.cur();if(!hero)return heroCreate(false);const saved=(store.get(KEY)||{}).run,tot=Q.filter((_,i)=>SITE[i]).length,others=H.all().list.filter(h=>h.id!==hero.id),mine=Object.keys(W.builds).filter(k=>W.builds[k].d===DECK.id).length;
+ show(`<div class="card"><h1>${esc(DECK.title)}</h1><p class="small">${esc(DECK.subject)}</p><p>${esc(DECK.intro)}</p>
+ <div class="builder"><div class="pv" id="tp"></div><div style="flex:1;min-width:220px"><b>${esc(hero.name)}</b> the ${hero.cls} · Level ${heroLvl(hero)} · ${hero.xp} XP<br><span class="small">❤️ ${hero.inv.hp}/${maxHp(hero)} · 🪙 ${hero.inv.gold} · ${hero.quests||0} quests · ${CLASSES[hero.cls].icon} ${CLASSES[hero.cls].perk}</span>
+ <p class="small">The same hero plays every studywright game. The land you map and everything you build here stay for next time${mine?': '+mine+' thing'+(mine>1?'s':'')+' already built in this valley':''}.</p></div></div>
+ <div class="choices">${saved?`<button class="go" id="co">▶ Continue the quest (${saved.done.length}/${tot} helped)</button><button id="st">↻ Start the quest over</button>`:'<button class="go" id="st">▶ Start exploring</button>'}
+ ${others.map(h=>`<button data-h="${h.id}">Play as ${CLASSES[h.cls].icon} <b>${esc(h.name)}</b> the ${h.cls} · Level ${heroLvl(h)}</button>`).join('')}<button id="ed">🎨 Change how ${esc(hero.name)} looks</button><button id="nh">➕ Make a new hero</button></div>
+ <h2>How to play</h2><ul class="rev small"><li>Walk anywhere: up, down, left, right. Water, mountains, trees and walls block you. Roads lead to every region.</li><li>🪧 Signposts teach the notes. Read them first; you can also check them from inside a question.</li><li>Walk into a creature to answer its question. Right: it builds something that stays on the map. Wrong: read why, help someone else, then come back for the same idea in new words.</li><li>Master every creature in a region to earn its 🗝️. Keys open locked doors. Open the trophy chest in the hall to finish.</li></ul></div>`);
+ $('tp').appendChild(heroCanvas(hero,120,150,3.6));
+ $('st').onclick=()=>{newRun();start()};if(saved)$('co').onclick=()=>{S=saved;S.t0=Date.now()-(saved.el||0);start(true)};
+ ov.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{const d=H.all();d.active=b.dataset.h;H.save(d);Sound.click();title()});$('ed').onclick=()=>heroCreate(true,hero);$('nh').onclick=()=>heroCreate(true)}
+function start(resume){hero=H.cur();hide();place(resume?S.x:OX,resume?S.y:OY);if(!resume){saveRun();banner('🧭 '+REG[0].name+'. Read the signpost 🪧 first!')}hud()}
+function heroCreate(back,edit){Kit.builder({mount:html=>{show(html);return ov},edit,back:back?title:null,sound:Sound,perks:Object.fromEntries(Object.entries(CLASSES).map(([c,v])=>[c,v.perk])),
+ done:r=>{if(edit){edit.look=r.look;H.put(edit)}else H.put(newHero(r.name,r.cls,r.look));Sound.lvl();title()}})}
+addEventListener('pagehide',()=>{saveRun();saveWorld(true)});
+requestAnimationFrame(frame);title();
+</script></body></html>

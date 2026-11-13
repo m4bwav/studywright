@@ -3,14 +3,14 @@ name: studywright
 description: "Turn a student's worksheets, notes or study guide (photos, PDFs or text) into a playable study game: one offline HTML page that quizzes every item on the sheet, says right or wrong and why after each answer, brings misses back until mastered, and adds game elements (XP, levels, streaks, a three.js tower that grows with right answers, end-of-game review list). Use on 'make a study guide game', 'quiz my kid on this worksheet', 'turn these notes into a practice test', 'study game for the science test', 'flashcard game from this'. Also 'refresh studywright'. Not for grading finished work or for designing a commercial game (ludowright)."
 license: MIT
 metadata:
-  version: "0.3.0"
+  version: "0.8.0"
 ---
 
 # studywright
 
 You make study games that teach, not just test. Read [evergreen.json](evergreen.json) with this file; if today is past `next_due`, say so in one line, do the task, then refresh against [RESEARCH.md](RESEARCH.md).
 
-The engine is [templates/game.html](templates/game.html); `SW build` fills it. `SW` means `python "<this folder>/scripts/sw.py"`. Run it; do not read it.
+The engines are [templates/game.html](templates/game.html) (quest: a queue of questions), [templates/world.html](templates/world.html) (open world, deck `mode: "world"`) and [templates/lesson.html](templates/lesson.html) (teach a method, `mode: "lesson"`); `SW build` fills the right one and injects [templates/kit.js](templates/kit.js) (the one hero drawing routine, the hero builder and the notes prompt) into all three, so a hero looks the same in every game. `SW` means `python "<this folder>/scripts/sw.py"`. Run it; do not read it.
 
 ## Steps
 
@@ -42,6 +42,17 @@ Optional deck keys: `realm` (history, biology, math, science, words or quest; gu
 
 Every main question should carry at least one `variant`; key ideas also get `steps`. The engine locks Next for 3 seconds after each answer so the reason gets read, shows a scene of the hero against the foe (gold, loot and hearts on a right answer; damage or dropped gold on a miss; fainting only sends the hero back to camp), and the hero builder (class, weapon, skin, hair, outfit, pet) draws a unique hero with an inventory.
 
+## World mode (open world, the default for a test)
+
+A deck with `"mode": "world"` builds from `templates/world.html`: the hero walks up, down, left or right over one shared land; water, mountains, trees, walls and locked doors block the way. Use it for a whole test; keep quest mode for a quick drill.
+
+- `regions`: up to 9, the first is the hub where the hero starts. Each has `id`, `name`, `biome` (farm, ranch, mill, kennel, wild, lab, hall, town) and `teach`: the sheet's notes for that heading, shown on the region's signpost and reachable from inside every question. Put the sheet's own wording there, with the blank words in `<b>`.
+- Every question names its region with `"r": "<region id>"` (1 to 20 per region) and stands on the map as a creature. Right: it builds something that stays on the map. Wrong: the reason, minus one heart, and the creature asks again in its next `variants` wording after another question has been answered.
+- Mastering every creature in a region earns its key. `"walls": true` makes a building with one door; `"locked": n` needs n keys. Walled regions go 6th or later in the list. One region may be `"hall": true`: its chest ends the quest. Lay the test out as: main sheet in the hub and the nearest regions, review of earlier sheets in an outer region, mixed apply questions in the hall.
+- The land is shared by every world game in the browser (`studywright:world`): mapped tiles, buildings (they grow on a replay) and opened chests persist, and each new deck gets its own valley on the same map.
+- Feel settings (sound, shake strength, reduce motion, flash, hit pause) are in the gear menu; constants are at the top of the template and logged in `juice-changes.md`.
+- Example: `decks/selective-breeding.json`.
+
 ## Lesson mode (teach a new method)
 
 A deck with `"mode": "lesson"` builds from `templates/lesson.html`: worked example, then faded steps, then solo, with generated numbers, named slips and a path map; it needs `skills`, `map` (stages naming an encounter kind), `contexts`, `gold` and optional `banned_hashes`. Example: `decks/mean-absolute-deviation.json`. Before handing it over run `node scripts/verify_lesson.js games/<slug>.html 3000 [banned-sets.json]` and `python scripts/verify_routes.py <deck>`.
@@ -50,6 +61,11 @@ A deck with `"mode": "lesson"` builds from `templates/lesson.html`: worked examp
 
 See [references/learning-design.md](references/learning-design.md). In short: retrieval practice beats rereading; feedback right after each answer with the reason; misses come back a few items later (spacing) until answered right (mastery); no lives or game over, so a miss costs only the streak; rewards follow correct effort (XP, streak gold, tower) and never block learning. A persistent hero (class, levels, feats, study areas that rise by use and by training picks) carries across games; feats only add XP or one strike-out hint, never skip questions.
 
-## Paper trail
+## Paper trail: a log and a notes prompt from every play
 
-Every finished game downloads `studywright-<deck>-<time>.json` (hero snapshot, score, each first-try miss with what was typed). `SW records [--from DIR] [--to DIR]` files them into `records/<deck>/` as JSON + Markdown and rebuilds `records/INDEX.md`. Agents read INDEX.md before writing the next test. Keep records out of public repos (gitignored here).
+Every finished game, in every mode, produces two things, and a new mode is not done until it does both:
+
+1. **A log**: it downloads `studywright-<deck>-<time>.json` (hero snapshot, score, each first-try miss with what was typed, what was not reached, time, route).
+2. **A notes prompt**: the finish screen shows a ready prompt with a copy button (`Kit.notesHtml`). It carries the results in plain text and tells the agent to file the log and update the notes. The parent pastes it into any AI session.
+
+When you receive that prompt: run `SW records [--from DIR] [--to DIR]` (files the logs into `records/<deck>/` as JSON + Markdown and rebuilds `records/INDEX.md`; if the file is missing, write the record by hand from the pasted results), then update the project's handoff and log with what was missed and which ideas look shaky, and tell the parent in a few lines what to review. Agents read INDEX.md before writing the next test. Keep records out of public repos (gitignored here).
