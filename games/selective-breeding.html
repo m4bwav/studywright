@@ -19,7 +19,7 @@ button.right{background:#1f6f3d;border-color:#35c26b}button.wrong{background:#7a
 @keyframes pop{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
 .rm .card{animation:none}
 h1{margin:.1em 0 .4em;font-size:1.5em}h2{margin:1em 0 .3em;font-size:1.05em;color:var(--ac)}p{margin:.4em 0}
-.small{color:var(--dim);font-size:.86em}.choices{display:grid;gap:8px;margin:12px 0}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.small{color:var(--dim);font-size:.86em}.choices{display:grid;gap:8px;margin:12px 0}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.fig{margin:10px 0;text-align:center}.fig svg{max-width:100%;height:auto;max-height:42vh}.fig .hl{fill:#ffd166!important;stroke:#fff;stroke-width:3}.ord{display:inline-block;min-width:1.4em}
 .opts{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 10px}.opts button{padding:6px 10px;font-size:14px}
 .sw{display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:-3px;border:1px solid #0006}
 input[type=text]{font:inherit;width:100%;padding:10px 12px;border-radius:10px;border:1px solid #36426b;background:#0f1428;color:var(--ink)}
@@ -161,7 +161,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const $=id=>document.getElementById(id);
 const J=Object.assign({sound:true,shakeScale:1,reduceMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,hitStop:true,flashes:true},store.get(JKEY)||{});
 const Q=DECK.questions, REG=DECK.regions;
-const ansOf=q=>q.type==='type'?q.accept[0]:q.choices[q.answer];
+const ansOf=q=>q.type==='type'?q.accept[0]:q.type==='order'?q.items.join(' → '):q.choices[q.answer];
 // ---------- heroes ----------
 const CLASSES={Scholar:{icon:'📜',feat:'scribe',perk:'+5 XP for every typed answer you get right.'},Ranger:{icon:'🏹',feat:'keen',perk:'Sees one tile farther, so the map fills in faster.'},Knight:{icon:'🛡️',feat:'wind',perk:'Tough: 12 hearts instead of 10.'},Mage:{icon:'🔮',feat:'focus',perk:'+2 gold for every right answer.'}};
 const {LOOK,PETI,drawHero,heroCanvas}=Kit;
@@ -222,7 +222,9 @@ function rng(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s>>>=0;s^=s>>>17;s^=s<<
 const SITE=[];{const dh=[...DECK.id].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
  REG.forEach((r,i)=>{const c=RC[i],cells=[],rnd=rng(dh+i*977);for(let y=c.y-RH+1;y<c.y+RH;y++)for(let x=c.x-RW+1;x<c.x+RW;x++)if(x!==c.x&&y!==c.y&&((x+y)%2+2)%2===0&&!(Math.abs(x-c.x)===1&&y===c.y-1))cells.push([x,y]);
   for(let j=cells.length-1;j>0;j--){const k=Math.floor(rnd()*(j+1));[cells[j],cells[k]]=[cells[k],cells[j]]}
-  let n=0;Q.forEach((q,qi)=>{if((q.r||REG[0].id)!==r.id)return;const p=cells[n++];if(!p)return;const b=bio(r.biome);SITE[qi]={x:p[0],y:p[1],r:i,foe:q.foe||b.foes[(n-1)%b.foes.length]};OV.set(K(p[0],p[1]),{t:'Q',q:qi,d:DECK.id,r:i,b:r.biome})})})}
+  let n=0,ci=0;const used=new Set(),ck2=(x,y)=>x+','+y,open=()=>{const vis=new Set([ck2(c.x,c.y)]),qu=[[c.x,c.y]];while(qu.length){const[x,y]=qu.pop();for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,k=ck2(nx,ny);if(Math.abs(nx-c.x)>=RW||Math.abs(ny-c.y)>=RH||vis.has(k)||used.has(k))continue;vis.add(k);qu.push([nx,ny])}}
+   return[...used].every(k=>{const[x,y]=k.split(',').map(Number);return vis.has(ck2(x+1,y))||vis.has(ck2(x-1,y))||vis.has(ck2(x,y+1))||vis.has(ck2(x,y-1))})};
+  Q.forEach((q,qi)=>{if((q.r||REG[0].id)!==r.id)return;let p;while((p=cells[ci++])){used.add(ck2(p[0],p[1]));if(open())break;used.delete(ck2(p[0],p[1]))}n++;if(!p)return;const b=bio(r.biome);SITE[qi]={x:p[0],y:p[1],r:i,foe:q.foe||b.foes[(n-1)%b.foes.length]};OV.set(K(p[0],p[1]),{t:'Q',q:qi,d:DECK.id,r:i,b:r.biome})})})}
 const tileAt=(x,y)=>OV.get(K(x,y))||{t:proc(x,y)};
 const regOf=qi=>SITE[qi].r, qsOf=ri=>Q.map((_,i)=>i).filter(i=>SITE[i]&&SITE[i].r===ri);
 // ---------- run state ----------
@@ -233,7 +235,7 @@ function saveRun(){if(!S)return;S.x=P.x;S.y=P.y;S.el=Date.now()-S.t0;const rec=s
 const isDone=qi=>S.done.includes(qi);
 const canAsk=qi=>!(qi in S.cool)||S.answered>S.cool[qi]||!Q.some((_,i)=>i!==qi&&SITE[i]&&!isDone(i)&&!(i in S.cool)&&reachable(i));
 const reachable=qi=>{const r=REG[SITE[qi].r];return !r.walls||!r.locked||S.doors.includes(SITE[qi].r)||S.keys>=r.locked};
-function itemOf(qi){const q=Q[qi],v=q.variants||[],n=S.asks[qi]||0,it=n&&v.length?[q,...v][n%(v.length+1)]:q;return{...it,explain:it.explain||q.explain,topic:q.topic}}
+function itemOf(qi){const q=Q[qi],v=q.variants||[],n=S.asks[qi]||0,it=n&&v.length?[q,...v][n%(v.length+1)]:q;return{...it,explain:it.explain||q.explain,topic:q.topic,fig:it.fig===undefined?q.fig:it.fig,hl:it.hl===undefined?q.hl:it.hl}}
 // ---------- rendering ----------
 const cv=$('cv'),cx=cv.getContext('2d');let VW=0,VH=0,DPR=1;
 function size(){DPR=Math.min(2,window.devicePixelRatio||1);VW=innerWidth;VH=innerHeight;cv.width=VW*DPR;cv.height=VH*DPR;cv.style.width=VW+'px';cv.style.height=VH+'px'}
@@ -329,14 +331,20 @@ const SCENES=['{f} blocks the path in {r} and will only move for the right answe
 function openQ(qi){const q=Q[qi],it=itemOf(qi),st=SITE[qi],r=REG[st.r],first=!S.log[qi];Sound.sign();
  const scene=(q.scene||SCENES[(qi+(S.asks[qi]||0))%SCENES.length]).replace(/\{f\}/g,st.foe).replace(/\{h\}/g,esc(hero.name)).replace(/\{r\}/g,esc(r.name));
  let body;if(it.type==='type')body=`<input type="text" id="ti" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type your answer, then press Enter"><div class="row"><button class="go" id="sub">Answer</button></div>`;
+ else if(it.type==='order'){const sh=it.items.map((_,i)=>i);do{for(let i=sh.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[sh[i],sh[j]]=[sh[j],sh[i]]}}while(sh.every((v,i)=>v===i));
+  body=`<div class="small">${esc(it.hint||'Tap them in order, first to last.')}</div><div class="choices" id="qa">${sh.map(ci=>`<button data-i="${ci}"><b class="ord">·</b> ${esc(it.items[ci])}</button>`).join('')}</div><div class="row"><button id="undo">↩ Undo last tap</button></div>`}
  else{const order=it.choices.map((_,i)=>i);for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}
   body=`<div class="choices" id="qa">${order.map((ci,n)=>`<button data-i="${ci}"><b>${String.fromCharCode(65+n)}.</b> ${esc(it.choices[ci])}</button>`).join('')}</div>`}
- show(`<div class="card"><div class="scene">${scene}</div><div class="small">${esc(r.name)} · ${esc(q.topic||'')}${first?'':' · try '+((S.asks[qi]||0)+1)}</div><h1 style="font-size:1.25em">${esc(it.q)}</h1>${body}<div id="fb"></div>
+ show(`<div class="card"><div class="scene">${scene}</div><div class="small">${esc(r.name)} · ${esc(q.topic||'')}${first?'':' · try '+((S.asks[qi]||0)+1)}</div><h1 style="font-size:1.25em">${esc(it.q)}</h1>${it.fig&&DECK.figs&&DECK.figs[it.fig]?'<div class="fig" id="fig">'+DECK.figs[it.fig]+'</div>':''}${body}<div id="fb"></div>
  <div class="row"><button id="say">🔊 Read it to me</button><button id="peek">📖 Check the signpost notes (no penalty)</button></div></div>`);
  $('say').onclick=()=>{try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance([it.q.replace(/_+/g,'blank'),...[...ov.querySelectorAll('#qa button')].map(b=>b.textContent)].join('. '));u.rate=.95;speechSynthesis.speak(u)}catch(e){}};
  $('peek').onclick=()=>openNotes(st.r,()=>openQ(qi));
+ if(it.hl){const e=ov.querySelector('#fig #'+it.hl);if(e)e.classList.add('hl')}
  const done=(ok,given,btn)=>{$('say').remove();$('peek').remove();answer(qi,it,ok,given,btn)};
  if(it.type==='type'){const ti=$('ti');setTimeout(()=>ti.focus(),30);const go=()=>{if(!ti.value.trim())return ti.focus();ti.disabled=true;$('sub').disabled=true;done(typedOk(it,ti.value),ti.value.trim())};$('sub').onclick=go;ti.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();go()}}}
+ else if(it.type==='order'){const pick=[],bs=[...ov.querySelectorAll('#qa button')],paint=()=>bs.forEach(b=>{const n=pick.indexOf(+b.dataset.i);b.classList.toggle('sel',n>=0);b.querySelector('.ord').textContent=n>=0?(n+1)+'.':'·'});
+  $('undo').onclick=()=>{pick.pop();paint()};
+  bs.forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(pick.includes(i))return;pick.push(i);paint();if(pick.length<bs.length)return;const ok=pick.every((v,n)=>v===n);bs.forEach(x=>{x.disabled=true;x.classList.remove('sel');x.classList.add(pick.indexOf(+x.dataset.i)===+x.dataset.i?'right':'wrong')});$('undo').remove();done(ok,pick.map(v=>it.items[v]).join(' > '))})}
  else ov.querySelectorAll('#qa button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;ov.querySelectorAll('#qa button').forEach(x=>{x.disabled=true;if(+x.dataset.i===it.answer)x.classList.add('right')});if(i!==it.answer)b.classList.add('wrong');done(i===it.answer,it.choices[i])})}
 function answer(qi,it,ok,given){const first=!S.log[qi],st=SITE[qi],r=REG[st.r],wx=st.x*TS+TS/2,wy=st.y*TS+TS/2,chips=[];(S.log[qi]=S.log[qi]||[]).push({given,ok,q:it.q,at:Math.round((Date.now()-S.t0)/1000)});S.asks[qi]=(S.asks[qi]||0)+1;S.answered++;
  let after=()=>{};

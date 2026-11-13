@@ -34,6 +34,10 @@ def check_item(q, tag):
     elif t == "type":
         if not q.get("accept"):
             errs.append(f"{tag}: type needs 'accept' list")
+    elif t == "order":
+        it = q.get("items", [])
+        if not 3 <= len(it) <= 6 or len(set(it)) != len(it):
+            errs.append(f"{tag}: order needs 'items': 3 to 6 different entries, written in the correct order")
     else:
         errs.append(f"{tag}: unknown type {t}")
     return errs
@@ -105,8 +109,14 @@ def check(deck):
     if len(qs) < 8:
         errs.append(f"only {len(qs)} questions; aim for 15+ so every sheet item is covered twice")
     seen = set()
+    figs = deck.get("figs", {})
     for i, q in enumerate(qs, 1):
         tag = f"q{i}"
+        for sub in [q] + [v for v in q.get("variants", []) if isinstance(v, dict)]:
+            if sub.get("type") == "order" and deck.get("mode") != "world":
+                errs.append(f"{tag}: type 'order' needs a world deck (mode: world)")
+            if sub.get("fig") and (deck.get("mode") != "world" or sub["fig"] not in figs):
+                errs.append(f"{tag}: fig '{sub['fig']}' needs a world deck with that name in the deck's 'figs'")
         if q.get("q") in seen:
             errs.append(f"{tag}: duplicate prompt")
         seen.add(q.get("q"))
