@@ -45,7 +45,7 @@ textarea{width:100%;height:150px;background:#0f1428;color:var(--ink);border:1px 
 const DECK = __DECK__;
 /*__KIT__*/
 // ---------- tunables: rules ----------
-const TS=48, VIEW_R=5, MOVE_MS=125, READ_OK_MS=1200, READ_NO_MS=3000, XP_RIGHT=10, XP_FIRST=5, XP_NOTES=5, XP_DISCOVER=5, GOLD_RIGHT=3, GOLD_FIRST=2, CHEST_GOLD=15, BUILD_MAX=3;
+const TS=48, VIEW_R=5, MOVE_MS=125, READ_OK_MS=1200, READ_NO_MS=3000, XP_RIGHT=10, XP_FIRST=5, XP_NOTES=5, XP_DISCOVER=5, GOLD_RIGHT=3, GOLD_FIRST=2, CHEST_GOLD=15, BUILD_MAX=3, POTION_PRICE=10, MAP_PRICE=25, COMPASS_PRICE=40, KEEPSAKE_PRICE=20;
 // ---------- tunables: juice (every effect is gated by a setting in J) ----------
 const SHAKE_BUMP=.18, SHAKE_MISS=.65, SHAKE_MAX_PX=9, SHAKE_DECAY=2.4, HITSTOP_MS=70, PARTICLES_MAX=140, BURST_N=24, FLASH_MS=260, PITCH_VAR=.07, HOP_PX=6, POP_MS=450, SQUASH=.14, VOLUME=.14;
 // ---------- storage (same keys as the quest games, so heroes and records are shared) ----------
@@ -114,12 +114,17 @@ function stampDeck(id,info){const ox=info.ox,oy=info.oy,regs=(info.regions||[]).
 Object.entries(W.decks).forEach(([id,info])=>{if(id!==DECK.id)stampDeck(id,info)});stampDeck(DECK.id,W.decks[DECK.id]);
 const RC=REG.map((r,i)=>({x:OX+DIRS[i][0],y:OY+DIRS[i][1]}));
 function rng(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s>>>=0;s^=s>>>17;s^=s<<5;s>>>=0;return s/4294967296}}
-const SITE=[];{const dh=[...DECK.id].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
+const SITE=[],SHOP=[];{const dh=[...DECK.id].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
  REG.forEach((r,i)=>{const c=RC[i],cells=[],rnd=rng(dh+i*977);for(let y=c.y-RH+1;y<c.y+RH;y++)for(let x=c.x-RW+1;x<c.x+RW;x++)if(x!==c.x&&y!==c.y&&((x+y)%2+2)%2===0&&!(Math.abs(x-c.x)===1&&y===c.y-1))cells.push([x,y]);
   for(let j=cells.length-1;j>0;j--){const k=Math.floor(rnd()*(j+1));[cells[j],cells[k]]=[cells[k],cells[j]]}
   let n=0,ci=0;const used=new Set(),ck2=(x,y)=>x+','+y,open=()=>{const vis=new Set([ck2(c.x,c.y)]),qu=[[c.x,c.y]];while(qu.length){const[x,y]=qu.pop();for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,k=ck2(nx,ny);if(Math.abs(nx-c.x)>=RW||Math.abs(ny-c.y)>=RH||vis.has(k)||used.has(k))continue;vis.add(k);qu.push([nx,ny])}}
    return[...used].every(k=>{const[x,y]=k.split(',').map(Number);return vis.has(ck2(x+1,y))||vis.has(ck2(x-1,y))||vis.has(ck2(x,y+1))||vis.has(ck2(x,y-1))})};
-  Q.forEach((q,qi)=>{if((q.r||REG[0].id)!==r.id)return;let p;while((p=cells[ci++])){used.add(ck2(p[0],p[1]));if(open())break;used.delete(ck2(p[0],p[1]))}n++;if(!p)return;const b=bio(r.biome);SITE[qi]={x:p[0],y:p[1],r:i,foe:q.foe||b.foes[(n-1)%b.foes.length]};OV.set(K(p[0],p[1]),{t:'Q',q:qi,d:DECK.id,r:i,b:r.biome})})})}
+  Q.forEach((q,qi)=>{if((q.r||REG[0].id)!==r.id)return;let p;while((p=cells[ci++])){used.add(ck2(p[0],p[1]));if(open())break;used.delete(ck2(p[0],p[1]))}n++;if(!p)return;const b=bio(r.biome);SITE[qi]={x:p[0],y:p[1],r:i,foe:q.foe||b.foes[(n-1)%b.foes.length]};OV.set(K(p[0],p[1]),{t:'Q',q:qi,d:DECK.id,r:i,b:r.biome})});
+  if(r.merchant){const far=p=>Math.abs(p[0]-c.x)+Math.abs(p[1]-c.y),rest=cells.slice(ci).sort((a,b)=>far(a)-far(b));for(const p of rest){used.add(ck2(p[0],p[1]));if(open()){SHOP[i]={x:p[0],y:p[1]};OV.set(K(p[0],p[1]),{t:'M',d:DECK.id,r:i,b:r.biome});break}used.delete(ck2(p[0],p[1]))}}})}
+const POTION='🧪 Healing Potion', COMPASS='🧭 Compass';
+const merch=ri=>Object.assign({name:'Traveling merchant',icon:'🧙',hello:'Gold for goods, friend. Take a look.',goods:[]},REG[ri].merchant===true?{}:REG[ri].merchant);
+const has=i=>hero.inv.items.includes(i);
+const valley=()=>{const a=[];OV.forEach((T,k)=>{if(T.d===DECK.id)a.push([Math.floor(k/65536)-32768,k%65536-32768])});return a};
 const tileAt=(x,y)=>OV.get(K(x,y))||{t:proc(x,y)};
 const regOf=qi=>SITE[qi].r, qsOf=ri=>Q.map((_,i)=>i).filter(i=>SITE[i]&&SITE[i].r===ri);
 // ---------- run state ----------
@@ -161,6 +166,7 @@ function drawTile(x,y,sx,sy){const T=tileAt(x,y),t=T.t,h=hash(x,y,9),c=cx,mid=sx
   if(t==='E')emoji(B.edge[Math.floor(h*B.edge.length)],mid,my,32);
   else if(t==='S')emoji('🪧',mid,my,32,S&&T.d===DECK.id&&!S.read.includes(T.r)?1+(J.reduceMotion?0:Math.sin(clock*4)*.06):1);
   else if(t==='C'){emoji('⛺',mid,my-2,36);emoji('🔥',mid+16,my+12,14)}
+  else if(t==='M'){c.fillStyle='#8a5a2a';c.fillRect(sx+5,sy+TS-15,TS-10,10);c.fillStyle='#e0566a';c.fillRect(sx+5,sy+TS-17,TS-10,3);emoji(merch(T.r).icon,mid,my-5+(J.reduceMotion?0:Math.sin(clock*2.5+x)*1.5),30);emoji('💰',mid+14,my+13,15)}
   else if(t==='X')emoji(S&&S.finished?'🏆':'🧰',mid,my,34);
   else if(t==='Q'){const st=SITE[T.q],bd=W.builds[x+','+y],k=K(x,y),pp=pops.get(k);let sc=1;if(pp){const u=(clock-pp)/(POP_MS/1000);if(u>=1)pops.delete(k);else sc=1+Math.sin(u*Math.PI)*.5*(1-u)+(u<.15?-.3:0)}
    if(S&&isDone(T.q))emoji(B.build[Math.min(BUILD_MAX,(bd&&bd.l)||1)-1],mid,my,34,sc);
@@ -195,12 +201,13 @@ function bump(msg){Sound.bump();shake(SHAKE_BUMP);if(msg)banner(msg)}
 function move(dx,dy){if(!S||modal()||performance.now()-P.t0<MOVE_MS)return;P.face=dx<0?'l':dx>0?'r':dy<0?'u':'d';const nx=P.x+dx,ny=P.y+dy,T=tileAt(nx,ny),t=T.t,mine=T.d===DECK.id;
  if(t==='Q'){held=null;if(isDone(T.q)){Sound.click();const q=Q[T.q];banner('✔ '+(q.review||ansOf(q)))}else if(!canAsk(T.q))bump('💢 Still grumpy. Help another creature first, then come back.');else openQ(T.q);return}
  if(t==='S'){held=null;if(mine)openNotes(T.r);else bump();return}
+ if(t==='M'){held=null;if(mine)openShop(T.r);else bump();return}
  if(t==='C'){held=null;hero.inv.hp=maxHp(hero);H.put(hero);Sound.sign();banner('⛺ You rest at camp. Hearts are full.');hud();return}
  if(t==='X'){held=null;if(!mine)return bump();const left=qsOf(T.r).filter(i=>!isDone(i)).length;if(S.finished)banner('🏆 The trophy is yours.');else if(left)bump('🧰 Sealed. '+left+' champion'+(left>1?'s':'')+' still to beat in this hall.');else{Sound.chest();hero.inv.gold+=50;H.put(hero);finish()}return}
  if(t==='D'&&mine&&!S.doors.includes(T.r)){held=null;const r=REG[T.r],needK=r.locked||0;if(S.keys>=needK){S.doors.push(T.r);Sound.door();banner('🚪 The door of '+r.name+' swings open.');burst(nx*TS+TS/2,ny*TS+TS/2,['#ffd166','#fff']);saveRun()}else{Sound.locked();shake(SHAKE_BUMP);banner('🔒 '+r.name+' needs '+needK+' 🗝️ (you have '+S.keys+'). Master every creature in a region to earn its key.')}return}
  if(t==='c'&&!W.opened[nx+','+ny]){held=null;W.opened[nx+','+ny]=1;hero.inv.gold+=CHEST_GOLD;H.put(hero);saveWorld();Sound.chest();burst(nx*TS+TS/2,ny*TS+TS/2,['#ffd166','#ffe9a8']);floatText(nx*TS+TS/2,ny*TS,'+'+CHEST_GOLD+' 🪙','#ffd166');hud();return}
  if(!(t==='g'||t==='f'||t==='s'||t==='G'||t==='r'||t==='D'||t==='c')){bump();return}
- P.fx=P.x;P.fy=P.y;P.x=nx;P.y=ny;P.t0=performance.now();P.sq=1;S.moves++;Sound.step();reveal();
+ P.fx=P.x;P.fy=P.y;P.x=nx;P.y=ny;P.t0=performance.now();P.sq=1;S.moves++;Sound.step();reveal();compass();
  if(mine&&T.r!==undefined&&S.route[S.route.length-1]!==REG[T.r].id){S.route.push(REG[T.r].id);const fk=DECK.id+':'+T.r;if(!W.found[fk]){W.found[fk]=1;saveWorld();Sound.discover();banner('🧭 Discovered: '+REG[T.r].name);gainXp(XP_DISCOVER)}else banner('📍 '+REG[T.r].name)}
  if(S.moves%8===0)saveRun()}
 function gainXp(n){const L0=heroLvl(hero);hero.xp+=n;S.xp+=n;const L1=heroLvl(hero);if(L1>L0){hero.picks=(hero.picks||0)+L1-L0;hero.inv.hp=maxHp(hero);hero.inv.gold+=20;Sound.lvl();banner('⬆️ Level '+L1+'! Hearts refilled, +20 🪙');burst(P.x*TS+TS/2,P.y*TS,['#ffd166','#7bd389','#fff'],40)}H.put(hero);hud()}
@@ -215,9 +222,13 @@ document.querySelectorAll('#pad button').forEach(b=>b.addEventListener('pointerd
 // ---------- HUD ----------
 function hud(){const el=$('hud');if(!hero||!S){el.innerHTML='';return}const L=heroLvl(hero),a=need(L-1),b=need(L),tot=Q.filter((_,i)=>SITE[i]).length;
  el.innerHTML=`<div class="who" id="hc"></div><div><b>${esc(hero.name)}</b> <span class="small">${CLASSES[hero.cls].icon} Lv ${L}</span><div class="bar"><i style="width:${Math.round(100*(hero.xp-a)/(b-a))}%"></i></div></div>
- <div>❤️ ${hero.inv.hp}/${maxHp(hero)}</div><div>🪙 ${hero.inv.gold}</div><div>🗝️ ${S.keys}</div><div title="creatures helped">✅ ${S.done.length}/${tot}</div><div>🔥 ${S.streak}</div><span class="sp"></span>
+ <div>❤️ ${hero.inv.hp}/${maxHp(hero)}</div><div>🪙 ${hero.inv.gold}</div><div>🗝️ ${S.keys}</div><div title="creatures helped">✅ ${S.done.length}/${tot}</div><div>🔥 ${S.streak}</div><div id="cp" title="compass: the nearest creature still waiting"></div><span class="sp"></span>
  <button id="bm">🗺️ Map</button><button id="bn">📖 Notes</button><button id="bs">⚙️</button><button id="bf">🏁 Finish</button>`;
- $('hc').appendChild(heroCanvas(hero,34,44,1.15));$('bm').onclick=openMap;$('bn').onclick=()=>openNotes();$('bs').onclick=settings;$('bf').onclick=askFinish}
+ $('hc').appendChild(heroCanvas(hero,34,44,1.15));$('bm').onclick=openMap;$('bn').onclick=()=>openNotes();$('bs').onclick=settings;$('bf').onclick=askFinish;compass()}
+function compass(){const el=$('cp');if(!el)return;if(!hero||!S||!has(COMPASS)){el.style.display='none';return}el.style.display='';let tx,ty,bd=1e9;
+ Q.forEach((_,i)=>{if(!SITE[i]||isDone(i))return;const d=Math.abs(SITE[i].x-P.x)+Math.abs(SITE[i].y-P.y)+(reachable(i)?0:1000)+(canAsk(i)?0:500);if(d<bd){bd=d;tx=SITE[i].x;ty=SITE[i].y}});
+ if(tx===undefined){const hi=REG.findIndex(r=>r.hall);if(hi<0||S.finished){el.textContent='🧭 ✔';return}tx=RC[hi].x;ty=RC[hi].y}
+ const a=Math.round(Math.atan2(ty-P.y,tx-P.x)/(Math.PI/4));el.textContent='🧭 '+['→','↘','↓','↙','←','↖','↑','↗'][(a+8)%8]+' '+(Math.abs(tx-P.x)+Math.abs(ty-P.y))}
 // ---------- questions ----------
 const norm=s=>String(s).toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\b(the|a|an)\b/g,' ').replace(/\s+/g,' ').trim();
 function lev(a,b){const d=[];for(let i=0;i<=a.length;i++){d[i]=[i];for(let j=1;j<=b.length;j++)d[i][j]=i?Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1)):j}return d[a.length][b.length]}
@@ -252,7 +263,7 @@ function answer(qi,it,ok,given){const first=!S.log[qi],st=SITE[qi],r=REG[st.r],w
    if(key)setTimeout(()=>{Sound.key();banner('🗝️ You mastered '+r.name+' and earned its key!');burst(P.x*TS+TS/2,P.y*TS,['#ffd166','#fff'],36)},500);
    if(!REG.some(x=>x.hall)&&Q.every((_,i)=>!SITE[i]||isDone(i)))setTimeout(finish,900)}}
  else{if(first)S.firstMiss.push(qi);S.streak=0;S.cool[qi]=S.answered;Sound.no();flash();hero.inv.hp=Math.max(0,hero.inv.hp-1);chips.push('−1 ❤️','It will ask again in new words');
-  after=()=>{shake(SHAKE_MISS);floatText(wx,wy-10,'💢','#e0566a');if(hero.inv.hp<=0){hero.inv.hp=maxHp(hero);H.put(hero);Sound.faint();place(OX,OY);banner('😵 Out of hearts! You wake up at camp, rested. Nothing is lost.')}}}
+  after=()=>{shake(SHAKE_MISS);floatText(wx,wy-10,'💢','#e0566a');if(hero.inv.hp<=0){const pi=hero.inv.items.indexOf(POTION);hero.inv.hp=maxHp(hero);if(pi>=0){hero.inv.items.splice(pi,1);H.put(hero);Sound.lvl();banner('🧪 Out of hearts! You drink a Healing Potion. Hearts are full.');hud()}else{H.put(hero);Sound.faint();place(OX,OY);banner('😵 Out of hearts! You wake up at camp, rested. Nothing is lost.');hud()}}}}
  H.put(hero);saveRun();
  const lock=ok?READ_OK_MS:READ_NO_MS;
  $('fb').innerHTML=`<div class="fb ${ok?'ok':'no'}"><b>${ok?'✔ Right!':'✖ Not yet.'}</b> ${ok?'':'The answer is <b>'+esc(ansOf(it))+'</b>. '}${esc(it.explain||'')}<div class="chips">${chips.map(c=>`<span>${esc(c)}</span>`).join('')}</div></div><div class="row"><button class="go" id="nx" disabled>Read…</button></div>`;
@@ -265,11 +276,26 @@ function openNotes(ri,back){const one=ri!==undefined,list=one?[ri]:REG.map((_,i)
  ${gained?'<p class="small">+'+XP_NOTES+' XP for reading. The creatures here ask about exactly this.</p>':''}<div class="row"><button class="go" id="cl">${back?'Back to the question ▶':'Got it ▶'}</button><button id="rd">🔊 Read it to me</button></div></div>`);
  $('rd').onclick=()=>{try{speechSynthesis.cancel();const d=document.createElement('div');d.innerHTML=list.map(i=>(REG[i].teach||[]).join('. ')).join('. ');speechSynthesis.speak(new SpeechSynthesisUtterance(d.textContent))}catch(e){}};
  $('cl').onclick=()=>{try{speechSynthesis.cancel()}catch(e){}if(back)back();else hide();if(gained){gainXp(XP_NOTES);saveRun()}}}
+// ---------- merchants: gold buys help with exploring and keepsakes that tell a fact; nothing skips a question ----------
+function openShop(ri,note){const m=merch(ri),pots=hero.inv.items.filter(i=>i===POTION).length,fog=valley().filter(([x,y])=>!isSeen(x,y)).length;Sound.sign();
+ const stock=[...m.goods.map(s=>({k:'keep',icon:s.icon,name:s.name,price:s.price||KEEPSAKE_PRICE,desc:'A keepsake for your pack. It comes with a true story.',fact:s.fact,off:has(s.icon+' '+s.name)&&'In your pack'})),
+  {k:'potion',icon:'🧪',name:'Healing Potion',price:POTION_PRICE,desc:'Works by itself when your hearts run out: hearts full, and you stay where you are. You carry '+pots+'.'},
+  {k:'map',icon:'🗺️',name:'Trail map of '+DECK.title,price:MAP_PRICE,desc:'Clears the fog over every road and region of this valley.',off:!fog&&'Already mapped'},
+  {k:'compass',icon:'🧭',name:'Compass',price:COMPASS_PRICE,desc:'Points to the nearest creature still waiting, with the number of steps. Yours in every game.',off:has(COMPASS)&&'You own it'}];
+ show(`<div class="card"><h1>${m.icon} ${esc(m.name)}</h1><div class="scene">"${esc(m.hello)}"</div><p>You have <b>🪙 ${hero.inv.gold}</b>. Gold comes from right answers, chests and level-ups.</p>${note?`<div class="fb ok"><b>${esc(note.t)}</b> ${esc(note.say)}</div>`:''}
+ <div class="choices">${stock.map((it,i)=>`<button data-b="${i}" ${it.off||hero.inv.gold<it.price?'disabled':''}>${it.icon} <b>${esc(it.name)}</b> · ${it.off?esc(it.off):'🪙 '+it.price+(hero.inv.gold<it.price?' (need '+(it.price-hero.inv.gold)+' more)':'')}<br><span class="small">${esc(it.off&&it.fact?it.fact:it.desc)}</span></button>`).join('')}</div>
+ <div class="row"><button class="go" id="cl">Back to the valley ▶</button></div></div>`);$('cl').onclick=hide;
+ ov.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{const it=stock[+b.dataset.b];if(it.off||hero.inv.gold<it.price)return;hero.inv.gold-=it.price;let say;
+  if(it.k==='potion'){hero.inv.items.push(POTION);say='Packed. It works by itself when you need it.'}
+  else if(it.k==='map'){valley().forEach(([x,y])=>setSeen(x,y));saveWorld(true);say='Every road and region of this valley is on your map now. Press M to see it.'}
+  else if(it.k==='compass'){hero.inv.items.push(COMPASS);say='Look at the top of the screen: the arrow points to the nearest creature that still needs you.'}
+  else{hero.inv.items.push(it.icon+' '+it.name);say=it.fact}
+  (S.bought=S.bought||[]).push({item:it.name,price:it.price,region:REG[ri].id});H.put(hero);saveRun();Sound.coin();openShop(ri,{t:'You bought '+it.icon+' '+it.name+'.',say})})}
 // ---------- map of everything explored so far ----------
 function openMap(){if(!S)return;Sound.click();let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;SEEN.forEach((a,k)=>{const[c,d]=k.split(',').map(Number);x0=Math.min(x0,c*16);x1=Math.max(x1,c*16+15);y0=Math.min(y0,d*16);y1=Math.max(y1,d*16+15)});
  const w=x1-x0+1,h=y1-y0+1,sc=Math.max(2,Math.min(8,Math.floor(Math.min(700/w,440/h))));let tiles=0;SEEN.forEach(a=>a.forEach(b=>{while(b){tiles+=b&1;b>>=1}}));
  show(`<div class="card"><h1>🗺️ The known world</h1><p class="small">${tiles} tiles mapped, ${Object.keys(W.builds).length} things built, ${Object.keys(W.decks).length} land${Object.keys(W.decks).length>1?'s':''} found. The map and the buildings stay from game to game.</p><canvas id="mc" width="${w*sc}" height="${h*sc}" style="max-width:100%;background:#070912;border-radius:10px"></canvas><div class="row"><button class="go" id="cl">Close ▶</button></div></div>`);
- const g=$('mc').getContext('2d'),col={w:'#3a78c2',m:'#8a8f9c',s:'#d9c98a',t:'#2f6b34',g:'#5d9c45',f:'#6fb04f',c:'#5d9c45',r:'#b9986a',W:'#3d425c',D:'#e0a040'};
+ const g=$('mc').getContext('2d'),col={w:'#3a78c2',m:'#8a8f9c',s:'#d9c98a',t:'#2f6b34',g:'#5d9c45',f:'#6fb04f',c:'#5d9c45',r:'#b9986a',W:'#3d425c',D:'#e0a040',M:'#c77dff'};
  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){if(!isSeen(x,y))continue;const T=tileAt(x,y);g.fillStyle=col[T.t]||(T.b?bio(T.b).g:'#5d9c45');g.fillRect((x-x0)*sc,(y-y0)*sc,sc,sc);if(W.builds[x+','+y]){g.fillStyle='#ffd166';g.fillRect((x-x0)*sc,(y-y0)*sc,sc,sc)}else if(T.t==='Q'){g.fillStyle='#e0566a';g.fillRect((x-x0)*sc,(y-y0)*sc,sc,sc)}}
  g.font='bold 12px system-ui';g.textAlign='center';Object.entries(W.decks).forEach(([id,d])=>{if(isSeen(d.ox,d.oy)){g.fillStyle='#000a';g.fillText(d.title||id,(d.ox-x0)*sc+1,(d.oy-y0-6)*sc+1);g.fillStyle='#fff';g.fillText(d.title||id,(d.ox-x0)*sc,(d.oy-y0-6)*sc)}});
  g.font='10px system-ui';RC.forEach((c,i)=>{if(i&&W.found[DECK.id+':'+i]){g.fillStyle='#000a';g.fillText(REG[i].name,(c.x-x0)*sc+1,(c.y-y0-5)*sc+1);g.fillStyle='#ffe9a8';g.fillText(REG[i].name,(c.x-x0)*sc,(c.y-y0-5)*sc)}});
@@ -286,7 +312,7 @@ const stamp=()=>new Date().toISOString().slice(0,16).replace(/[:T]/g,'-');
 function download(name,obj){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,1)],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){}}
 function record(){const live=Q.map((_,i)=>i).filter(i=>SITE[i]),asked=live.filter(i=>S.log[i]),miss=asked.filter(i=>!S.log[i][0].ok);
  return{studywright_record:1,mode:'world',deck:DECK.id,title:DECK.title,subject:DECK.subject,area:STAT,follows:DECK.follows||null,started:S.started,finished:new Date().toISOString(),elapsed_sec:Math.round((Date.now()-S.t0)/1000),
-  score_first_try:asked.length?Math.round(100*(asked.length-miss.length)/asked.length):0,best_streak:S.best,answers:S.answered,questions_total:asked.length,deck_total:live.length,mastered:S.done.length,run_xp:S.xp,keys:S.keys,steps_walked:S.moves,tiles_mapped:S.newTiles,regions_visited:S.route,notes_read:S.read.map(i=>REG[i].id),
+  score_first_try:asked.length?Math.round(100*(asked.length-miss.length)/asked.length):0,best_streak:S.best,answers:S.answered,questions_total:asked.length,deck_total:live.length,mastered:S.done.length,run_xp:S.xp,keys:S.keys,steps_walked:S.moves,tiles_mapped:S.newTiles,regions_visited:S.route,notes_read:S.read.map(i=>REG[i].id),bought:S.bought||[],gold:hero.inv.gold,
   hero:JSON.parse(JSON.stringify(hero)),
   first_try_misses:miss.map(i=>({n:i+1,topic:Q[i].topic||'',region:REG[SITE[i].r].id,q:Q[i].q,answer:ansOf(Q[i]),tries:S.log[i]})),
   unseen:live.filter(i=>!S.log[i]).map(i=>({n:i+1,topic:Q[i].topic||'',region:REG[SITE[i].r].id})),
@@ -308,7 +334,7 @@ function title(){hero=H.cur();if(!hero)return heroCreate(false);const saved=(sto
  <p class="small">The same hero plays every studywright game. The land you map and everything you build here stay for next time${mine?': '+mine+' thing'+(mine>1?'s':'')+' already built in this valley':''}.</p></div></div>
  <div class="choices">${saved?`<button class="go" id="co">▶ Continue the quest (${saved.done.length}/${tot} helped)</button><button id="st">↻ Start the quest over</button>`:'<button class="go" id="st">▶ Start exploring</button>'}
  ${others.map(h=>`<button data-h="${h.id}">Play as ${CLASSES[h.cls].icon} <b>${esc(h.name)}</b> the ${h.cls} · Level ${heroLvl(h)}</button>`).join('')}<button id="ed">🎨 Change how ${esc(hero.name)} looks</button><button id="nh">➕ Make a new hero</button></div>
- <h2>How to play</h2><ul class="rev small"><li>Walk anywhere: up, down, left, right. Water, mountains, trees and walls block you. Roads lead to every region.</li><li>🪧 Signposts teach the notes. Read them first; you can also check them from inside a question.</li><li>Walk into a creature to answer its question. Right: it builds something that stays on the map. Wrong: read why, help someone else, then come back for the same idea in new words.</li><li>Master every creature in a region to earn its 🗝️. Keys open locked doors. Open the trophy chest in the hall to finish.</li></ul></div>`);
+ <h2>How to play</h2><ul class="rev small"><li>Walk anywhere: up, down, left, right. Water, mountains, trees and walls block you. Roads lead to every region.</li><li>🪧 Signposts teach the notes. Read them first; you can also check them from inside a question.</li><li>Walk into a creature to answer its question. Right: it builds something that stays on the map. Wrong: read why, help someone else, then come back for the same idea in new words.</li><li>Master every creature in a region to earn its 🗝️. Keys open locked doors. Open the trophy chest in the hall to finish.</li>${REG.some(r=>r.merchant)?'<li>💰 Merchants trade your gold for healing potions, a trail map, a compass and keepsakes that each tell a true story.</li>':''}</ul></div>`);
  $('tp').appendChild(heroCanvas(hero,120,150,3.6));
  $('st').onclick=()=>{newRun();start()};if(saved)$('co').onclick=()=>{S=saved;S.t0=Date.now()-(saved.el||0);start(true)};
  ov.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{const d=H.all();d.active=b.dataset.h;H.save(d);Sound.click();title()});$('ed').onclick=()=>heroCreate(true,hero);$('nh').onclick=()=>heroCreate(true)}

@@ -21,7 +21,24 @@
     "The <b>Grito de Dolores</b> happened on <b>September 16, 1810</b>: his call for the people of Mexico to rise up against Spanish rule.",
     "Problems that hurt his army: <b>lack of discipline</b>, <b>no military training</b>, and it <b>failed to capture Mexico City</b>.",
     "Hidalgo was captured and executed in <b>1811</b>. Mexico finally won independence in <b>1821</b>. He is the <b>Father of Mexican Independence</b>."
-   ]
+   ],
+   "merchant": {
+    "name": "Plaza trader",
+    "icon": "🧔",
+    "hello": "Welcome to Dolores! Everything on my table has a story.",
+    "goods": [
+     {
+      "icon": "🔔",
+      "name": "Bell of Dolores",
+      "fact": "On September 16, 1810, in the town of Dolores, Father Hidalgo gave the Grito de Dolores: his call for the people of Mexico to rise up against Spanish rule."
+     },
+     {
+      "icon": "🕯️",
+      "name": "Priest's Candle",
+      "fact": "Father Hidalgo was a Catholic priest, born in 1753. He was captured and executed in 1811. Mexico won independence in 1821, and he is called the Father of Mexican Independence."
+     }
+    ]
+   }
   },
   {
    "id": "bigpic",
@@ -33,7 +50,24 @@
     "Rubí suggested closing all missions in Texas except <b>Goliad</b> and <b>San Antonio</b>.",
     "The Louisiana Purchase: <b>1803</b>, President <b>Thomas Jefferson</b>, <b>$15 million</b>, <b>doubled</b> the size of the United States.",
     "Map of 1803: 1 = <b>Oregon Territory</b>, 2 = <b>British North America</b>, 3 = <b>United States</b>, 4 = <b>Louisiana Purchase</b>, 5 = <b>New Spain</b>."
-   ]
+   ],
+   "merchant": {
+    "name": "Mesa fur trader",
+    "icon": "🧑‍🦰",
+    "hello": "I have traded on both sides of the Mississippi. Ask me who owned what.",
+    "goods": [
+     {
+      "icon": "🦫",
+      "name": "Beaver Pelt",
+      "fact": "The Seven Years' War (1754-1763) is also called the French and Indian War. After it, Great Britain gained Canada and all land east of the Mississippi River. Spain got New Orleans and the French land west of it."
+     },
+     {
+      "icon": "🧾",
+      "name": "Louisiana Receipt",
+      "fact": "The Louisiana Purchase: in 1803 President Thomas Jefferson paid $15 million, and it doubled the size of the United States."
+     }
+    ]
+   }
   },
   {
    "id": "filib",
@@ -44,7 +78,24 @@
     "All four must be true. If one is missing the answer is NO, and the missing part is the reason.",
     "<b>Filibusters:</b> Philip Nolan, Augustus Magee, James Long.",
     "<b>NO:</b> Father Hidalgo (not foreign, no personal gain). Moses Austin and Stephen F. Austin (did not fight the government; they asked permission)."
-   ]
+   ],
+   "merchant": {
+    "name": "Trail horse trader",
+    "icon": "🤠",
+    "hello": "Careful on this trail. Some men ride into Texas without asking anyone.",
+    "goods": [
+     {
+      "icon": "🐎",
+      "name": "Mustang Charm",
+      "fact": "A filibuster has all four parts: from a foreign country, came to fight the government, wanted land and power, and wanted personal gain. Philip Nolan, Augustus Magee and James Long were filibusters."
+     },
+     {
+      "icon": "🚩",
+      "name": "Torn Flag",
+      "fact": "If one of the four parts is missing, the answer is NO. Father Hidalgo was not a filibuster: he was not foreign and wanted no personal gain. Moses and Stephen F. Austin were not: they asked permission and did not fight the government."
+     }
+    ]
+   }
   },
   {
    "id": "colony",
@@ -56,7 +107,24 @@
     "Mexico wanted settlers to <b>protect Texas</b> from United States expansion and hostile Indians. Anglo-Americans came for <b>cheap land</b> and to <b>escape debt</b>.",
     "1821: <b>Moses Austin</b> was promised a contract for 300 Catholic families but died. <b>Stephen F. Austin</b> took it over: the <b>Father of Texas</b>. His first settlers: the <b>Old Three Hundred</b>.",
     "<b>Martín De León</b>: native Mexican empresario; his colony was the only one settled mainly by Mexican families."
-   ]
+   ],
+   "merchant": {
+    "name": "Land office clerk",
+    "icon": "🧑‍💼",
+    "hello": "Looking for land? Here you need a contract first.",
+    "goods": [
+     {
+      "icon": "📜",
+      "name": "Land Grant",
+      "fact": "An empresario was a land agent who brought settlers into Texas in exchange for land. Stephen F. Austin, the Father of Texas, took over the contract of his father Moses Austin. His first settlers were the Old Three Hundred."
+     },
+     {
+      "icon": "🪓",
+      "name": "Settler's Axe",
+      "fact": "When Spain opened Texas to foreign settlers in 1820, they had to be Catholic (or convert), be hard-working and become citizens. Anglo-Americans came for cheap land and to escape debt."
+     }
+    ]
+   }
   },
   {
    "id": "words",
@@ -67,7 +135,24 @@
     "<b>survey</b>: measure the boundaries of land. <b>pioneer</b>: travels to unclaimed territory to settle. <b>depression</b>: low economic activity, high unemployment.",
     "<b>diminish</b>: become smaller. <b>prime</b>: top quality, the best. <b>presidio</b>: Spanish fort protecting missions. <b>mission</b>: religious settlement run by Catholic priests.",
     "<b>Anglo American</b>: white, English-speaking settler from the United States. <b>land grant</b>: land given by a government in exchange for settling it."
-   ]
+   ],
+   "merchant": {
+    "name": "Mill storekeeper",
+    "icon": "🧑‍🍳",
+    "hello": "Words are my trade. Each of these teaches you two.",
+    "goods": [
+     {
+      "icon": "📏",
+      "name": "Surveyor's Rule",
+      "fact": "To survey is to measure the boundaries of land. A land grant is land given by a government in exchange for settling it."
+     },
+     {
+      "icon": "🏰",
+      "name": "Model Presidio",
+      "fact": "A presidio was a Spanish fort that protected the missions. A mission was a religious settlement run by Catholic priests."
+     }
+    ]
+   }
   },
   {
    "id": "review",
@@ -77,7 +162,24 @@
     "<b>Earlier this week.</b> Rubí: Spain lacked the <b>wealth</b> and <b>power</b> to defend all of Texas. The 13 colonies declared independence in <b>1776</b>.",
     "New Orleans was the <b>port</b> for Mississippi River trade. <b>Lewis and Clark</b> explored the Louisiana Purchase, which made the U.S. Texas's <b>neighbor</b>.",
     "<b>Peter Ellis Bean</b> was Nolan's companion, captured by the Spanish. <b>Jean Lafitte</b> was the pirate on Galveston Island. <b>Barr</b>: NO, he did not fight the government."
-   ]
+   ],
+   "merchant": {
+    "name": "Camino Real peddler",
+    "icon": "🧓",
+    "hello": "I have walked this road all week. I remember everything on it.",
+    "goods": [
+     {
+      "icon": "🦜",
+      "name": "Pirate's Parrot",
+      "fact": "Jean Lafitte was the pirate on Galveston Island. Peter Ellis Bean was Philip Nolan's companion, captured by the Spanish."
+     },
+     {
+      "icon": "⚓",
+      "name": "New Orleans Anchor",
+      "fact": "New Orleans was the port for Mississippi River trade. Lewis and Clark explored the Louisiana Purchase, which made the United States Texas's neighbor."
+     }
+    ]
+   }
   },
   {
    "id": "clock",
@@ -89,7 +191,24 @@
     "Also: 1763 Seven Years' War ends, 1776 U.S. independence, 1820 Spain opens Texas to settlers, 1821 the Austin contract."
    ],
    "walls": true,
-   "locked": 2
+   "locked": 2,
+   "merchant": {
+    "name": "Clockmaker",
+    "icon": "🧑‍🔧",
+    "hello": "Tick, tock. Dates are easier when you can hold them.",
+    "goods": [
+     {
+      "icon": "⏳",
+      "name": "Eleven-Year Hourglass",
+      "fact": "From the Grito de Dolores in 1810 to Mexican independence in 1821 is 11 years: 1821 - 1810 = 11."
+     },
+     {
+      "icon": "📅",
+      "name": "Timeline Calendar",
+      "fact": "In order: 1753 Father Hidalgo is born, 1803 the Louisiana Purchase, 1810 the Grito de Dolores, 1811 Hidalgo is captured and executed, 1821 Mexico wins independence from Spain."
+     }
+    ]
+   }
   },
   {
    "id": "hall",
@@ -101,7 +220,19 @@
    ],
    "walls": true,
    "locked": 5,
-   "hall": true
+   "hall": true,
+   "merchant": {
+    "name": "Notary of the Republic",
+    "icon": "🧑‍⚖️",
+    "hello": "Permission is everything. I stamp the papers that prove it.",
+    "goods": [
+     {
+      "icon": "📝",
+      "name": "Stamped Contract",
+      "fact": "Empresarios came with permission and had contracts to bring settlers; Mexico welcomed them to help protect Texas. Filibusters came without permission to fight the government for land, power and wealth."
+     }
+    ]
+   }
   }
  ],
  "questions": [

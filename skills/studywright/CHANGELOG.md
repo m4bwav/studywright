@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.10.0 (2026-11-12)
+- World mode: merchants. A region with `merchant` gets a trader who sells a healing potion (drunk by itself at zero hearts), a trail map of the valley, a compass (HUD arrow and step count to the nearest waiting creature) and up to four deck-written keepsakes that each show a fact from the notes when bought. Gold finally has a use; nothing sold answers or skips a question.
+- The record carries `bought` and `gold`; `sw.py records` lists the purchases; `sw.py check` validates `merchant`.
+- A Ranger's starting compass now works in world mode. A hero's starting potion is used at zero hearts.
+- Fix: the heart count in the HUD stayed at 0 after waking at camp until the next answer.
+- Deck texas-independence: a merchant in each of the 8 regions, 15 keepsakes.
+
 ## 0.9.0 (2026-11-12)
 - World mode: `type: "order"` questions (tap the items first to last, undo, each item marked right or wrong) for timelines and processes.
 - World mode: pictures on a question (`figs` in the deck, `fig` and `hl` on the question): an inline SVG with one shape lit up, for label-the-map items.

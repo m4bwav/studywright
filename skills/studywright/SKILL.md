@@ -3,7 +3,7 @@ name: studywright
 description: "Turn a student's worksheets, notes or study guide (photos, PDFs or text) into a playable study game: one offline HTML page that quizzes every item on the sheet, says right or wrong and why after each answer, brings misses back until mastered, and adds game elements (XP, levels, streaks, a three.js tower that grows with right answers, end-of-game review list). Use on 'make a study guide game', 'quiz my kid on this worksheet', 'turn these notes into a practice test', 'study game for the science test', 'flashcard game from this'. Also 'refresh studywright'. Not for grading finished work or for designing a commercial game (ludowright)."
 license: MIT
 metadata:
-  version: "0.8.0"
+  version: "0.10.0"
 ---
 
 # studywright
@@ -51,6 +51,7 @@ A deck with `"mode": "world"` builds from `templates/world.html`: the hero walks
 - Mastering every creature in a region earns its key. `"walls": true` makes a building with one door; `"locked": n` needs n keys. Walled regions go 6th or later in the list. One region may be `"hall": true`: its chest ends the quest. Lay the test out as: main sheet in the hub and the nearest regions, review of earlier sheets in an outer region, mixed apply questions in the hall.
 - The land is shared by every world game in the browser (`studywright:world`): mapped tiles, buildings (they grow on a replay) and opened chests persist, and each new deck gets its own valley on the same map.
 - Two more question shapes, world decks only. `"type": "order"` with `items` written in the correct order (3 to 6): the player taps them first to last, with an undo; use it for timelines and for the steps of a process (optional `hint` replaces the instruction line). A picture: put inline SVG in the deck's `figs` (`{"name": "<svg ...>"}`), name it on a question with `"fig": "name"`, and light up one shape with `"hl": "<element id>"`; use it for label-the-map and label-the-diagram items. A variant inherits `fig` and `hl`; give the variant `"hl": ""` to show the picture with nothing lit. Example: `decks/texas-independence.json` (map of 1803, timeline tower).
+- Merchants: give a region `"merchant": true` (stock goods only) or `"merchant": {"name", "icon", "hello", "goods": [{"icon", "name", "fact", "price"}]}` and a trader stands among its creatures. Stock goods: a healing potion (drunk by itself at zero hearts, so the hero stays put instead of waking at camp), a trail map (clears the fog over the valley) and a compass (a HUD arrow to the nearest waiting creature; kept on the hero for every game). `goods` are keepsakes, up to 4, price 20 unless given: buying one shows its `fact`, so write each fact as a line from that region's notes, and aim one at each item the student got wrong on the sheet. Nothing a merchant sells answers or skips a question. Purchases land in the record (`bought`). A region without the key has no merchant, and adding one never moves a creature.
 - Feel settings (sound, shake strength, reduce motion, flash, hit pause) are in the gear menu; constants are at the top of the template and logged in `juice-changes.md`.
 - Examples: `decks/selective-breeding.json`, `decks/texas-independence.json`.
 

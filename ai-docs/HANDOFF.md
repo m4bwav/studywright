@@ -36,12 +36,14 @@ Fixed in the same session: `sw.py records` crashed while rebuilding INDEX.md on 
 
 Open question: no studywright-*.json was in C:\Users\m4bwa\Downloads after this play. Either the browser saves elsewhere or the world finish screen did not download; check on the next play (the session 11 test saw the download in Chrome).
 
+0.10.0 (2026-11-12, session 14): merchants in world mode, asked by Mark before the son plays Texas Frontier. A region with `merchant` gets a trader placed after the creatures (no creature moves). Stock: healing potion 10 gold (drunk by itself at zero hearts), trail map 25 (clears the valley fog), compass 40 (HUD arrow to the nearest waiting creature, kept on the hero); deck keepsakes 20 each that show a fact from the notes. Texas Frontier has a merchant in all 8 regions and 15 keepsakes; the ones in bigpic and clock repeat what the son got wrong on the sheet (who gained what after the Seven Years' War, the 11 years). The record now has `bought` and `gold`. selective-breeding has no merchants (its deck has no `merchant` keys). The wiki still describes 0.2.0 to 0.6.0.
+
 Next:
 00a. When the Texas Frontier log or notes prompt arrives: `sw.py records`, report misses. Ask what the class key says for Samuel Kemper and add him to the deck.
 00. When Mark pastes a notes prompt from a finish screen (or says the son played): `sw.py records`, update records/INDEX.md, this file and the log, and report what to review. selective-breeding arrived 2026-11-12 (above); still expected: mean-absolute-deviation and texas-independence. If the log file is missing from Downloads again, find out why before writing the record by hand.
 01. Lesson mode still owes Mark's note of 2026-11-12: "needed a little more variation and explanation" (more contexts and question shapes per stage, a fuller worked explanation after a miss). Then the ludowright round from the kickoff prompt (ai-docs/plans/2026-11-12-lesson-mode-kickoff-prompt.md).
 02. Update the wiki (clone at Ai/studywright.wiki) for 0.8.0.
-03. World mode ideas: `steps` after a miss, a shop for gold, feat picks on level-up inside the world, three.js or polywright art if Mark wants 3D (this build is a 2D canvas so it works offline from one file), convert texas-filibusters to a world deck so a second valley appears on the shared map.
+03. World mode ideas: `steps` after a miss, more merchant goods (hero cosmetics for gold), merchants for selective-breeding if it is played again, feat picks on level-up inside the world, three.js or polywright art if Mark wants 3D (this build is a 2D canvas so it works offline from one file), convert texas-filibusters to a world deck so a second valley appears on the shared map.
 0a. After the son plays natural-selection-3: `sw.py records`, report misses.
 0b. Add variants/steps to texas-filibusters.
 0. When the Texas game has been played: run `sw.py records`, read records/INDEX.md, report shaky ideas; consider per-question `scene` text for Texas.

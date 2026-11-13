@@ -36,7 +36,7 @@ Rules the engine and decks follow, with the evidence base they come from. Check 
 
 ## Ideas not built yet
 
-- World mode: `steps` (smaller sub-questions after a miss), a shop for the gold, level-up feat picks inside the world, region labels for other decks on the map.
+- World mode: `steps` (smaller sub-questions after a miss), more for merchants to sell (built in 0.10.0: potion, trail map, compass, fact keepsakes; not built: hero cosmetics, selling back), level-up feat picks inside the world, region labels for other decks on the map.
 
 - Gear or titles for mastering a whole deck (e.g. "Naturalist" title after a 90%+ follow-up).
 
