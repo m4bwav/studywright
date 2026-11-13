@@ -1,0 +1,283 @@
+{
+ "id": "sample-states-of-matter",
+ "title": "Matter Tower",
+ "subject": "Science: States of matter",
+ "accent": "#4cc9f0",
+ "realm": "science",
+ "intro": "Solids, liquids, gases and the changes between them. A sample deck written for the plugin, not taken from any worksheet.",
+ "questions": [
+  {
+   "topic": "States of matter",
+   "q": "Which state of matter keeps its own shape?",
+   "choices": [
+    "Solid",
+    "Liquid",
+    "Gas"
+   ],
+   "answer": 0,
+   "explain": "The particles of a solid are locked in place, so it keeps its shape. Liquids and gases take the shape of their container.",
+   "variants": [
+    {
+     "q": "An ice cube sits on a plate and stays a cube. Which state is it?",
+     "choices": [
+      "Solid",
+      "Liquid",
+      "Gas"
+     ],
+     "answer": 0
+    }
+   ],
+   "steps": [
+    {
+     "q": "Does water in a glass keep its own shape?",
+     "choices": [
+      "Yes",
+      "No, it takes the shape of the glass"
+     ],
+     "answer": 1
+    },
+    {
+     "q": "Does a rock change shape when you move it to a bowl?",
+     "choices": [
+      "Yes",
+      "No"
+     ],
+     "answer": 1
+    }
+   ]
+  },
+  {
+   "topic": "States of matter",
+   "q": "Which state spreads out to fill its whole container?",
+   "choices": [
+    "Solid",
+    "Liquid",
+    "Gas"
+   ],
+   "answer": 2,
+   "explain": "Gas particles move freely and far apart, so a gas fills any container it is in.",
+   "variants": [
+    {
+     "q": "Air let out of a balloon spreads through the room. Which state is air?",
+     "choices": [
+      "Solid",
+      "Liquid",
+      "Gas"
+     ],
+     "answer": 2
+    }
+   ]
+  },
+  {
+   "topic": "States of matter",
+   "type": "type",
+   "q": "A ______ has a fixed volume but takes the shape of its container.",
+   "accept": [
+    "liquid"
+   ],
+   "explain": "A liquid keeps the same amount of space (volume) but flows to fit its container.",
+   "variants": [
+    {
+     "type": "type",
+     "q": "Juice poured from a carton into a cup changes shape but not amount. Juice is a ______.",
+     "accept": [
+      "liquid"
+     ]
+    }
+   ]
+  },
+  {
+   "topic": "Changes of state",
+   "q": "What is it called when a solid turns into a liquid?",
+   "choices": [
+    "Melting",
+    "Freezing",
+    "Evaporation",
+    "Condensation"
+   ],
+   "answer": 0,
+   "explain": "Melting is solid to liquid. It happens when the solid gains enough heat.",
+   "variants": [
+    {
+     "q": "Butter in a hot pan turns runny. Which change is that?",
+     "choices": [
+      "Melting",
+      "Freezing",
+      "Evaporation",
+      "Condensation"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "topic": "Changes of state",
+   "q": "What is it called when a liquid turns into a solid?",
+   "choices": [
+    "Melting",
+    "Freezing",
+    "Evaporation",
+    "Condensation"
+   ],
+   "answer": 1,
+   "explain": "Freezing is liquid to solid. It happens when the liquid loses heat.",
+   "variants": [
+    {
+     "q": "A puddle turns to ice overnight. Which change is that?",
+     "choices": [
+      "Melting",
+      "Freezing",
+      "Evaporation",
+      "Condensation"
+     ],
+     "answer": 1
+    }
+   ]
+  },
+  {
+   "topic": "Changes of state",
+   "type": "type",
+   "q": "A puddle dries up on a sunny day because the liquid water turned into gas. This change is called ______.",
+   "accept": [
+    "evaporation",
+    "evaporating",
+    "evaporate"
+   ],
+   "explain": "Evaporation is liquid to gas. Heat from the sun gives water particles enough energy to leave as water vapor.",
+   "variants": [
+    {
+     "type": "type",
+     "q": "Wet clothes dry on a line because the water goes into the air. This is ______.",
+     "accept": [
+      "evaporation",
+      "evaporating",
+      "evaporate"
+     ]
+    }
+   ]
+  },
+  {
+   "topic": "Changes of state",
+   "q": "Water drops form on the outside of a cold glass. Which change made them?",
+   "choices": [
+    "Melting",
+    "Freezing",
+    "Evaporation",
+    "Condensation"
+   ],
+   "answer": 3,
+   "explain": "Condensation is gas to liquid: water vapor in the air cools on the glass and becomes liquid drops.",
+   "review": "Drops on a cold glass = condensation",
+   "variants": [
+    {
+     "q": "A bathroom mirror fogs up after a hot shower. Which change is that?",
+     "choices": [
+      "Melting",
+      "Freezing",
+      "Evaporation",
+      "Condensation"
+     ],
+     "answer": 3
+    }
+   ],
+   "steps": [
+    {
+     "q": "Where did the water on the glass come from?",
+     "choices": [
+      "It leaked through the glass",
+      "From water vapor in the air"
+     ],
+     "answer": 1
+    },
+    {
+     "q": "Water vapor is which state?",
+     "choices": [
+      "Solid",
+      "Liquid",
+      "Gas"
+     ],
+     "answer": 2
+    }
+   ]
+  },
+  {
+   "topic": "Heat and particles",
+   "q": "What happens to particles when matter is heated?",
+   "choices": [
+    "They move faster",
+    "They move slower",
+    "They stop moving",
+    "They disappear"
+   ],
+   "answer": 0,
+   "explain": "Heat is energy. Particles that gain energy move faster and spread apart.",
+   "variants": [
+    {
+     "q": "A pot of water is put on a hot stove. Its particles...",
+     "choices": [
+      "speed up",
+      "slow down",
+      "stop",
+      "vanish"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "topic": "Heat and particles",
+   "q": "In which state are particles packed most tightly?",
+   "choices": [
+    "Solid",
+    "Liquid",
+    "Gas"
+   ],
+   "answer": 0,
+   "explain": "Solid particles are packed tightly and only vibrate in place. That is why solids keep their shape."
+  },
+  {
+   "topic": "Heat and particles",
+   "type": "type",
+   "q": "Water freezes at ______ degrees Celsius.",
+   "accept": [
+    "0",
+    "zero"
+   ],
+   "explain": "Water freezes (and ice melts) at 0 degrees Celsius.",
+   "variants": [
+    {
+     "type": "type",
+     "q": "Ice begins to melt when it warms to ______ degrees Celsius.",
+     "accept": [
+      "0",
+      "zero"
+     ]
+    }
+   ]
+  },
+  {
+   "topic": "Heat and particles",
+   "q": "At sea level, water boils at what temperature?",
+   "choices": [
+    "100 degrees Celsius",
+    "0 degrees Celsius",
+    "50 degrees Celsius",
+    "212 degrees Celsius"
+   ],
+   "answer": 0,
+   "explain": "Water boils at 100 degrees Celsius at sea level (that is 212 degrees Fahrenheit, not Celsius)."
+  },
+  {
+   "topic": "Apply it",
+   "q": "A chocolate bar left in a hot car turns soft and runny. What happened?",
+   "choices": [
+    "The chocolate gained heat and melted",
+    "The chocolate lost heat and froze",
+    "The chocolate gained heat and condensed",
+    "The car lost heat and evaporated"
+   ],
+   "answer": 0,
+   "explain": "The chocolate took in heat from the hot car. A solid gaining heat and becoming liquid is melting."
+  }
+ ]
+}

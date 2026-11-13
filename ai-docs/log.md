@@ -102,3 +102,11 @@ README gained a Works with section (ludowright, everscout, askwright); the wiki 
 - Small rulings: no hint or skip items (guard rail in learning-design.md: nothing skips a question or hides the explanation); merchants are opt-in per region so Breeders' Valley is unchanged; a Ranger's starting compass and every hero's starting potion now work in world mode; facts are escaped plain text; the bell is not mentioned in the Bell of Dolores fact because the guide does not mention it.
 - Fixed on the way: the HUD kept showing 0 hearts after waking at camp.
 - Not done: wiki update; evergreen-refresh of the due units; the finish download was not run again (unchanged code).
+
+## 2026-11-12 session 15 | study RPG split out to studyquest (0.11.0)
+- Mark: split the son's RPG study game into its own repo to improve by itself; studywright is for the building, the techniques and a knowledge base of learning game development; the game should one day be a free Steam release, and lexwright should check for complications with a public or a private repo.
+- Mark's answers (asked in chat): working name studyquest; studywright keeps the quiz and lesson builders.
+- New private repo m4bwav/studyquest at D:/m4bwa/Claude/Projects/Ai/studyquest: engine/ (the three templates and kit.js), tools/sq.py (sw.py with the folder name changed), the seven decks, rebuilt games (byte-identical to the last studywright builds), docs/ and its own ai-docs. records/ was copied there (diff -rq identical) and removed here.
+- Here: removed templates/world.html, the world checks, `order` and `fig` from sw.py (a world deck now fails `check` with a pointer), the seven decks, games/ and juice-changes.md; added decks/sample-states-of-matter.json (12 questions, written from scratch) and decks/sample-mean-absolute-deviation.json (the lesson deck without banned_hashes). Both samples build; verify_lesson.js and verify_routes.py pass on the lesson sample.
+- Small rulings: the split is a copy with fresh history, so the old decks stay in this public repo's history; lesson mode exists in both repos for now; installed heroes and the shared land are in browser storage and are not touched.
+- Not done: the lexwright check (its notice needs Mark's typed "I agree" first); wiki update; lesson mode variation.

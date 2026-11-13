@@ -14,9 +14,6 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 TEMPLATE = HERE.parent / "templates" / "game.html"
 LESSON = HERE.parent / "templates" / "lesson.html"
-WORLD = HERE.parent / "templates" / "world.html"
-WORLD_BIOMES = {"farm", "ranch", "mill", "kennel", "wild", "lab", "hall", "town"}  # biomes world.html draws
-WORLD_MAX_REGIONS, WORLD_MAX_SITES = 9, 20  # ring slots around the hub; question sites that fit in one region
 LESSON_KINDS = {"mean", "spread", "madTeach", "mad", "read", "both"}  # encounter kinds lesson.html knows
 
 
@@ -34,10 +31,6 @@ def check_item(q, tag):
     elif t == "type":
         if not q.get("accept"):
             errs.append(f"{tag}: type needs 'accept' list")
-    elif t == "order":
-        it = q.get("items", [])
-        if not 3 <= len(it) <= 6 or len(set(it)) != len(it):
-            errs.append(f"{tag}: order needs 'items': 3 to 6 different entries, written in the correct order")
     else:
         errs.append(f"{tag}: unknown type {t}")
     return errs
@@ -78,36 +71,7 @@ def check(deck):
         return check_lesson(deck)
     errs = []
     if deck.get("mode") == "world":
-        regs = deck.get("regions", [])
-        ids = [r.get("id") for r in regs]
-        if not regs:
-            errs.append("world deck needs 'regions' (the first one is the hub where the hero starts)")
-        if len(regs) > WORLD_MAX_REGIONS:
-            errs.append(f"{len(regs)} regions; the land has room for {WORLD_MAX_REGIONS}")
-        for i, r in enumerate(regs, 1):
-            for k in ("id", "name", "biome", "teach"):
-                if not r.get(k):
-                    errs.append(f"region {i}: needs '{k}' (teach = the notes on its signpost)")
-            if r.get("biome") not in WORLD_BIOMES:
-                errs.append(f"region {i}: unknown biome '{r.get('biome')}' (known: {', '.join(sorted(WORLD_BIOMES))})")
-            if r.get("walls") and i - 1 in (0, 1, 2, 3, 4):
-                errs.append(f"region {i}: walled regions must be 6th or later in the list (the diagonal slots), so no road is cut")
-            m = r.get("merchant")
-            if m not in (None, False, True):
-                goods = m.get("goods", []) if isinstance(m, dict) else None
-                if not isinstance(goods, list) or len(goods) > 4 or any(
-                        not isinstance(g, dict) or not all(g.get(k) for k in ("icon", "name", "fact")) for g in goods):
-                    errs.append(f"region {i}: merchant is true or {{name, icon, hello, goods}}; goods: up to 4, each with icon, name and fact (a line from the notes)")
-            n = sum(1 for q in deck.get("questions", []) if q.get("r", ids[0]) == r.get("id"))
-            if not 1 <= n <= WORLD_MAX_SITES:
-                errs.append(f"region {i} ({r.get('id')}): {n} questions; needs 1 to {WORLD_MAX_SITES}")
-        open_regs = sum(1 for r in regs if not r.get("hall"))
-        for i, r in enumerate(regs, 1):
-            if r.get("locked", 0) >= open_regs:
-                errs.append(f"region {i}: locked={r['locked']} but only {open_regs - 1} keys can be earned outside it")
-        for i, q in enumerate(deck.get("questions", []), 1):
-            if q.get("r", ids[0] if ids else None) not in ids:
-                errs.append(f"q{i}: region '{q.get('r')}' is not in regions")
+        errs.append("world decks moved to the studyquest game on 2026-11-12; this plugin builds quest and lesson decks")
     for k in ("id", "title", "subject", "intro", "questions"):
         if k not in deck:
             errs.append(f"deck missing '{k}'")
@@ -115,14 +79,8 @@ def check(deck):
     if len(qs) < 8:
         errs.append(f"only {len(qs)} questions; aim for 15+ so every sheet item is covered twice")
     seen = set()
-    figs = deck.get("figs", {})
     for i, q in enumerate(qs, 1):
         tag = f"q{i}"
-        for sub in [q] + [v for v in q.get("variants", []) if isinstance(v, dict)]:
-            if sub.get("type") == "order" and deck.get("mode") != "world":
-                errs.append(f"{tag}: type 'order' needs a world deck (mode: world)")
-            if sub.get("fig") and (deck.get("mode") != "world" or sub["fig"] not in figs):
-                errs.append(f"{tag}: fig '{sub['fig']}' needs a world deck with that name in the deck's 'figs'")
         if q.get("q") in seen:
             errs.append(f"{tag}: duplicate prompt")
         seen.add(q.get("q"))
@@ -219,7 +177,6 @@ def main(argv):
     if errs:
         return 1
     lesson = deck.get("mode") == "lesson"
-    world = deck.get("mode") == "world"
     if lesson:
         print(f"ok: lesson, {len(deck['map'])} stages, skills: {', '.join(deck['skills'])}")
     else:
@@ -227,7 +184,7 @@ def main(argv):
         topics = sorted({q.get("topic", "") for q in deck["questions"]})
         print(f"ok: {n} questions, topics: {', '.join(topics)}")
     if argv[0] == "build":
-        page = (LESSON if lesson else WORLD if world else TEMPLATE).read_text(encoding="utf-8")
+        page = (LESSON if lesson else TEMPLATE).read_text(encoding="utf-8")
         data = json.dumps(deck, ensure_ascii=False).replace("</", "<\\/")
         page = page.replace("/*__KIT__*/", (HERE.parent / "templates" / "kit.js").read_text(encoding="utf-8"))
         page = (page.replace("__TITLE__", html.escape(deck["title"]))

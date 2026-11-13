@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.11.0 (2026-11-12)
+- The open-world study RPG moved out to its own game, studyquest, to grow by itself. Removed from the plugin: `templates/world.html`, world deck checks in `sw.py`, the `order` question type and question pictures (both were world-only), and `juice-changes.md`.
+- `sw.py check` now rejects a deck with `mode: "world"` and says where it went. Quest and lesson decks build as before.
+- The decks written from one student's schoolwork and their built games left the repo. Two samples replace them: `decks/sample-states-of-matter.json` (quest, written from scratch) and `decks/sample-mean-absolute-deviation.json` (lesson).
+- The plugin keeps the quiz and lesson builders, the shared hero kit, the paper trail, the research and the learning-design notes.
+
 ## 0.10.0 (2026-11-12)
 - World mode: merchants. A region with `merchant` gets a trader who sells a healing potion (drunk by itself at zero hearts), a trail map of the valley, a compass (HUD arrow and step count to the nearest waiting creature) and up to four deck-written keepsakes that each show a fact from the notes when bought. Gold finally has a use; nothing sold answers or skips a question.
 - The record carries `bought` and `gold`; `sw.py records` lists the purchases; `sw.py check` validates `merchant`.

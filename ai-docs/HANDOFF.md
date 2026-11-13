@@ -1,5 +1,9 @@
 # Handoff: studywright
 
+State 2026-11-12 (session 15): the study RPG was split out. World mode, the seven decks written from the son's schoolwork, the built games and the gitignored records/ folder now live in the private repo https://github.com/m4bwav/studyquest (clone at D:/m4bwa/Claude/Projects/Ai/studyquest, its own HANDOFF, log and continue prompt). Everything about the son's plays, tests and follow-up decks is tracked there from now on. studywright 0.11.0 keeps the quest and lesson builders, kit.js, sw.py, two sample decks, the research and the learning-design notes. Mark's framing: studywright is for the building, the techniques and a knowledge base of learning game development.
+
+History before the split (kept for reference; the play and deck items below now belong to studyquest):
+
 State 2026-11-10: v0.2.0 public at https://github.com/m4bwav/studywright (wiki: 4 pages + sidebar, clone at Ai/studywright.wiki). Installed as studywright@studywright (local marketplace, user scope). Texas deck is "Texas Test Prep", 47 q (filibusters + Louisiana Purchase/Hidalgo guide); row 4 = Barr (Mark confirmed).
 
 Banner merged 2026-11-10 (PR #1, seed 2313760545); Discussions on. Social preview (1280x640 centre crop) is UI-only: Mark uploads it in Settings when he likes.
@@ -41,14 +45,9 @@ Open question: no studywright-*.json was in C:\Users\m4bwa\Downloads after this 
 Merged as PR #12, released v0.10.0, installed plugin updated to 0.10.0 (2026-11-12; restart the editor to load it). Not yet played by the son: the built game is games/texas-independence.html.
 
 Next:
-00a. When the Texas Frontier log or notes prompt arrives: `sw.py records`, report misses. Ask what the class key says for Samuel Kemper and add him to the deck.
-00. When Mark pastes a notes prompt from a finish screen (or says the son played): `sw.py records`, update records/INDEX.md, this file and the log, and report what to review. selective-breeding arrived 2026-11-12 (above); still expected: mean-absolute-deviation and texas-independence. If the log file is missing from Downloads again, find out why before writing the record by hand.
-01. Lesson mode still owes Mark's note of 2026-11-12: "needed a little more variation and explanation" (more contexts and question shapes per stage, a fuller worked explanation after a miss). Then the ludowright round from the kickoff prompt (ai-docs/plans/2026-11-12-lesson-mode-kickoff-prompt.md).
-02. Update the wiki (clone at Ai/studywright.wiki) for 0.8.0.
-03. World mode ideas: `steps` after a miss, more merchant goods (hero cosmetics for gold), merchants for selective-breeding if it is played again, feat picks on level-up inside the world, three.js or polywright art if Mark wants 3D (this build is a 2D canvas so it works offline from one file), convert texas-filibusters to a world deck so a second valley appears on the shared map.
-0a. After the son plays natural-selection-3: `sw.py records`, report misses.
-0b. Add variants/steps to texas-filibusters.
-0. When the Texas game has been played: run `sw.py records`, read records/INDEX.md, report shaky ideas; consider per-question `scene` text for Texas.
-1. Build ideas in skills/studywright/references/learning-design.md ("Ideas not built yet"), next: gear/titles for mastering a deck; release once a batch is in.
-2. First everscout scan of beat learning-games; fold findings into RESEARCH.md.
-3. evergreen-test evals for the skill (trigger + build case).
+1. Lesson mode still owes Mark's note of 2026-11-12: "needed a little more variation and explanation" (more contexts and question shapes per stage, a fuller worked explanation after a miss). Then the ludowright round from ai-docs/plans/2026-11-12-lesson-mode-kickoff-prompt.md. Decide with Mark whether lesson mode work happens here or in studyquest (both have the engine today).
+2. Update the wiki (clone at Ai/studywright.wiki): it describes 0.2.0 to 0.6.0; add lesson mode, the kit and a note that the open-world game moved out.
+3. Knowledge base: write up techniques from the world-mode build (reachability flood-fill, variants and steps, merchants that never skip a question, the paper trail) as their own notes under skills/studywright/references/, and take new lessons from studyquest as they come.
+4. Build ideas in skills/studywright/references/learning-design.md ("Ideas not built yet") that fit quest or lesson mode.
+5. First everscout scan of beat learning-games; fold findings into RESEARCH.md.
+6. evergreen-test evals for the skill (trigger + build case).
