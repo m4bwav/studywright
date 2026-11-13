@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<style>
+:root{--bg:#0d1020;--panel:#171b33;--ink:#eef1ff;--dim:#a8b0d8;--accent:__ACCENT__;--good:#3ddc84;--bad:#ff6b6b;--gold:#ffd166}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:18px/1.45 system-ui,Segoe UI,Roboto,sans-serif}
+#app{max-width:760px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.hud{display:flex;gap:14px;flex-wrap:wrap;align-items:center;background:var(--panel);border-radius:14px;padding:8px 14px;font-size:15px;color:var(--dim)}
+.hud b{color:var(--gold)}
+.card{background:var(--panel);border-radius:18px;padding:18px 20px;box-shadow:0 10px 40px #0008}
+.topic{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+h1{margin:.2em 0;font-size:28px} h2{margin:.3em 0 .5em;font-size:22px}
+button{font:inherit;color:var(--ink);background:#262c52;border:2px solid #ffffff22;border-radius:12px;padding:12px 16px;cursor:pointer;text-align:left}
+button:hover{border-color:var(--accent)} button.go{background:var(--accent);color:#111;font-weight:700;text-align:center}
+button:disabled{opacity:.5;cursor:default}
+.choices{display:grid;gap:10px;margin-top:8px}
+.choices button.right{border-color:var(--good);background:#1d4a34} .choices button.wrong{border-color:var(--bad);background:#4a1d26}
+input.num{font:inherit;width:7.5em;padding:8px 10px;border-radius:10px;border:2px solid #ffffff33;background:#0d1020;color:var(--ink)}
+input.num.ok{border-color:var(--good)} input.num.no{border-color:var(--bad)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0}
+.fb{margin-top:12px;padding:12px 14px;border-radius:12px;background:#0d1020}
+.fb.good{border-left:5px solid var(--good)} .fb.bad{border-left:5px solid var(--bad)}
+.hint{color:var(--gold);font-size:16px}
+table.steps{border-collapse:collapse;margin:8px 0;font-variant-numeric:tabular-nums}
+table.steps td,table.steps th{padding:3px 10px;border-bottom:1px solid #ffffff1a;text-align:center}
+.data{font-size:22px;font-weight:700;letter-spacing:.04em;font-variant-numeric:tabular-nums}
+svg{max-width:100%;height:auto;display:block}
+.map svg{margin:auto}
+.node{cursor:pointer}
+.small{font-size:14px;color:var(--dim)}
+.ok{color:var(--good)} .no{color:var(--bad)}
+@media (prefers-reduced-motion:no-preference){.pop{animation:pop .25s ease-out}@keyframes pop{from{transform:scale(.96);opacity:.4}to{transform:none;opacity:1}}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const DECK = __DECK__;
+// GEN-START (pure functions; tested by scripts/verify_lesson.js)
+function ri(a,b){return a+Math.floor(Math.random()*(b-a+1))}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const r1=x=>Math.round(x*10)/10;
+function stats(v){const sum=v.reduce((a,b)=>a+b,0),n=v.length,m=sum/n,dist=v.map(x=>Math.abs(x-m)),D=dist.reduce((a,b)=>a+b,0);
+ const s=v.slice().sort((a,b)=>a-b);return{sum,n,m,dist,D,mad:r1(D/n),median:s[2]}}
+// Sets a deck must never produce (a worksheet's own data), stored only as FNV-1a hashes of the sorted values.
+function fnv(str){let x=2166136261;for(const c of str){x^=c.charCodeAt(0);x=Math.imul(x,16777619)>>>0}return x.toString(16).padStart(8,'0')}
+function banned(v){return (DECK.banned_hashes||[]).includes(fnv(v.slice().sort((a,b)=>a-b).join(',')))}
+// The likely wrong answers for a MAD, so a miss can be named and used as wrong choices.
+function madSlips(v){const s=stats(v);return[{x:s.m,why:'That is the mean. The MAD is the mean of the distances from the mean, a second step.'},
+ {x:s.D,why:'That is the sum of the distances. Divide it by '+s.n+', the number of values.'},
+ {x:0,why:'0 comes from keeping the minus signs: the signed differences always cancel out. A distance is never negative.'},
+ {x:r1(s.D/(s.n-1)),why:'You divided by '+(s.n-1)+'. Divide by '+s.n+', the number of values.'},
+ {x:r1(s.D/(s.n+1)),why:'You divided by '+(s.n+1)+'. Divide by '+s.n+', the number of values.'}]}
+function meanSlips(v){const s=stats(v);return[{x:s.sum,why:'That is the sum. Divide it by '+s.n+'.'},
+ {x:s.median,why:'That is the middle value when sorted, not the mean. Add all five and divide by 5.'},
+ {x:r1(s.sum/(s.n-1)),why:'You divided by '+(s.n-1)+'. Divide by '+s.n+'.'}]}
+function okSet(v){const s=stats(v);if(banned(v)||!Number.isInteger(s.m)||s.D===0)return false;
+ const sl=madSlips(v).map(o=>o.x),xs=[s.mad,...sl];if(new Set(xs).size!==xs.length)return false;
+ const ml=meanSlips(v).map(o=>o.x),ys=[s.m,...ml];return new Set(ys).size===ys.length}
+function gen5(lo,hi,need){for(let t=0;t<5000;t++){const v=[ri(lo,hi),ri(lo,hi),ri(lo,hi),ri(lo,hi)];const s=v.reduce((a,b)=>a+b,0);
+ const opts=[];for(let x=lo;x<=hi;x++)if((s+x)%5===0)opts.push(x);if(!opts.length)continue;v.push(pick(opts));const w=shuffle(v);
+ if(!okSet(w))continue;if(need&&!need(w,stats(w)))continue;return w}throw new Error('gen5 failed')}
+function genAround(m,dmax,need){for(let t=0;t<5000;t++){const d=[ri(-dmax,dmax),ri(-dmax,dmax),ri(-dmax,dmax),ri(-dmax,dmax)];const l=-d.reduce((a,b)=>a+b,0);
+ if(Math.abs(l)>dmax)continue;const v=shuffle(d.concat([l]).map(x=>m+x));if(!okSet(v))continue;if(need&&!need(v,stats(v)))continue;return v}throw new Error('genAround failed')}
+// GEN-END
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const HKEY='studywright:heroes',RKEY='studywright:records',STAT=DECK.stat||String(DECK.subject).split(':')[0].trim()||'Study';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=x=>String(r1(x));
+const $=id=>document.getElementById(id), app=$('app');
+function parseNum(s){s=String(s).trim().replace(',','.');if(!/^-?\d*\.?\d+$/.test(s)&&!/^-?\d+\.$/.test(s))return NaN;return Number(s)}
+const same=(a,b)=>Math.abs(a-b)<1e-9;
+const RETRY_CUTOFF=8*60; // no retries after 8 minutes, so the run stays inside 10
+let S;
+// ---------- hero (shared with the quiz games; level-up picks are made there) ----------
+const H={all(){return store.get(HKEY)||{active:null,list:[]}},cur(){const d=H.all();return d.list.find(h=>h.id===d.active)||null},
+ put(h){const d=H.all();const i=d.list.findIndex(x=>x.id===h.id);if(i<0)d.list.push(h);else d.list[i]=h;d.active=h.id;store.set(HKEY,d)}};
+const need=L=>50*L*(L+1);function heroLvl(h){let L=1;while(h.xp>=need(L))L++;return L}
+// ---------- pictures ----------
+function plot(sets,o={}){ // sets: [{name,v,color}]
+ const all=sets.flatMap(s=>s.v),lo=Math.min(...all)-2,hi=Math.max(...all)+2,W=640,row=o.bars?128:74,Hh=sets.length*row+30,x=t=>30+(t-lo)*(W-60)/(hi-lo);
+ let g='';const step=hi-lo>40?10:hi-lo>20?5:hi-lo>10?2:1;
+ sets.forEach((s,k)=>{const y0=k*row+row-14,m=stats(s.v).m,cnt={};
+  g+=`<text x="4" y="${y0-row+30}" fill="#a8b0d8" font-size="15">${esc(s.name)}</text><line x1="20" y1="${y0}" x2="${W-20}" y2="${y0}" stroke="#ffffff55"/>`;
+  for(let t=Math.ceil(lo/step)*step;t<=hi;t+=step)g+=`<line x1="${x(t)}" y1="${y0}" x2="${x(t)}" y2="${y0+5}" stroke="#ffffff55"/><text x="${x(t)}" y="${y0+19}" fill="#a8b0d8" font-size="12" text-anchor="middle">${t}</text>`;
+  s.v.forEach((t,i)=>{cnt[t]=(cnt[t]||0)+1;const yy=o.bars?y0-10-i*19:y0-8-(cnt[t]-1)*15;
+   if(o.bars&&t!==m)g+=`<line x1="${x(t)}" y1="${yy}" x2="${x(m)}" y2="${yy}" stroke="${s.color||'#7aa2ff'}" stroke-width="4" opacity=".55"/>`+(o.labels?`<text x="${(x(t)+x(m))/2}" y="${yy-6}" fill="#ffd166" font-size="13" text-anchor="middle">${Math.abs(t-m)}</text>`:'');
+   g+=`<circle cx="${x(t)}" cy="${yy}" r="6.5" fill="${s.color||'#7aa2ff'}"/>`});
+  if(o.mean)g+=`<line x1="${x(m)}" y1="${y0-row+36}" x2="${x(m)}" y2="${y0+2}" stroke="#ffd166" stroke-dasharray="4 3" stroke-width="2"/><text x="${x(m)}" y="${y0-row+32}" fill="#ffd166" font-size="13" text-anchor="middle">mean ${fmt(m)}</text>`});
+ return `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="dot plot">${g}</svg>`}
+function stepsHtml(v,c){const s=stats(v);return `<table class="steps"><tr><th>value</th>${v.map(t=>`<td>${t}</td>`).join('')}</tr>
+ <tr><th>distance from ${fmt(s.m)}</th>${s.dist.map(d=>`<td>${fmt(d)}</td>`).join('')}</tr></table>
+ <div>1. Mean: ${v.join(' + ')} = ${s.sum}, and ${s.sum} ÷ ${s.n} = <b>${fmt(s.m)}</b></div>
+ <div>2. Distances from the mean (bigger minus smaller, never negative): ${s.dist.map(fmt).join(', ')}</div>
+ <div>3. Add the distances: ${s.dist.map(fmt).join(' + ')} = <b>${fmt(s.D)}</b></div>
+ <div>4. Divide by ${s.n}: ${fmt(s.D)} ÷ ${s.n} = <b>${fmt(s.mad)}</b> ${esc(c?c.unit:'')} — the MAD</div>`}
+// ---------- encounters (kinds a lesson deck can name in its map) ----------
+const ctxPick=()=>pick(DECK.contexts);
+function rng(c,solo){return solo?[c.lo+c.boost,c.hi+c.boost]:[c.lo,c.hi]}
+const KINDS={
+ mean(solo){const c=ctxPick(),[lo,hi]=rng(c,solo),A=gen5(lo,hi),B=gen5(lo+8,hi+8,(w,s)=>s.m>=stats(A).m+6);const sw=Math.random()<.5,
+   n1=c.names[0],n2=c.names[1],P=sw?[B,A]:[A,B],big=sw?n1:n2,V=gen5(lo,hi);
+  return{title:'Find the middle',parts:[
+   {type:'mc',html:`<p>${esc(c.intro)}</p>${plot([{name:n1,v:P[0],color:'#7aa2ff'},{name:n2,v:P[1],color:'#ff9f6b'}])}<p>Look, don't add yet: which has the <b>higher mean</b>?</p>`,
+    choices:[{t:big+': most of its dots sit further right (bigger values)',ok:1},{t:(big===n1?n2:n1)+': its dots sit further right',why:'Look again: the mean follows where most of the dots sit, and those are further right for '+big+'.'},
+     {t:'Whichever has the biggest single value',why:'One big value pulls the mean up a little, but the mean balances all five. Look at where most dots sit.'}],explain:`The mean is the balance point of the dots. ${big}'s dots sit further right, so its mean is higher (${fmt(stats(P[0]).m)} and ${fmt(stats(P[1]).m)}).`},
+   {type:'num',html:`<p>Now find the mean of another five ${esc(c.what)} (${esc(c.unit)}):</p><div class="data">${V.join(', ')}</div>`+(solo?'':`<p class="hint">Add all five, then divide by 5.</p>`),
+    boxes:solo?[{label:'mean',ans:stats(V).m,slips:meanSlips(V)}]:[{label:'sum',ans:stats(V).sum,slips:[]},{label:'mean',ans:stats(V).m,slips:meanSlips(V)}],
+    explain:`${V.join(' + ')} = ${stats(V).sum}, and ${stats(V).sum} ÷ 5 = ${fmt(stats(V).m)}.`}]}},
+ spread(solo){const c=ctxPick(),[lo,hi]=rng(c,solo),m=ri(lo+9,hi-9),T=genAround(m,2),W=genAround(m,9,(w,s)=>s.mad>=stats(T).mad+2.5);const sw=Math.random()<.5,
+   n1=c.names[0],n2=c.names[1],P=sw?[W,T]:[T,W],wide=sw?n1:n2;
+  return{title:'Read the spread',parts:[{type:'mc',html:`<p>${esc(c.intro)}</p>${plot([{name:n1,v:P[0],color:'#7aa2ff'},{name:n2,v:P[1],color:'#ff9f6b'}],{mean:!solo,bars:!solo})}<p>Both have a mean of ${m}. Which is <b>more spread out</b>?</p>`+(solo?'':`<p class="hint">The bars show how far each value is from the mean.</p>`),
+   choices:[{t:wide+': its values reach further from the mean',ok:1},{t:(wide===n1?n2:n1)+': its values reach further from the mean',why:'Those dots huddle close to the mean. Spread is how far the values sit from the middle.'},{t:'Neither: the means are the same, so the spread is the same',why:'Same mean does not mean same spread. One set huddles round the mean, the other is scattered.'}],
+   explain:`${wide}'s values sit far from ${m}; the other set huddles close to it. Far from the mean = more spread = more variability.`}]}},
+ madTeach(solo){const c=ctxPick(),[lo,hi]=rng(c,false),E=gen5(lo,hi,(w,s)=>w.includes(s.m)),V=gen5(lo,hi),s=stats(V);
+  return{title:'The MAD, step by step',parts:[
+   {type:'show',html:`<p><b>Mean absolute deviation (MAD)</b> = how far the values sit from their mean, on average. One worked example:</p><p>${esc(c.names[0])}'s five ${esc(c.what)} (${esc(c.unit)}):</p><div class="data">${E.join(', ')}</div>${plot([{name:'',v:E,color:'#7aa2ff'}],{mean:1,bars:1,labels:1})}${stepsHtml(E,c)}<p class="small">A value equal to the mean has distance 0.</p>`},
+   {type:'num',html:`<p>Your turn: ${esc(c.names[1])}'s five ${esc(c.what)}: <span class="data">${V.join(', ')}</span></p><p>The mean is <b>${fmt(s.m)}</b>.</p>`+(solo?'':`<p>The distances from ${fmt(s.m)} are <b>${s.dist.map(fmt).join(', ')}</b>.</p>${plot([{name:'',v:V,color:'#7aa2ff'}],{mean:1,bars:1,labels:1})}`),
+    boxes:solo?[{label:'MAD',ans:s.mad,slips:madSlips(V)}]:[{label:'sum of distances',ans:s.D,slips:[{x:0,why:madSlips(V)[2].why}]},{label:'MAD',ans:s.mad,slips:madSlips(V)}],steps:V}]}},
+ mad(solo){const c=ctxPick(),[lo,hi]=rng(c,solo),V=gen5(lo,hi),s=stats(V);
+  const dist=solo?[]:V.map((t,i)=>({label:'|'+t+' − mean|',ans:s.dist[i],slips:t<s.m?[{x:t-s.m,why:'A distance is never negative: take the bigger number minus the smaller one.'}]:[],small:1}));
+  return{title:'The whole problem',parts:[{type:'num',html:`<p>${esc(c.names[0])}'s five ${esc(c.what)} (${esc(c.unit)}):</p><div class="data">${V.join(', ')}</div><p>Use paper. Find the mean, then the MAD.</p>`+(solo?'':`<p class="hint">Mean first, then each value's distance from it, then the mean of those distances.</p>`),
+   boxes:[{label:'mean',ans:s.m,slips:meanSlips(V)},...dist,{label:'MAD',ans:s.mad,slips:madSlips(V)}],steps:V}]}},
+ read(solo){const c=ctxPick(),[lo,hi]=rng(c,false),[n1,n2]=shuffle(c.names.slice(0,2));let A,B;
+  for(;;){A=gen5(lo,hi);B=gen5(lo,hi);const a=stats(A),b=stats(B);if(a.mad>=b.mad+1.5&&a.m<b.m-2)break}
+  return{title:'What a MAD tells you',parts:[{type:'mc',html:`<p>${esc(c.intro)}</p><table class="steps"><tr><th></th><th>mean</th><th>MAD</th></tr><tr><th>${esc(n1)}</th><td>${fmt(stats(A).m)}</td><td>${fmt(stats(A).mad)}</td></tr><tr><th>${esc(n2)}</th><td>${fmt(stats(B).m)}</td><td>${fmt(stats(B).mad)}</td></tr></table><p>${esc(n1)} has the bigger MAD. What does that tell you for sure?</p>`+(solo?'':`<p class="hint">The mean tells you about size. The MAD tells you about something else.</p>`),
+   choices:[{t:`${n1}'s values are more spread out, less consistent`,ok:1},{t:`${n1}'s values are bigger`,why:`A MAD says nothing about how big the values are. Here ${n1} even has the smaller mean.`},{t:`${n1} has a higher mean`,why:`The MAD is not the mean. ${n1}'s mean is ${fmt(stats(A).m)}, lower than ${fmt(stats(B).m)}.`},{t:`${n1} is more consistent`,why:'It is the other way round: a bigger MAD means the values sit further from the mean, so less consistent.'}],
+   explain:`Bigger MAD = values sit further from their mean = more variability, less consistency. It says nothing about size: that is the mean's job.`}]}},
+ both(solo){const c=ctxPick(),[lo,hi]=rng(c,false),[n1,n2]=shuffle(c.names.slice(0,2)),hiM=pick([1,0]),hiV=pick([1,0]);let A,B;
+  for(;;){A=gen5(lo,hi);B=gen5(lo,hi);const a=stats(A),b=stats(B);if((hiM?a.m>=b.m+3:a.m<=b.m-3)&&(hiV?a.mad>=b.mad+1:a.mad<=b.mad-1))break}
+  const desc=(m,v)=>`a ${m?'higher':'lower'} mean and ${v?'more':'less'} variability`,opts=[[1,1],[1,0],[0,1],[0,0]];
+  const g=[...Array(4)].map(()=>[0,0]).map((_,i)=>({m:[ri(26,34),ri(26,34),ri(12,18),ri(12,18)][i],v:[r1(ri(30,52)/10),r1(ri(6,18)/10),r1(ri(30,52)/10),r1(ri(6,18)/10)][i]}));
+  const teams=c.group.slice(0,4),order=shuffle([0,1,2,3]);
+  return{title:'Size and spread together',parts:[
+   {type:'mc',html:`<p>${esc(c.intro)}</p><table class="steps"><tr><th></th><th>mean</th><th>MAD</th></tr><tr><th>${esc(n1)}</th><td>${fmt(stats(A).m)}</td><td>${fmt(stats(A).mad)}</td></tr><tr><th>${esc(n2)}</th><td>${fmt(stats(B).m)}</td><td>${fmt(stats(B).mad)}</td></tr></table>`+(solo?'':plot([{name:n1,v:A,color:'#7aa2ff'},{name:n2,v:B,color:'#ff9f6b'}],{mean:1}))+`<p>Compared with ${esc(n2)}, ${esc(n1)} has…</p>`+(solo?'':`<p class="hint">Compare the means for size, then the MADs for spread. They are two separate answers.</p>`),
+    choices:opts.map(([m,v])=>m===hiM&&v===hiV?{t:desc(m,v),ok:1}:{t:desc(m,v),why:`Check each figure on its own: mean ${fmt(stats(A).m)} vs ${fmt(stats(B).m)} is ${hiM?'higher':'lower'}; MAD ${fmt(stats(A).mad)} vs ${fmt(stats(B).mad)} means ${hiV?'more':'less'} variability.`}),
+    explain:`Mean ${fmt(stats(A).m)} vs ${fmt(stats(B).m)}: ${hiM?'higher':'lower'}. MAD ${fmt(stats(A).mad)} vs ${fmt(stats(B).mad)}: ${hiV?'more':'less'} spread. Two measures, two separate comparisons.`,keepOrder:1},
+   {type:'mc',html:`<p>${esc(c.pickIntro)}</p><table class="steps"><tr><th></th><th>mean</th><th>MAD</th></tr>${order.map(i=>`<tr><th>${esc(teams[i])}</th><td>${g[i].m}</td><td>${fmt(g[i].v)}</td></tr>`).join('')}</table><p>Which one is <b>high and consistent</b>?</p>`,
+    choices:order.map(i=>i===1?{t:teams[i],ok:1}:{t:teams[i],why:['High mean, but a big MAD: not consistent.','','Big MAD and a low mean: neither high nor consistent.','Consistent (small MAD), but the mean is low.'][i]}),
+    explain:`High = a high mean. Consistent = a small MAD. ${teams[1]} has both.`,keepOrder:1}]}}};
+// ---------- run ----------
+const SK=DECK.skills;
+function newRun(){S={start:Date.now(),layer:0,route:[],gold:0,res:{},log:[],answers:0,hero:H.cur()}}
+const elapsed=()=>Math.round((Date.now()-S.start)/1000);
+const mmss=t=>Math.floor(t/60)+':'+String(t%60).padStart(2,'0');
+function hud(){const h=S.hero;return `<div class="hud"><span>${h?esc(h.name):'Hero'}</span><span>🪙 <b>${S.gold}</b></span><span>⏱ ${mmss(elapsed())}</span><span>Stage ${Math.min(S.layer+1,DECK.map.length)} of ${DECK.map.length}</span></div>`}
+function title(){const h=H.cur();
+ app.innerHTML=`<div class="card pop"><div class="topic">${esc(DECK.subject)}</div><h1>${esc(DECK.title)}</h1><p>${esc(DECK.intro)}</p><p><b>You need paper and a pencil.</b> About ${DECK.minutes||10} minutes.</p>
+ ${h?`<button class="go" id="go">Play as ${esc(h.name)} the ${esc(h.cls)} (level ${heroLvl(h)})</button>`:`<div class="row"><input class="num" style="width:12em" id="nm" placeholder="Hero name" maxlength="20"><button class="go" id="go">Start</button></div>`}</div>`;
+ $('go').onclick=()=>{if(!h){const n=($('nm').value||'').trim()||'Wanderer';H.put({id:'h'+Date.now().toString(36),name:n,cls:'Scholar',xp:0,areas:{},feats:['scribe'],picks:0,created:new Date().toISOString(),quests:0})}newRun();map()}}
+function map(){const L=DECK.map,W=360,rowH=64,Hh=(L.length+1)*rowH+40,X=[110,250],cy=i=>Hh-40-(i+1)*rowH;let g='';
+ g+=`<circle cx="${W/2}" cy="${Hh-30}" r="12" fill="#a8b0d8"/><text x="${W/2}" y="${Hh-6}" fill="#a8b0d8" font-size="12" text-anchor="middle">start</text>`;
+ const px=i=>i<0?W/2:X[S.route[i]==='solo'?1:0];
+ L.forEach((ly,i)=>{const prevY=i?cy(i-1):Hh-30,froms=i?[0,1]:[-1];
+  froms.forEach(f=>[0,1].forEach(k=>{const fx=f<0?W/2:X[f],on=i<S.layer&&S.route[i]===(k?'solo':'guided')&&(i===0||S.route[i-1]===(f?'solo':'guided'));
+   g+=`<line x1="${fx}" y1="${prevY}" x2="${X[k]}" y2="${cy(i)}" stroke="${on?'#ffd166':'#ffffff22'}" stroke-width="${on?4:2}"/>`}));
+  [0,1].forEach(k=>{const kind=k?'solo':'guided',done=i<S.layer,took=done&&S.route[i]===kind,cur=i===S.layer;
+   g+=`<g class="${cur?'node':''}" data-k="${kind}"><circle cx="${X[k]}" cy="${cy(i)}" r="${cur?20:15}" fill="${took?'#ffd166':cur?(k?'#c0304a':'#2bb3a8'):'#262c52'}" stroke="${cur?'#fff':'#ffffff44'}" stroke-width="2"/><text x="${X[k]}" y="${cy(i)+6}" font-size="${cur?18:14}" text-anchor="middle">${k?'⚔️':'🏕️'}</text></g>`});
+  g+=`<text x="${W/2}" y="${cy(i)+5}" fill="#a8b0d8" font-size="11" text-anchor="middle">${esc(SK[ly.skill].short)}</text>`});
+ g+=`<text x="${W/2}" y="20" fill="#ffd166" font-size="14" text-anchor="middle">🏰 ${esc(DECK.goal||'The top')}</text>`;
+ const ly=L[S.layer];
+ app.innerHTML=hud()+`<div class="card pop"><h2>Choose your path</h2><p>Next: <b>${esc(SK[ly.skill].name)}</b>. Both paths teach it.</p>
+  <div class="row"><button id="pg" style="flex:1">🏕️ <b>Camp</b>: help shown, smaller numbers. +${DECK.gold.guided} 🪙 if right first time</button><button id="ps" style="flex:1">⚔️ <b>Lair</b>: no help, bigger numbers. +${DECK.gold.solo} 🪙 if right first time</button></div>
+  <div class="map">${`<svg viewBox="0 0 ${W} ${Hh}" width="${W}">${g}</svg>`}</div></div>`;
+ $('pg').onclick=()=>enter('guided');$('ps').onclick=()=>enter('solo');
+ app.querySelectorAll('.node').forEach(n=>n.onclick=()=>enter(n.dataset.k))}
+function enter(kind){S.route.push(kind);S.try=0;S.firstOk=true;S.given=[];encounter()}
+function encounter(){const ly=DECK.map[S.layer],solo=S.route[S.layer]==='solo';S.enc=KINDS[ly.kind](solo);S.part=0;S.encOk=true;part()}
+function part(){const p=S.enc.parts[S.part],ly=DECK.map[S.layer];
+ let body=`<div class="topic">${esc(SK[ly.skill].name)} · ${S.route[S.layer]==='solo'?'⚔️ Lair':'🏕️ Camp'}${S.try?' · new numbers':''}</div><h2>${esc(S.enc.title)}</h2>${p.html}`;
+ if(p.type==='show')body+=`<div class="row"><button class="go" id="nx">Got it, my turn</button></div>`;
+ if(p.type==='mc'){p.sh=p.keepOrder?p.choices:shuffle(p.choices);body+=`<div class="choices">${p.sh.map((c,i)=>`<button data-i="${i}">${esc(c.t)}</button>`).join('')}</div>`}
+ if(p.type==='num')body+=p.boxes.map((b,i)=>`<div class="row"><label for="b${i}" style="min-width:${b.small?'6em':'9em'}">${esc(b.label)}</label><input class="num" id="b${i}" inputmode="decimal" autocomplete="off"></div>`).join('')+`<div class="row"><button class="go" id="ck">Check</button></div>`;
+ app.innerHTML=hud()+`<div class="card pop">${body}<div id="fb"></div></div>`;
+ if(p.type==='show')$('nx').onclick=()=>{S.part++;part()};
+ if(p.type==='mc')app.querySelectorAll('.choices button').forEach(b=>b.onclick=()=>answerMc(p,+b.dataset.i));
+ if(p.type==='num'){$('ck').onclick=()=>answerNum(p);app.querySelectorAll('input.num').forEach(el=>el.onkeydown=e=>{if(e.key==='Enter')answerNum(p)});const f=$('b0');if(f)f.focus()}}
+function answerMc(p,i){const c=p.sh[i];S.answers++;S.given.push(c.t);app.querySelectorAll('.choices button').forEach((b,j)=>{b.disabled=true;if(p.sh[j].ok)b.classList.add('right');else if(j===i)b.classList.add('wrong')});
+ if(c.ok)return good(p.explain);bad(esc(c.why||'Not this one.')+`<p>${esc(p.explain)}</p>`)}
+function answerNum(p){let firstBad=-1,slip='';
+ p.boxes.forEach((b,i)=>{const el=$('b'+i),x=parseNum(el.value);const ok=!isNaN(x)&&same(x,b.ans);el.classList.toggle('ok',ok);el.classList.toggle('no',!ok);if(!ok&&firstBad<0){firstBad=i;
+  if(isNaN(x))slip=el.value.trim()?'"'+el.value.trim()+'" is not a number I can read. Type it like 7.6':'Fill in '+b.label+'.';else{const s=b.slips.find(o=>same(o.x,x));slip=s?s.why:'Not quite.'}}});
+ if(firstBad>=0&&slip.startsWith('Fill in'))return($('fb').innerHTML=`<div class="fb">${esc(slip)}</div>`);
+ S.answers++;S.given.push(p.boxes.map((b,i)=>b.label+'='+$('b'+i).value.trim()).join('; '));
+ app.querySelectorAll('input.num').forEach(el=>el.disabled=true);$('ck').disabled=true;
+ if(firstBad<0)return good(p.explain||'');
+ bad(`<b>${esc(p.boxes[firstBad].label)}:</b> ${esc(slip)}`+(p.steps?`<p>Worked steps for these numbers:</p>${stepsHtml(p.steps,null)}`:`<p>${esc(p.explain||'')}</p>`))}
+function good(ex){$('fb').innerHTML=`<div class="fb good pop"><b class="ok">Right!</b> ${ex?esc(ex):''}</div><div class="row"><button class="go" id="nx">Continue</button></div>`;$('nx').onclick=nextPart;$('nx').focus()}
+function bad(html){S.encOk=false;S.firstOk=S.try?S.firstOk:false;const canRetry=S.try<1&&elapsed()<RETRY_CUTOFF;
+ $('fb').innerHTML=`<div class="fb bad pop">${html}</div><div class="row"><button class="go" id="nx">${canRetry?'Try one with new numbers':'Move on'}</button></div>`;
+ $('nx').onclick=()=>{if(canRetry){S.try++;encounter()}else{S.part=S.enc.parts.length;finishLayer()}};$('nx').focus()}
+function nextPart(){S.part++;if(S.part<S.enc.parts.length)return part();finishLayer()}
+function finishLayer(){const ly=DECK.map[S.layer],kind=S.route[S.layer];const r=S.res[ly.skill]||{first_try:true,mastered:true,nodes:[]};
+ r.first_try=r.first_try&&S.firstOk;r.mastered=r.mastered&&S.encOk;r.nodes.push({stage:S.layer+1,path:kind,first_try:S.firstOk,tries:S.try+1,given:S.given});S.res[ly.skill]=r;
+ if(S.firstOk)S.gold+=DECK.gold[kind];S.layer++;if(S.layer<DECK.map.length)map();else finish()}
+function finish(){const sec=elapsed(),h=H.cur(),skills=Object.keys(SK),firstOk=skills.filter(k=>S.res[k]&&S.res[k].first_try),weak=skills.filter(k=>!S.res[k]||!S.res[k].first_try);
+ const xp=firstOk.length*20+S.route.filter(r=>r==='solo').length*5;let lvUp=false;
+ if(h){const L0=heroLvl(h);h.xp+=xp;h.quests=(h.quests||0)+1;h.areas=h.areas||{};const a=h.areas[STAT]||{use:0,train:0};a.use+=DECK.map.length;h.areas[STAT]=a;if(h.inv)h.inv.gold+=S.gold;lvUp=heroLvl(h)>L0;H.put(h)}
+ const R={studywright_record:1,mode:'lesson',deck:DECK.id,title:DECK.title,subject:DECK.subject,area:STAT,follows:DECK.follows||null,started:new Date(S.start).toISOString(),finished:new Date().toISOString(),
+  elapsed_sec:sec,route:S.route,skills:Object.fromEntries(skills.map(k=>[k,S.res[k]||null])),questions_total:skills.length,score_first_try:Math.round(100*firstOk.length/skills.length),best_streak:0,answers:S.answers,
+  first_try_misses:weak.map(k=>({topic:SK[k].name,q:SK[k].name,answer:'',tries:(S.res[k]?S.res[k].nodes.flatMap(n=>n.given.map(g=>({given:g,ok:false}))):[])})),gold:S.gold,xp,hero:h?{name:h.name,cls:h.cls,xp:h.xp}:null};
+ const all=store.get(RKEY)||[];all.push(R);store.set(RKEY,all);S.fname='studywright-'+DECK.id+'-'+R.finished.slice(0,16).replace(/[:T]/g,'-')+'.json';download(S.fname,R);
+ const ready=weak.length===0?'Ready for the worksheet: every step right first time.':weak.length<=1?'Nearly ready: look again at the step marked ✗ before starting the worksheet.':'Not ready yet: go over the steps marked ✗ together, or play once more.';
+ app.innerHTML=`<div class="card pop"><div class="topic">${esc(DECK.goal||'Done')}</div><h1>🏰 You reached the top!</h1><p>Time: <b>${mmss(sec)}</b> · 🪙 ${S.gold} gold · +${xp} XP${lvUp?' · <b class="ok">Level up!</b> Pick your new feat next time you open a quest game.':''}</p>
+ <table class="steps">${skills.map(k=>`<tr><td style="text-align:left">${esc(SK[k].name)}</td><td>${S.res[k]&&S.res[k].first_try?'<span class="ok">✓ first try</span>':'<span class="no">✗ needs another look</span>'}</td></tr>`).join('')}</table>
+ <p><b>${esc(ready)}</b></p><p class="small">A record of this run was saved to Downloads (${esc(S.fname)}).</p>
+ <div class="row"><button class="go" id="again">Play again (new numbers)</button><button id="save">Save record again</button></div></div>`;
+ $('again').onclick=()=>{newRun();map()};$('save').onclick=()=>download(S.fname,R)}
+function download(name,obj){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,1)],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){}}
+setInterval(()=>{const t=document.querySelector('.hud span:nth-child(3)');if(t&&S&&S.layer<DECK.map.length)t.textContent='⏱ '+mmss(elapsed())},1000);
+title();
+</script>
+</body>
+</html>

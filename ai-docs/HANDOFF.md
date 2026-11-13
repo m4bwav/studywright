@@ -16,7 +16,10 @@ Session 7: boss round (timed pass over first-try misses) merged; games rebuilt. 
 
 0.7.0 (2026-11-11, session 9): read lock, variants + steps, hero scenes with hp/gold/loot, hero builder with inventory; new deck natural-selection-3 for the son's next biology test (How Natural Selection Works to Key Takeaways). Older decks have no variants/steps yet.
 
+2026-11-12: kickoff prompt written for lesson mode (teach, then test a method), a roguelike path map and a mean absolute deviation game for the son's HW 5.6 (due 2026-11-13); nothing built yet. Worksheet photo, transcription and answer key are in records/mean-absolute-deviation/ (gitignored).
+
 Next:
+00. Tonight, before anything else: execute ai-docs/plans/2026-11-12-lesson-mode-kickoff-prompt.md. Remove this line once the game is handed over and the mode is released.
 0a. After the son plays natural-selection-3: `sw.py records`, report misses.
 0b. Add variants/steps to texas-filibusters.
 0. When the Texas game has been played: run `sw.py records`, read records/INDEX.md, report shaky ideas; consider per-question `scene` text for Texas.

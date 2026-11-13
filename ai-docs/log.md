@@ -49,3 +49,10 @@ README gained a Works with section (ludowright, everscout, askwright); the wiki 
 - Engine 0.7.0: READ_SECS lock (Next disabled with countdown, Enter blocked); queue entries can be {p,s} steps; itemOf picks variants by ask count; outcome() hp/gold/loot/potion/faint (no game over); SVG avatar() from hero.look; heroCreate builder; 3D hero dressed from look; old heroes migrated by fixHero.
 - sw.py check validates variants and steps.
 - New deck natural-selection-3 "Wilds of Selection" (18 q, every q has variants, most have steps). Chrome play-test on 127.0.0.1:18765: miss queued 2 steps, lock held 3 s, variant shown on return, inventory/gold/hp change.
+
+## 2026-11-12 prompt | lesson mode kickoff
+- Mark asked for a prompt, not a build: grow studywright so it can teach a method (his son is stuck on the first questions of HW 5.6, Mean Absolute Deviation Part II, due 2026-11-13), in a game of ten minutes at most that prepares him for the worksheet without doing it, with a roguelike choice of paths on a map after each encounter, then a ludowright round and a game-juice round.
+- Written: ai-docs/plans/2026-11-12-lesson-mode-kickoff-prompt.md. It ends by handing back to the standing continue prompt.
+- Worksheet photo copied to records/mean-absolute-deviation/hw-5.6.png with a transcription, number profile and answer key in worksheet.md beside it (gitignored; the repo is public, so nothing from the sheet goes in a deck).
+- Rulings made in the prompt, for Mark to overrule: the first link goes out before the ludowright and juice rounds; every map route teaches all five skills and has the same length; a miss gets one retry with new numbers and then the run moves on, so the ten minutes hold; procedure questions draw generated numbers.
+- Nothing committed; the prompt, this entry and the HANDOFF edit are uncommitted on main for the build session to carry onto its branch.

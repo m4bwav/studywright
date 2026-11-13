@@ -13,6 +13,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 TEMPLATE = HERE.parent / "templates" / "game.html"
+LESSON = HERE.parent / "templates" / "lesson.html"
+LESSON_KINDS = {"mean", "spread", "madTeach", "mad", "read", "both"}  # encounter kinds lesson.html knows
 
 
 def check_item(q, tag):
@@ -34,7 +36,39 @@ def check_item(q, tag):
     return errs
 
 
+def check_lesson(deck):
+    errs = []
+    for k in ("id", "title", "subject", "intro", "skills", "map", "contexts", "gold"):
+        if k not in deck:
+            errs.append(f"lesson deck missing '{k}'")
+    sk = deck.get("skills", {})
+    for i, ly in enumerate(deck.get("map", []), 1):
+        if ly.get("skill") not in sk:
+            errs.append(f"map stage {i}: skill '{ly.get('skill')}' not in skills")
+        if ly.get("kind") not in LESSON_KINDS:
+            errs.append(f"map stage {i}: unknown kind '{ly.get('kind')}' (known: {', '.join(sorted(LESSON_KINDS))})")
+    missing = set(sk) - {ly.get("skill") for ly in deck.get("map", [])}
+    if missing:
+        errs.append(f"skills never taught on the map: {', '.join(sorted(missing))}")
+    for k in ("guided", "solo"):
+        if not isinstance(deck.get("gold", {}).get(k), int):
+            errs.append(f"gold.{k} must be a whole number")
+    for i, c in enumerate(deck.get("contexts", []), 1):
+        for k in ("intro", "what", "unit", "names", "lo", "hi", "boost", "group", "pickIntro"):
+            if k not in c:
+                errs.append(f"context {i}: missing '{k}'")
+        if c.get("hi", 0) - c.get("lo", 0) < 20:
+            errs.append(f"context {i}: hi - lo must be 20+ so spread pairs fit")
+        if len(c.get("names", [])) < 2 or len(c.get("group", [])) < 4:
+            errs.append(f"context {i}: needs 2 names and 4 group names")
+    if "banned" in deck:
+        errs.append("use banned_hashes, never raw worksheet data sets, in a committed deck")
+    return errs
+
+
 def check(deck):
+    if deck.get("mode") == "lesson":
+        return check_lesson(deck)
     errs = []
     for k in ("id", "title", "subject", "intro", "questions"):
         if k not in deck:
@@ -128,11 +162,15 @@ def main(argv):
         print("ERROR", e)
     if errs:
         return 1
-    n = len(deck["questions"])
-    topics = sorted({q.get("topic", "") for q in deck["questions"]})
-    print(f"ok: {n} questions, topics: {', '.join(topics)}")
+    lesson = deck.get("mode") == "lesson"
+    if lesson:
+        print(f"ok: lesson, {len(deck['map'])} stages, skills: {', '.join(deck['skills'])}")
+    else:
+        n = len(deck["questions"])
+        topics = sorted({q.get("topic", "") for q in deck["questions"]})
+        print(f"ok: {n} questions, topics: {', '.join(topics)}")
     if argv[0] == "build":
-        page = TEMPLATE.read_text(encoding="utf-8")
+        page = (LESSON if lesson else TEMPLATE).read_text(encoding="utf-8")
         data = json.dumps(deck, ensure_ascii=False).replace("</", "<\\/")
         page = (page.replace("__TITLE__", html.escape(deck["title"]))
                     .replace("__ACCENT__", deck.get("accent", "#7aa2ff"))
