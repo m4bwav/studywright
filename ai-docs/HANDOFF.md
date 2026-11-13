@@ -38,6 +38,8 @@ Open question: no studywright-*.json was in C:\Users\m4bwa\Downloads after this 
 
 0.10.0 (2026-11-12, session 14): merchants in world mode, asked by Mark before the son plays Texas Frontier. A region with `merchant` gets a trader placed after the creatures (no creature moves). Stock: healing potion 10 gold (drunk by itself at zero hearts), trail map 25 (clears the valley fog), compass 40 (HUD arrow to the nearest waiting creature, kept on the hero); deck keepsakes 20 each that show a fact from the notes. Texas Frontier has a merchant in all 8 regions and 15 keepsakes; the ones in bigpic and clock repeat what the son got wrong on the sheet (who gained what after the Seven Years' War, the 11 years). The record now has `bought` and `gold`. selective-breeding has no merchants (its deck has no `merchant` keys). The wiki still describes 0.2.0 to 0.6.0.
 
+Merged as PR #12, released v0.10.0, installed plugin updated to 0.10.0 (2026-11-12; restart the editor to load it). Not yet played by the son: the built game is games/texas-independence.html.
+
 Next:
 00a. When the Texas Frontier log or notes prompt arrives: `sw.py records`, report misses. Ask what the class key says for Samuel Kemper and add him to the deck.
 00. When Mark pastes a notes prompt from a finish screen (or says the son played): `sw.py records`, update records/INDEX.md, this file and the log, and report what to review. selective-breeding arrived 2026-11-12 (above); still expected: mean-absolute-deviation and texas-independence. If the log file is missing from Downloads again, find out why before writing the record by hand.
