@@ -22,7 +22,10 @@ Session 7: boss round (timed pass over first-try misses) merged; games rebuilt. 
 
 Merged as PR #9, released v0.8.0, installed plugin updated to 0.8.0 (2026-11-12). The wiki still describes 0.2.0 to 0.6.0: world mode, lesson mode and the kit are not on it yet.
 
+0.9.0 (2026-11-12, session 12): world deck texas-independence ("Texas Frontier", 90 q, 8 regions) for the Texas history test of 2026-11-13, from the six-page study guide "Mexican Independence, Filibusters & Empresarios" plus a review region from texas-filibusters. Engine: `order` questions, SVG pictures with a lit shape, and a placement fix (a creature could be walled in). It appears as a second valley on the shared land. Sheet reading notes and what the son got wrong are in records/texas-independence/study-guide-notes.md (gitignored). Samuel Kemper is left out of the game: the son wrote NO, history says filibuster, and the class key is unknown. The wiki still describes 0.2.0 to 0.6.0.
+
 Next:
+00a. When the Texas Frontier log or notes prompt arrives: `sw.py records`, report misses. Ask what the class key says for Samuel Kemper and add him to the deck.
 00. When Mark pastes a notes prompt from a finish screen (or says the son played): `sw.py records`, update records/INDEX.md, this file and the log, and report what to review. Expected first: selective-breeding and mean-absolute-deviation.
 01. Lesson mode still owes Mark's note of 2026-11-12: "needed a little more variation and explanation" (more contexts and question shapes per stage, a fuller worked explanation after a miss). Then the ludowright round from the kickoff prompt (ai-docs/plans/2026-11-12-lesson-mode-kickoff-prompt.md).
 02. Update the wiki (clone at Ai/studywright.wiki) for 0.8.0.
