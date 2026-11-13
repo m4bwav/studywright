@@ -50,8 +50,9 @@ A deck with `"mode": "world"` builds from `templates/world.html`: the hero walks
 - Every question names its region with `"r": "<region id>"` (1 to 20 per region) and stands on the map as a creature. Right: it builds something that stays on the map. Wrong: the reason, minus one heart, and the creature asks again in its next `variants` wording after another question has been answered.
 - Mastering every creature in a region earns its key. `"walls": true` makes a building with one door; `"locked": n` needs n keys. Walled regions go 6th or later in the list. One region may be `"hall": true`: its chest ends the quest. Lay the test out as: main sheet in the hub and the nearest regions, review of earlier sheets in an outer region, mixed apply questions in the hall.
 - The land is shared by every world game in the browser (`studywright:world`): mapped tiles, buildings (they grow on a replay) and opened chests persist, and each new deck gets its own valley on the same map.
+- Two more question shapes, world decks only. `"type": "order"` with `items` written in the correct order (3 to 6): the player taps them first to last, with an undo; use it for timelines and for the steps of a process (optional `hint` replaces the instruction line). A picture: put inline SVG in the deck's `figs` (`{"name": "<svg ...>"}`), name it on a question with `"fig": "name"`, and light up one shape with `"hl": "<element id>"`; use it for label-the-map and label-the-diagram items. A variant inherits `fig` and `hl`; give the variant `"hl": ""` to show the picture with nothing lit. Example: `decks/texas-independence.json` (map of 1803, timeline tower).
 - Feel settings (sound, shake strength, reduce motion, flash, hit pause) are in the gear menu; constants are at the top of the template and logged in `juice-changes.md`.
-- Example: `decks/selective-breeding.json`.
+- Examples: `decks/selective-breeding.json`, `decks/texas-independence.json`.
 
 ## Lesson mode (teach a new method)
 

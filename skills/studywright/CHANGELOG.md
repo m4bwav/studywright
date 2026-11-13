@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.0 (2026-11-12)
+- World mode: `type: "order"` questions (tap the items first to last, undo, each item marked right or wrong) for timelines and processes.
+- World mode: pictures on a question (`figs` in the deck, `fig` and `hl` on the question): an inline SVG with one shape lit up, for label-the-map items.
+- Fix: a creature could be placed in a pocket closed off by other creatures and never be reached. Placement now skips a cell that would cut any creature off. Decks that were fine keep their layout.
+- New deck texas-independence ("Texas Frontier", 90 q, 8 regions): Mexican independence, filibusters, empresarios, a map of 1803, a timeline tower, vocabulary and a review region for the earlier sheets.
+- sw.py check: validates `order` items and `fig` names.
+
 ## 0.8.0 (2026-11-12)
 - World mode (`mode: "world"`, templates/world.html): an open world on a canvas. Walk in four directions; water, mountains, trees, walls and locked doors block. Regions with signpost notes, a creature per question, keys for mastered regions, a locked hall with the final chest. The land, its fog and its buildings are shared by every world game and persist between plays.
 - templates/kit.js, injected into every template: one hero drawing routine (map, HUD, title, builder), a hero builder with explanations and new options (hat, cape, face, three more hair styles, two more hair colours, three more outfits, five more companions, a random button), and the notes prompt.
