@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.0 (2026-11-13)
+- learning-design.md: content type to question form table, a multiple-choice item checklist, pre-brief and debrief, the delayed retest as the honest learning signal, named failures (pointsification, badge inflation, rewards crowding out interest, no variable-ratio rewards or scarcity timers for kids, a rewards-off playtest), and two ideas not built (co-play, a lesson note for the parent).
+- `sw.py check` prints WARN lines (never failing) for a choice much longer than the others and for "all/none of the above".
+- Quest games: optional deck key `practice` shows a "Today you'll practice" line on the title screen; the finish screen shows a skill word beside the score and asks one debrief question.
+
 ## 0.11.0 (2026-11-12)
 - The open-world study RPG moved out to its own game, studyquest, to grow by itself. Removed from the plugin: `templates/world.html`, world deck checks in `sw.py`, the `order` question type and question pictures (both were world-only), and `juice-changes.md`.
 - `sw.py check` now rejects a deck with `mode: "world"` and says where it went. Quest and lesson decks build as before.

@@ -110,3 +110,6 @@ README gained a Works with section (ludowright, everscout, askwright); the wiki 
 - Here: removed templates/world.html, the world checks, `order` and `fig` from sw.py (a world deck now fails `check` with a pointer), the seven decks, games/ and juice-changes.md; added decks/sample-states-of-matter.json (12 questions, written from scratch) and decks/sample-mean-absolute-deviation.json (the lesson deck without banned_hashes). Both samples build; verify_lesson.js and verify_routes.py pass on the lesson sample.
 - Small rulings: the split is a copy with fresh history, so the old decks stay in this public repo's history; lesson mode exists in both repos for now; installed heroes and the shared land are in browser storage and are not touched.
 - Not done: the lexwright check (its notice needs Mark's typed "I agree" first); wiki update; lesson mode variation.
+
+## 2026-11-13 - 0.12.0 book harvest
+- Adopted book-harvest items (Kapp, Chou, Werbach, Edutopia, Field Day Lab, Klopfer notes in technique-harvest) built in: learning-design.md gains content-to-form table, MC checklist, pre-brief/debrief, delayed retest, named failures, co-play and lesson-note ideas. sw.py check WARNs on length clues and all/none of the above. game.html: `practice` deck key, skill word beside score, debrief question.

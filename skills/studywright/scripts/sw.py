@@ -17,6 +17,21 @@ LESSON = HERE.parent / "templates" / "lesson.html"
 LESSON_KINDS = {"mean", "spread", "madTeach", "mad", "read", "both"}  # encounter kinds lesson.html knows
 
 
+WARNS = []  # item-writing hints: printed, never fail a build
+
+
+def lint_mc(q, tag):
+    ch = [str(c) for c in q.get("choices", [])]
+    if len(ch) < 3:
+        return
+    lens = sorted(len(c) for c in ch)
+    if lens[-1] > 2 * max(lens[-2], 8):
+        WARNS.append(f"{tag}: one choice is much longer than the rest (a length clue); even them out")
+    low = [c.lower() for c in ch]
+    if any(x in ("all of the above", "none of the above") for x in low):
+        WARNS.append(f"{tag}: avoid 'all/none of the above'; write one clearly best answer")
+
+
 def check_item(q, tag):
     errs = []
     t = q.get("type", "mc")
@@ -28,6 +43,7 @@ def check_item(q, tag):
             errs.append(f"{tag}: answer must index into choices")
         if len(set(ch)) != len(ch):
             errs.append(f"{tag}: duplicate choices")
+        lint_mc(q, tag)
     elif t == "type":
         if not q.get("accept"):
             errs.append(f"{tag}: type needs 'accept' list")
@@ -174,6 +190,8 @@ def main(argv):
     errs = check(deck)
     for e in errs:
         print("ERROR", e)
+    for w in WARNS:
+        print("WARN", w)
     if errs:
         return 1
     lesson = deck.get("mode") == "lesson"
