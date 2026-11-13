@@ -13,6 +13,11 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 TEMPLATE = HERE.parent / "templates" / "game.html"
+LESSON = HERE.parent / "templates" / "lesson.html"
+WORLD = HERE.parent / "templates" / "world.html"
+WORLD_BIOMES = {"farm", "ranch", "mill", "kennel", "wild", "lab", "hall", "town"}  # biomes world.html draws
+WORLD_MAX_REGIONS, WORLD_MAX_SITES = 9, 20  # ring slots around the hub; question sites that fit in one region
+LESSON_KINDS = {"mean", "spread", "madTeach", "mad", "read", "both"}  # encounter kinds lesson.html knows
 
 
 def check_item(q, tag):
@@ -34,8 +39,65 @@ def check_item(q, tag):
     return errs
 
 
-def check(deck):
+def check_lesson(deck):
     errs = []
+    for k in ("id", "title", "subject", "intro", "skills", "map", "contexts", "gold"):
+        if k not in deck:
+            errs.append(f"lesson deck missing '{k}'")
+    sk = deck.get("skills", {})
+    for i, ly in enumerate(deck.get("map", []), 1):
+        if ly.get("skill") not in sk:
+            errs.append(f"map stage {i}: skill '{ly.get('skill')}' not in skills")
+        if ly.get("kind") not in LESSON_KINDS:
+            errs.append(f"map stage {i}: unknown kind '{ly.get('kind')}' (known: {', '.join(sorted(LESSON_KINDS))})")
+    missing = set(sk) - {ly.get("skill") for ly in deck.get("map", [])}
+    if missing:
+        errs.append(f"skills never taught on the map: {', '.join(sorted(missing))}")
+    for k in ("guided", "solo"):
+        if not isinstance(deck.get("gold", {}).get(k), int):
+            errs.append(f"gold.{k} must be a whole number")
+    for i, c in enumerate(deck.get("contexts", []), 1):
+        for k in ("intro", "what", "unit", "names", "lo", "hi", "boost", "group", "pickIntro"):
+            if k not in c:
+                errs.append(f"context {i}: missing '{k}'")
+        if c.get("hi", 0) - c.get("lo", 0) < 20:
+            errs.append(f"context {i}: hi - lo must be 20+ so spread pairs fit")
+        if len(c.get("names", [])) < 2 or len(c.get("group", [])) < 4:
+            errs.append(f"context {i}: needs 2 names and 4 group names")
+    if "banned" in deck:
+        errs.append("use banned_hashes, never raw worksheet data sets, in a committed deck")
+    return errs
+
+
+def check(deck):
+    if deck.get("mode") == "lesson":
+        return check_lesson(deck)
+    errs = []
+    if deck.get("mode") == "world":
+        regs = deck.get("regions", [])
+        ids = [r.get("id") for r in regs]
+        if not regs:
+            errs.append("world deck needs 'regions' (the first one is the hub where the hero starts)")
+        if len(regs) > WORLD_MAX_REGIONS:
+            errs.append(f"{len(regs)} regions; the land has room for {WORLD_MAX_REGIONS}")
+        for i, r in enumerate(regs, 1):
+            for k in ("id", "name", "biome", "teach"):
+                if not r.get(k):
+                    errs.append(f"region {i}: needs '{k}' (teach = the notes on its signpost)")
+            if r.get("biome") not in WORLD_BIOMES:
+                errs.append(f"region {i}: unknown biome '{r.get('biome')}' (known: {', '.join(sorted(WORLD_BIOMES))})")
+            if r.get("walls") and i - 1 in (0, 1, 2, 3, 4):
+                errs.append(f"region {i}: walled regions must be 6th or later in the list (the diagonal slots), so no road is cut")
+            n = sum(1 for q in deck.get("questions", []) if q.get("r", ids[0]) == r.get("id"))
+            if not 1 <= n <= WORLD_MAX_SITES:
+                errs.append(f"region {i} ({r.get('id')}): {n} questions; needs 1 to {WORLD_MAX_SITES}")
+        open_regs = sum(1 for r in regs if not r.get("hall"))
+        for i, r in enumerate(regs, 1):
+            if r.get("locked", 0) >= open_regs:
+                errs.append(f"region {i}: locked={r['locked']} but only {open_regs - 1} keys can be earned outside it")
+        for i, q in enumerate(deck.get("questions", []), 1):
+            if q.get("r", ids[0] if ids else None) not in ids:
+                errs.append(f"q{i}: region '{q.get('r')}' is not in regions")
     for k in ("id", "title", "subject", "intro", "questions"):
         if k not in deck:
             errs.append(f"deck missing '{k}'")
@@ -78,6 +140,11 @@ def record_md(r):
             L.append(f"- [{m.get('topic', '')}] {m.get('q', '')} -> **{m.get('answer', '')}**" + (f" (tries: {tries})" if tries else ""))
     else:
         L.append("Perfect first-try run.")
+    if r.get("unseen"):
+        L += ["", f"Not reached ({len(r['unseen'])} of {r.get('deck_total')}): " + "; ".join(sorted({u.get('topic', '') for u in r["unseen"]}))]
+    if r.get("mode") == "world":
+        L += ["", f"Open world: {r.get('elapsed_sec', 0) // 60} min, {r.get('steps_walked')} steps, {r.get('tiles_mapped')} new tiles mapped; "
+              f"regions in order: {', '.join(r.get('regions_visited') or [])}; signposts read: {', '.join(r.get('notes_read') or []) or 'none'}"]
     return "\n".join(L) + "\n"
 
 
@@ -128,12 +195,18 @@ def main(argv):
         print("ERROR", e)
     if errs:
         return 1
-    n = len(deck["questions"])
-    topics = sorted({q.get("topic", "") for q in deck["questions"]})
-    print(f"ok: {n} questions, topics: {', '.join(topics)}")
+    lesson = deck.get("mode") == "lesson"
+    world = deck.get("mode") == "world"
+    if lesson:
+        print(f"ok: lesson, {len(deck['map'])} stages, skills: {', '.join(deck['skills'])}")
+    else:
+        n = len(deck["questions"])
+        topics = sorted({q.get("topic", "") for q in deck["questions"]})
+        print(f"ok: {n} questions, topics: {', '.join(topics)}")
     if argv[0] == "build":
-        page = TEMPLATE.read_text(encoding="utf-8")
+        page = (LESSON if lesson else WORLD if world else TEMPLATE).read_text(encoding="utf-8")
         data = json.dumps(deck, ensure_ascii=False).replace("</", "<\\/")
+        page = page.replace("/*__KIT__*/", (HERE.parent / "templates" / "kit.js").read_text(encoding="utf-8"))
         page = (page.replace("__TITLE__", html.escape(deck["title"]))
                     .replace("__ACCENT__", deck.get("accent", "#7aa2ff"))
                     .replace("__DECK__", data))

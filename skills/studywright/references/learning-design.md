@@ -26,7 +26,17 @@ Rules the engine and decks follow, with the evidence base they come from. Check 
 - Boss round: after the main run, first-try misses come back once more, each on a timer (20 s choice, 30 s typed). Retrieval under light pressure; +15 XP per hit, no requeue, score unchanged, result in the record as `boss`. Skippable.
 - Read-aloud: a "Read it to me" button speaks the question and the choices in on-screen order (speechSynthesis).
 
+## World mode (0.8.0)
+
+- Mark asked for an open world instead of a roguelike path: free movement, a land that is mapped and built up from game to game, the same hero everywhere. Autonomy (where to go next) and visible long-term progress (the map, buildings that grow on replays) are the motivation; the learning loop is unchanged.
+- Teach before testing: each region's signpost holds the sheet's notes, and a question can open them without penalty. A miss shows the reason, then the creature refuses to be asked again until another question has been answered (spacing), and returns in a new wording (variants), so the retry is retrieval, not echo.
+- Keys come only from mastering a whole region, and the hall holds mixed apply questions, so the ending is gated by learning, never by exploring.
+- No game over: zero hearts sends the hero back to camp with full hearts and nothing lost.
+- Every play ends with a log and a notes prompt (see SKILL.md, Paper trail), so results reach the notes without the parent retyping them.
+
 ## Ideas not built yet
+
+- World mode: `steps` (smaller sub-questions after a miss), a shop for the gold, level-up feat picks inside the world, region labels for other decks on the map.
 
 - Gear or titles for mastering a whole deck (e.g. "Naturalist" title after a 90%+ follow-up).
 
