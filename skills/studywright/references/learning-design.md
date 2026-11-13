@@ -33,6 +33,9 @@ Rules the engine and decks follow, with the evidence base they come from. Check 
 - Keys come only from mastering a whole region, and the hall holds mixed apply questions, so the ending is gated by learning, never by exploring.
 - No game over: zero hearts sends the hero back to camp with full hearts and nothing lost.
 - Every play ends with a log and a notes prompt (see SKILL.md, Paper trail), so results reach the notes without the parent retyping them.
+- Built in studyquest (2026-11-12/13): `steps`, smaller sub-questions after a first miss. Practice only (no heart lost, no score), shown once per question, and the reworded retry still comes later, so the steps scaffold without replacing retrieval.
+- Level-up picks in the world (training or a feat). The pick card waits until no other card is open and takes clicks only, because a held movement key (WASD) would otherwise choose for the player.
+- Cosmetics for gold: hats, capes and companions, seeded per merchant so shops differ. Nothing sold touches a question, so gold can never buy an answer.
 
 ## Match the question to the kind of content
 
@@ -75,7 +78,7 @@ The in-game score rises with requeues and is not proof of learning. The honest s
 
 ## Ideas not built yet
 
-- World mode: `steps` (smaller sub-questions after a miss), more for merchants to sell (built in 0.10.0: potion, trail map, compass, fact keepsakes; not built: hero cosmetics, selling back), level-up feat picks inside the world, region labels for other decks on the map.
+- World mode (now in studyquest): selling back, region labels for other decks on the map.
 
 - Gear or titles for mastering a whole deck (e.g. "Naturalist" title after a 90%+ follow-up).
 
