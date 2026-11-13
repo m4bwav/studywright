@@ -179,8 +179,13 @@ def records(argv):
             new += 1
     rows = []
     for j in sorted(dst.glob("*/*.json")):
-        r = json.loads(j.read_text(encoding="utf-8"))
-        miss = ", ".join(sorted({m["topic"] for m in r["first_try_misses"]})) or "-"
+        try:
+            r = json.loads(j.read_text(encoding="utf-8"))
+        except ValueError:
+            continue
+        if not (isinstance(r, dict) and r.get("studywright_record")):
+            continue  # other JSON kept beside the records (e.g. banned-sets.json)
+        miss =", ".join(sorted({m["topic"] for m in r["first_try_misses"]})) or "-"
         hero = (r.get("hero") or {}).get("name", "")
         rows.append(f"| {r['finished'][:10]} | [{r['title']}]({j.parent.name}/{j.stem}.md) | {hero} | {r['score_first_try']}% | {miss} |")
     if rows:

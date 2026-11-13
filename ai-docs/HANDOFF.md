@@ -24,9 +24,21 @@ Merged as PR #9, released v0.8.0, installed plugin updated to 0.8.0 (2026-11-12)
 
 0.9.0 (2026-11-12, session 12): world deck texas-independence ("Texas Frontier", 90 q, 8 regions) for the Texas history test of 2026-11-13, from the six-page study guide "Mexican Independence, Filibusters & Empresarios" plus a review region from texas-filibusters. Engine: `order` questions, SVG pictures with a lit shape, and a placement fix (a creature could be walled in). It appears as a second valley on the shared land. Sheet reading notes and what the son got wrong are in records/texas-independence/study-guide-notes.md (gitignored). Samuel Kemper is left out of the game: the son wrote NO, history says filibuster, and the class key is unknown. The wiki still describes 0.2.0 to 0.6.0.
 
+2026-11-12 (session 13): first Breeders' Valley play filed (records/selective-breeding/2026-11-13-03-16.md, written by hand from the pasted notes prompt because the log was not in Downloads). 80% first try (36/45), all 45 mastered, 29 min, every signpost read except the mill (four steps). Nine first-try misses, all right on the retry. Shaky ideas, most to least:
+- trait / gene / variation get swapped (typed "traits" for genes and "trait" for variation; chose "makes more genetic variation every time"). Variation was also missed on 2026-11-10 in natural-selection, so it is a repeat across two games.
+- the downside of selective breeding (chose "always makes animals healthier"; the sheet says similar genes, less variation, disease hits all, health problems passed on).
+- step 2 (choose parents) against step 3 (choose the best offspring): typed "best" for step 2.
+- the sheet's exact blank words: naturally, more milk, large eggs (idea right on the reworded retry; matters only if the test is fill-in-the-blank).
+- Baby Z parents: picked speed for "lift a car"; likely a reading slip.
+A follow-up deck (`"follows": "selective-breeding"`) should re-test each of these twice in new scenarios: sort statements into gene / trait / variation; a one-disease crop field and a dog breed with a health problem (what happened to variation?); an `order` question for the four steps with a new organism plus "which step is this?"; one typed blank each in the sheet's wording; one more parents-of-baby item with a close distractor. The test is 2026-11-13, so build it only if Mark asks tonight or the unit continues.
+
+Fixed in the same session: `sw.py records` crashed while rebuilding INDEX.md on any other JSON in records/ (banned-sets.json is a list); it now skips files that are not records. Not released; the fix is on main only.
+
+Open question: no studywright-*.json was in C:\Users\m4bwa\Downloads after this play. Either the browser saves elsewhere or the world finish screen did not download; check on the next play (the session 11 test saw the download in Chrome).
+
 Next:
 00a. When the Texas Frontier log or notes prompt arrives: `sw.py records`, report misses. Ask what the class key says for Samuel Kemper and add him to the deck.
-00. When Mark pastes a notes prompt from a finish screen (or says the son played): `sw.py records`, update records/INDEX.md, this file and the log, and report what to review. Expected first: selective-breeding and mean-absolute-deviation.
+00. When Mark pastes a notes prompt from a finish screen (or says the son played): `sw.py records`, update records/INDEX.md, this file and the log, and report what to review. selective-breeding arrived 2026-11-12 (above); still expected: mean-absolute-deviation and texas-independence. If the log file is missing from Downloads again, find out why before writing the record by hand.
 01. Lesson mode still owes Mark's note of 2026-11-12: "needed a little more variation and explanation" (more contexts and question shapes per stage, a fuller worked explanation after a miss). Then the ludowright round from the kickoff prompt (ai-docs/plans/2026-11-12-lesson-mode-kickoff-prompt.md).
 02. Update the wiki (clone at Ai/studywright.wiki) for 0.8.0.
 03. World mode ideas: `steps` after a miss, a shop for gold, feat picks on level-up inside the world, three.js or polywright art if Mark wants 3D (this build is a 2D canvas so it works offline from one file), convert texas-filibusters to a world deck so a second valley appears on the shared map.
