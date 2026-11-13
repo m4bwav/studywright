@@ -26,7 +26,7 @@ Rules the engine and decks follow, with the evidence base they come from. Check 
 - Boss round: after the main run, first-try misses come back once more, each on a timer (20 s choice, 30 s typed). Retrieval under light pressure; +15 XP per hit, no requeue, score unchanged, result in the record as `boss`. Skippable.
 - Read-aloud: a "Read it to me" button speaks the question and the choices in on-screen order (speechSynthesis).
 
-## World mode (0.8.0)
+## World mode (0.8.0; the game moved out to studyquest on 2026-11-12, the lessons stay here)
 
 - Mark asked for an open world instead of a roguelike path: free movement, a land that is mapped and built up from game to game, the same hero everywhere. Autonomy (where to go next) and visible long-term progress (the map, buildings that grow on replays) are the motivation; the learning loop is unchanged.
 - Teach before testing: each region's signpost holds the sheet's notes, and a question can open them without penalty. A miss shows the reason, then the creature refuses to be asked again until another question has been answered (spacing), and returns in a new wording (variants), so the retry is retrieval, not echo.

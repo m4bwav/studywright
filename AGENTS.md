@@ -1,13 +1,11 @@
 # studywright
 
-Plugin that turns worksheets into study games. Skill: [skills/studywright/SKILL.md](skills/studywright/SKILL.md).
+Plugin that turns worksheets into study games, and the knowledge base on how to build learning games (techniques, research, learning design). Skill: [skills/studywright/SKILL.md](skills/studywright/SKILL.md).
 
-- Engine: `skills/studywright/templates/game.html` (one page, deck JSON injected, three.js r128 from cdnjs, works without it).
-- Other engines: `templates/world.html` (open world, deck `mode: "world"`, the default for a test) and `templates/lesson.html` (teach a method, `mode: "lesson"`). `templates/kit.js` is injected into all three by `sw.py build` (hero drawing, hero builder, notes prompt): change hero looks there, then rebuild every game.
-- World decks also take `type: "order"` questions and SVG pictures (`figs`, `fig`, `hl`); see the skill's World mode section. Regions may carry a `merchant` (shop for gold: potion, trail map, compass, fact keepsakes).
+- Engines: `skills/studywright/templates/game.html` (quest: one page, deck JSON injected, three.js r128 from cdnjs, works without it) and `templates/lesson.html` (teach a method, `mode: "lesson"`). `templates/kit.js` is injected into both by `sw.py build` (hero drawing, hero builder, notes prompt): change hero looks there, then rebuild every game.
+- The open-world study RPG (world mode, the decks from schoolwork, the built games and the study records) moved to its own private repo on 2026-11-12: `D:/m4bwa/Claude/Projects/Ai/studyquest` (m4bwav/studyquest). Work on that game happens there. What it teaches about learning games comes back here as notes in `references/learning-design.md` and `RESEARCH.md`.
 - Every mode must end a play with a downloaded log and the notes prompt (`Kit.notesHtml`).
 - CLI: `python skills/studywright/scripts/sw.py check|build DECK.json [OUT.html]` (stdlib only).
-- Decks: `skills/studywright/decks/*.json`. Built games: `games/` (open the .html directly in a browser).
+- Decks here are samples only: `skills/studywright/decks/sample-*.json`. Built samples: `games/`.
 - State and next steps: [ai-docs/HANDOFF.md](ai-docs/HANDOFF.md). Log: [ai-docs/log.md](ai-docs/log.md).
-- Study records (paper trail): `records/INDEX.md`, filled by `sw.py records` from the JSON each game saves to Downloads; gitignored. Read it before writing a follow-up deck.
-- Private repo material: decks come from a child's schoolwork; keep the child's name out of every file.
+- This repo is public: no deck, photo or record from a child's schoolwork goes in it, and no child's name in any file.

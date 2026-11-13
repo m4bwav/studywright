@@ -1,21 +1,21 @@
 ---
 name: studywright
-description: "Turn a student's worksheets, notes or study guide (photos, PDFs or text) into a playable study game: one offline HTML page that quizzes every item on the sheet, says right or wrong and why after each answer, brings misses back until mastered, and adds game elements (XP, levels, streaks, a three.js tower that grows with right answers, end-of-game review list). Use on 'make a study guide game', 'quiz my kid on this worksheet', 'turn these notes into a practice test', 'study game for the science test', 'flashcard game from this'. Also 'refresh studywright'. Not for grading finished work or for designing a commercial game (ludowright)."
+description: "Turn a student's worksheets, notes or study guide (photos, PDFs or text) into a playable study game: one offline HTML page that quizzes every item on the sheet, says right or wrong and why after each answer, brings misses back until mastered, and adds game elements (XP, levels, streaks, a three.js tower that grows with right answers, end-of-game review list). Use on 'make a study guide game', 'quiz my kid on this worksheet', 'turn these notes into a practice test', 'study game for the science test', 'flashcard game from this'. Also 'refresh studywright'. Not for grading finished work or for designing a commercial game (ludowright). The open-world study RPG that grew out of this plugin is its own game, studyquest, and is not built here."
 license: MIT
 metadata:
-  version: "0.10.0"
+  version: "0.11.0"
 ---
 
 # studywright
 
 You make study games that teach, not just test. Read [evergreen.json](evergreen.json) with this file; if today is past `next_due`, say so in one line, do the task, then refresh against [RESEARCH.md](RESEARCH.md).
 
-The engines are [templates/game.html](templates/game.html) (quest: a queue of questions), [templates/world.html](templates/world.html) (open world, deck `mode: "world"`) and [templates/lesson.html](templates/lesson.html) (teach a method, `mode: "lesson"`); `SW build` fills the right one and injects [templates/kit.js](templates/kit.js) (the one hero drawing routine, the hero builder and the notes prompt) into all three, so a hero looks the same in every game. `SW` means `python "<this folder>/scripts/sw.py"`. Run it; do not read it.
+The engines are [templates/game.html](templates/game.html) (quest: a queue of questions) and [templates/lesson.html](templates/lesson.html) (teach a method, `mode: "lesson"`); `SW build` fills the right one and injects [templates/kit.js](templates/kit.js) (the one hero drawing routine, the hero builder and the notes prompt) into both, so a hero looks the same in every game. `SW` means `python "<this folder>/scripts/sw.py"`. Run it; do not read it.
 
 ## Steps
 
 1. **Read the sheets.** Photos are often rotated: read every blank, table row and example. Where the student filled blanks in, use them only as hints; work out the correct answer yourself and note any the student got wrong (tell the parent). Where a printed word is illegible, infer from the subject and record the guess in the project log.
-2. **Write one deck per test** as JSON in `decks/<slug>.json` (format below). Coverage rules:
+2. **Write one deck per test** as JSON in the user's project, `decks/<slug>.json` (format below; a full example is [decks/sample-states-of-matter.json](decks/sample-states-of-matter.json)). Coverage rules:
    - every blank, every table row and every worked example becomes at least one question; key ideas get two (one recall, one apply/why);
    - mix `mc` and `type` (typed recall is stronger practice; keep typed answers to one or two words and list spelling variants in `accept`);
    - wrong choices must be plausible misconceptions (e.g. "organisms choose to change"), not jokes;
@@ -23,7 +23,7 @@ The engines are [templates/game.html](templates/game.html) (quest: a queue of qu
    - optional `review`: a short label for the end-of-game review list;
    - 15 to 25 questions per test; group by `topic` using the sheet's own headings.
 3. **Build and check**: `SW build decks/<slug>.json games/<slug>.html`. Fix every ERROR.
-4. **Play it through** in a browser (serve `games/` on 127.0.0.1 if file:// is blocked; port 8765 may be refused on Windows, use 18765): answer some wrong, confirm the miss returns and the end screen lists it with its answer. For a world deck also run the reachability check in [TESTS.md](TESTS.md): every creature must be reachable (2026-11-12: one of 90 was walled in).
+4. **Play it through** in a browser (serve `games/` on 127.0.0.1 if file:// is blocked; port 8765 may be refused on Windows, use 18765): answer some wrong, confirm the miss returns and the end screen lists it with its answer.
 5. **Follow-up tests.** Before writing one, read `records/INDEX.md` and the linked records (run `SW records` first to file new downloads). Write a new deck with `"follows": "<old id>"` that re-tests every first-try miss at least twice in NEW scenarios (apply it, not recall the sheet's wording), plus a few items the student got right as a check.
 6. Hand over each game so the parent never has to select text: put its URL (`file:///D:/path/to/games/<slug>.html`, forward slashes, spaces as %20) on the clipboard yourself (`Set-Clipboard '<url>'` on Windows, `pbcopy` on macOS, `xclip -sel c` on Linux) and say "the link is on your clipboard, paste it into the browser"; also give a clickable markdown link and the URL on a line of its own in a code span. A code span alone failed (2026-11-12): in the VS Code chat panel a long path wraps and cannot be selected and copied. The pages work offline (three.js is optional, the quiz runs without it).
 
@@ -42,22 +42,13 @@ Optional deck keys: `realm` (history, biology, math, science, words or quest; gu
 
 Every main question should carry at least one `variant`; key ideas also get `steps`. The engine locks Next for 3 seconds after each answer so the reason gets read, shows a scene of the hero against the foe (gold, loot and hearts on a right answer; damage or dropped gold on a miss; fainting only sends the hero back to camp), and the hero builder (class, weapon, skin, hair, outfit, pet) draws a unique hero with an inventory.
 
-## World mode (open world, the default for a test)
-
-A deck with `"mode": "world"` builds from `templates/world.html`: the hero walks up, down, left or right over one shared land; water, mountains, trees, walls and locked doors block the way. Use it for a whole test; keep quest mode for a quick drill.
-
-- `regions`: up to 9, the first is the hub where the hero starts. Each has `id`, `name`, `biome` (farm, ranch, mill, kennel, wild, lab, hall, town) and `teach`: the sheet's notes for that heading, shown on the region's signpost and reachable from inside every question. Put the sheet's own wording there, with the blank words in `<b>`.
-- Every question names its region with `"r": "<region id>"` (1 to 20 per region) and stands on the map as a creature. Right: it builds something that stays on the map. Wrong: the reason, minus one heart, and the creature asks again in its next `variants` wording after another question has been answered.
-- Mastering every creature in a region earns its key. `"walls": true` makes a building with one door; `"locked": n` needs n keys. Walled regions go 6th or later in the list. One region may be `"hall": true`: its chest ends the quest. Lay the test out as: main sheet in the hub and the nearest regions, review of earlier sheets in an outer region, mixed apply questions in the hall.
-- The land is shared by every world game in the browser (`studywright:world`): mapped tiles, buildings (they grow on a replay) and opened chests persist, and each new deck gets its own valley on the same map.
-- Two more question shapes, world decks only. `"type": "order"` with `items` written in the correct order (3 to 6): the player taps them first to last, with an undo; use it for timelines and for the steps of a process (optional `hint` replaces the instruction line). A picture: put inline SVG in the deck's `figs` (`{"name": "<svg ...>"}`), name it on a question with `"fig": "name"`, and light up one shape with `"hl": "<element id>"`; use it for label-the-map and label-the-diagram items. A variant inherits `fig` and `hl`; give the variant `"hl": ""` to show the picture with nothing lit. Example: `decks/texas-independence.json` (map of 1803, timeline tower).
-- Merchants: give a region `"merchant": true` (stock goods only) or `"merchant": {"name", "icon", "hello", "goods": [{"icon", "name", "fact", "price"}]}` and a trader stands among its creatures. Stock goods: a healing potion (drunk by itself at zero hearts, so the hero stays put instead of waking at camp), a trail map (clears the fog over the valley) and a compass (a HUD arrow to the nearest waiting creature; kept on the hero for every game). `goods` are keepsakes, up to 4, price 20 unless given: buying one shows its `fact`, so write each fact as a line from that region's notes, and aim one at each item the student got wrong on the sheet. Nothing a merchant sells answers or skips a question. Purchases land in the record (`bought`). A region without the key has no merchant, and adding one never moves a creature.
-- Feel settings (sound, shake strength, reduce motion, flash, hit pause) are in the gear menu; constants are at the top of the template and logged in `juice-changes.md`.
-- Examples: `decks/selective-breeding.json`, `decks/texas-independence.json`.
-
 ## Lesson mode (teach a new method)
 
-A deck with `"mode": "lesson"` builds from `templates/lesson.html`: worked example, then faded steps, then solo, with generated numbers, named slips and a path map; it needs `skills`, `map` (stages naming an encounter kind), `contexts`, `gold` and optional `banned_hashes`. Example: `decks/mean-absolute-deviation.json`. Before handing it over run `node scripts/verify_lesson.js games/<slug>.html 3000 [banned-sets.json]` and `python scripts/verify_routes.py <deck>`.
+A deck with `"mode": "lesson"` builds from `templates/lesson.html`: worked example, then faded steps, then solo, with generated numbers, named slips and a path map; it needs `skills`, `map` (stages naming an encounter kind), `contexts`, `gold` and optional `banned_hashes`. Example: `decks/sample-mean-absolute-deviation.json`. Before handing it over run `node scripts/verify_lesson.js games/<slug>.html 3000 [banned-sets.json]` and `python scripts/verify_routes.py <deck>`.
+
+## The open-world game moved out
+
+World mode (open world, shared land, keys, merchants, `order` questions and pictures) left this plugin on 2026-11-12 and lives on as the game studyquest. `SW check` rejects a deck with `"mode": "world"`. What that build taught about learning games is kept in [references/learning-design.md](references/learning-design.md).
 
 ## Learning design (why the engine works this way)
 
@@ -70,4 +61,4 @@ Every finished game, in every mode, produces two things, and a new mode is not d
 1. **A log**: it downloads `studywright-<deck>-<time>.json` (hero snapshot, score, each first-try miss with what was typed, what was not reached, time, route).
 2. **A notes prompt**: the finish screen shows a ready prompt with a copy button (`Kit.notesHtml`). It carries the results in plain text and tells the agent to file the log and update the notes. The parent pastes it into any AI session.
 
-When you receive that prompt: run `SW records [--from DIR] [--to DIR]` (files the logs into `records/<deck>/` as JSON + Markdown and rebuilds `records/INDEX.md`; if the file is missing, write the record by hand from the pasted results), then update the project's handoff and log with what was missed and which ideas look shaky, and tell the parent in a few lines what to review. Agents read INDEX.md before writing the next test. Keep records out of public repos (gitignored here).
+When you receive that prompt: run `SW records [--from DIR] [--to DIR]` (files the logs into `records/<deck>/` as JSON + Markdown and rebuilds `records/INDEX.md`; if the file is missing, write the record by hand from the pasted results), then update the project's handoff and log with what was missed and which ideas look shaky, and tell the parent in a few lines what to review. Agents read INDEX.md before writing the next test. Keep records out of public repos (gitignored here). Decks written from a child's schoolwork belong in the family's own project folder, not in this plugin: `decks/` here holds only the two samples.
