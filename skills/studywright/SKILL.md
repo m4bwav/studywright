@@ -25,7 +25,7 @@ The engine is [templates/game.html](templates/game.html); `SW build` fills it. `
 3. **Build and check**: `SW build decks/<slug>.json games/<slug>.html`. Fix every ERROR.
 4. **Play it through** in a browser (serve `games/` on 127.0.0.1 if file:// is blocked; port 8765 may be refused on Windows, use 18765): answer some wrong, confirm the miss returns and the end screen lists it with its answer.
 5. **Follow-up tests.** Before writing one, read `records/INDEX.md` and the linked records (run `SW records` first to file new downloads). Write a new deck with `"follows": "<old id>"` that re-tests every first-try miss at least twice in NEW scenarios (apply it, not recall the sheet's wording), plus a few items the student got right as a check.
-6. Hand over each game as a copyable browser link in a code span, e.g. `file:///D:/path/to/games/<slug>.html` (forward slashes, spaces as %20), so the parent can paste it into a browser outside the agent harness; a clickable markdown link alone only opens inside the editor. The pages work offline (three.js is optional, the quiz runs without it).
+6. Hand over each game so the parent never has to select text: put its URL (`file:///D:/path/to/games/<slug>.html`, forward slashes, spaces as %20) on the clipboard yourself (`Set-Clipboard '<url>'` on Windows, `pbcopy` on macOS, `xclip -sel c` on Linux) and say "the link is on your clipboard, paste it into the browser"; also give a clickable markdown link and the URL on a line of its own in a code span. A code span alone failed (2026-11-12): in the VS Code chat panel a long path wraps and cannot be selected and copied. The pages work offline (three.js is optional, the quiz runs without it).
 
 ## Deck format
 
@@ -41,6 +41,10 @@ Optional deck keys: `realm` (history, biology, math, science, words or quest; gu
 `type` defaults to `mc`; choices are shuffled at play time, `answer` indexes the list as written.
 
 Every main question should carry at least one `variant`; key ideas also get `steps`. The engine locks Next for 3 seconds after each answer so the reason gets read, shows a scene of the hero against the foe (gold, loot and hearts on a right answer; damage or dropped gold on a miss; fainting only sends the hero back to camp), and the hero builder (class, weapon, skin, hair, outfit, pet) draws a unique hero with an inventory.
+
+## Lesson mode (teach a new method)
+
+A deck with `"mode": "lesson"` builds from `templates/lesson.html`: worked example, then faded steps, then solo, with generated numbers, named slips and a path map; it needs `skills`, `map` (stages naming an encounter kind), `contexts`, `gold` and optional `banned_hashes`. Example: `decks/mean-absolute-deviation.json`. Before handing it over run `node scripts/verify_lesson.js games/<slug>.html 3000 [banned-sets.json]` and `python scripts/verify_routes.py <deck>`.
 
 ## Learning design (why the engine works this way)
 
