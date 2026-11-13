@@ -275,7 +275,7 @@ function hud(){const h=H.cur();const pct=100*S.mastered.size/DECK.questions.leng
  return `<div class="hud">${S.duo?'<span class="small">👥 Turn:</span>':''}<span>${CLASSES[h.cls].icon} <b>${esc(h.name)}</b></span><span>Lv <b>${L}</b> <span class="small">(${h.xp-lo}/${need(L)-lo})</span></span><span>${esc(STAT)} <b>${area(h,STAT).lvl}</b></span><span>❤️ <b>${h.inv.hp}</b>/${maxHp(h)}</span><span>🪙 <b>${h.inv.gold}</b></span><span>Streak <b>${S.streak}</b>${S.streak>=goldAt()?' 🔥':''}</span><div class="bar" title="mastered"><i style="width:${pct}%"></i></div><span class="small">${S.mastered.size}/${DECK.questions.length} mastered</span></div>`}
 // ---------- screens ----------
 function title(){const h=H.cur();if(!h)return heroCreate(false);const rec=store.get(KEY);const a=area(h,STAT);
- app.innerHTML=`<div class="card"><div class="topic">${esc(DECK.subject)}</div><h1>${esc(DECK.title)}</h1><p>${DECK.intro}</p>
+ app.innerHTML=`<div class="card"><div class="topic">${esc(DECK.subject)}</div><h1>${esc(DECK.title)}</h1><p>${DECK.intro}</p>${DECK.practice?`<p><b>Today you'll practice:</b> ${esc(DECK.practice)}</p>`:''}
  <p class="scene">${REALM.icon} You enter <b>${esc(REALM.name)}</b>. Every question is a challenge in your path: answer it to get past.</p>
  <p class="small">Every right answer stacks a block on your tower and trains your hero. Streaks make gold blocks and double XP. Miss one and it comes back later until you get it.</p>
  ${rec?`<p class="small">Best so far: ${rec.score}% right on first try, top streak ${rec.best}.</p>`:''}
@@ -388,11 +388,11 @@ function finish(){const n=DECK.questions.length;const score=Math.round(100*(n-S.
  S.fname='studywright-'+DECK.id+'-'+stamp()+'.json';download(S.fname,S.R);World.burst();Sound.lvl();finishScreen()}
 function finishScreen(){const h=H.cur();const score=S.score;const stars=score>=90?3:score>=70?2:1;
  const topics={};S.firstMiss.forEach(i=>{const t=DECK.questions[i].topic||'Other';(topics[t]=topics[t]||[]).push(DECK.questions[i])});
- app.innerHTML=hud()+`<div class="card"><h1>Quest complete! ${'⭐'.repeat(stars)}</h1><p><b>${score}%</b> right on the first try. Top streak: <b>${S.best}</b>. Tower height: <b>${S.correct}</b> blocks. ${S.duo?'The team':esc(h.name)} earned <b>${S.xp} XP</b>.</p>
+ app.innerHTML=hud()+`<div class="card"><h1>Quest complete! ${'⭐'.repeat(stars)}</h1><p><b>${score}%</b> right on the first try <span class="small">(${score>=90?'Mastered':score>=75?'Solid':score>=50?'Getting there':'Starting'})</span>. Top streak: <b>${S.best}</b>. Tower height: <b>${S.correct}</b> blocks. ${S.duo?'The team':esc(h.name)} earned <b>${S.xp} XP</b>.</p>
  ${S.duo?`<h2>👥 Team scoreboard</h2><ul class="rev">${S.R.duo.map(p=>`<li><b>${esc(p.name)}</b>: ${p.first} right on first try, ${p.right}/${p.asked} answers right, +${p.xp} XP</li>`).join('')}</ul>`:''}
  ${S.boss&&!S.boss.skipped?`<p>👹 Boss: <b>${S.boss.hits}/${S.boss.max}</b> beaten in time${S.boss.hits===S.boss.max?'. The boss is defeated!':'.'}</p>`:''}
  ${S.firstMiss.size?`<h2>Review these before the test</h2><ul class="rev">${Object.entries(topics).map(([t,qs])=>`<li><b>${t}</b>: ${qs.map(q=>(q.review||q.q)+' → <b>'+(q.type==='type'?q.accept[0]:q.choices[q.answer])+'</b>').join('<br>')}</li>`).join('')}</ul>`:'<p>Perfect run. You are ready.</p>'}
- <p class="small">Record saved to Downloads as ${S.fname}.</p>${Kit.notesHtml(S.R,S.fname)}
+ <p><b>Think back:</b> which one will you look at again before the test, and why?</p><p class="small">Record saved to Downloads as ${S.fname}.</p>${Kit.notesHtml(S.R,S.fname)}
  <div class="row"><button class="go" id="again">Play again ↻</button><button id="save">Save record again 💾</button><button id="home">Character</button></div></div>`;
  Kit.notesWire(S.R,S.fname);document.getElementById('again').onclick=()=>{const du=S.duo;newRun();if(du)startDuo(du.ids);World.reset();next()};document.getElementById('save').onclick=()=>download(S.fname,S.R);document.getElementById('home').onclick=sheet;
  if(h.picks>0)setTimeout(levelUp,2500)}

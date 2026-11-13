@@ -34,9 +34,51 @@ Rules the engine and decks follow, with the evidence base they come from. Check 
 - No game over: zero hearts sends the hero back to camp with full hearts and nothing lost.
 - Every play ends with a log and a notes prompt (see SKILL.md, Paper trail), so results reach the notes without the parent retyping them.
 
+## Match the question to the kind of content
+
+| Content | What the student must do | Question or game form |
+|---|---|---|
+| Facts (names, dates, terms) | recall it on cue | typed recall, then mc with near-miss lures; speed rounds and the boss timer fit here |
+| Concepts (a category: "mammal", "solid") | sort new cases in or out | mc of fresh examples and non-examples; "which one is NOT a..."; sorting by tapping |
+| Rules and principles (cause and effect) | predict what happens | "what happens if..." scenarios, why-questions, steps after a miss |
+| Procedures (a method with steps) | carry it out | lesson mode: worked example, faded steps, solo with generated numbers |
+
+A deck usually mixes all four; pick the form per item, not per deck.
+
+## Writing multiple-choice items
+
+`sw.py check` warns (never fails) on the cheap ones: a choice much longer than the others, and "all/none of the above".
+
+- [ ] Choices are about the same length and grammar; the right one is not the longest or the most careful.
+- [ ] One answer is clearly best. A "good vs better" item is fine only when the prompt says so ("which is the BEST reason") and `explain` says why the others fall short.
+- [ ] Every wrong choice is a mistake a student really makes (see Distractors above), not filler.
+- [ ] A concept item includes non-examples that look like examples (a whale for "fish"), so it tests the idea and not surface features.
+- [ ] No "all/none of the above", no double negatives, no clue words shared only by the prompt and the answer.
+
+## Before and after a session
+
+- Pre-brief: the title screen says in one line what this run practices ("telling melting from dissolving").
+- Debrief: after the review list, ask one question back ("Which one will you look at again before the test?"). It goes into the notes prompt.
+- Beside the score show a word for the skill level (Starting, Getting there, Solid, Mastered) so the number means something to a child.
+
+## Measuring learning honestly
+
+The in-game score rises with requeues and is not proof of learning. The honest signal is the delayed retest: the same item (or its variant) asked days later, first try only. The day-2 warm-up and follow-up decks give that; when reading records, compare first-try results for the same items across days, not scores across runs.
+
+## Named failures to avoid
+
+- Pointsification: points and badges bolted onto a dull quiz, with nothing interesting to do. Rewards must sit on top of real practice and a reason to care (the story, the hero).
+- Badge inflation: a badge for everything means nothing; keep them few and tied to mastery.
+- Rewards crowding out interest: for a topic the child already likes, heavy rewards can make it feel like work. Keep strong extrinsic rewards for dull drill (spelling, facts); let interesting material carry itself.
+- For kids: no variable-ratio rewards (loot-box style random payouts), no scarcity timers or streaks that punish a missed day.
+- Playtest: run one session with rewards turned off. If the child still plays and learns, the core is sound; if not, the rewards were carrying a weak game.
+
 ## Ideas not built yet
 
 - World mode: `steps` (smaller sub-questions after a miss), more for merchants to sell (built in 0.10.0: potion, trail map, compass, fact keepsakes; not built: hero cosmetics, selling back), level-up feat picks inside the world, region labels for other decks on the map.
 
 - Gear or titles for mastering a whole deck (e.g. "Naturalist" title after a 90%+ follow-up).
 
+- Co-play: a parent or sibling plays alongside (takes turns, or answers a different deck on the same screen); talk about the answers is where much of the learning happens.
+
+- Around-the-game lesson note: a short printed or on-screen note for the parent with what the game covers and two questions to ask at dinner, so the game sits inside a lesson rather than replacing it.
