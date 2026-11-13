@@ -92,6 +92,12 @@ def check(deck):
                 errs.append(f"region {i}: unknown biome '{r.get('biome')}' (known: {', '.join(sorted(WORLD_BIOMES))})")
             if r.get("walls") and i - 1 in (0, 1, 2, 3, 4):
                 errs.append(f"region {i}: walled regions must be 6th or later in the list (the diagonal slots), so no road is cut")
+            m = r.get("merchant")
+            if m not in (None, False, True):
+                goods = m.get("goods", []) if isinstance(m, dict) else None
+                if not isinstance(goods, list) or len(goods) > 4 or any(
+                        not isinstance(g, dict) or not all(g.get(k) for k in ("icon", "name", "fact")) for g in goods):
+                    errs.append(f"region {i}: merchant is true or {{name, icon, hello, goods}}; goods: up to 4, each with icon, name and fact (a line from the notes)")
             n = sum(1 for q in deck.get("questions", []) if q.get("r", ids[0]) == r.get("id"))
             if not 1 <= n <= WORLD_MAX_SITES:
                 errs.append(f"region {i} ({r.get('id')}): {n} questions; needs 1 to {WORLD_MAX_SITES}")
@@ -155,6 +161,8 @@ def record_md(r):
     if r.get("mode") == "world":
         L += ["", f"Open world: {r.get('elapsed_sec', 0) // 60} min, {r.get('steps_walked')} steps, {r.get('tiles_mapped')} new tiles mapped; "
               f"regions in order: {', '.join(r.get('regions_visited') or [])}; signposts read: {', '.join(r.get('notes_read') or []) or 'none'}"]
+        if r.get("bought"):
+            L += ["", "Bought from merchants: " + ", ".join(f"{b.get('item')} ({b.get('price')} gold)" for b in r["bought"])]
     return "\n".join(L) + "\n"
 
 
