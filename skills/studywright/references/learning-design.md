@@ -120,3 +120,10 @@ Any adaptive feature is written as three lines before it is built: what the game
 - Co-play: a parent or sibling plays alongside (takes turns, or answers a different deck on the same screen); talk about the answers is where much of the learning happens.
 
 - Around-the-game lesson note: a short printed or on-screen note for the parent with what the game covers and two questions to ask at dinner, so the game sits inside a lesson rather than replacing it.
+
+## Retention, tapering rewards and child-written questions (0.16.0)
+
+- Show mastery per topic as a retention bar, not a completion bar: it slowly drains while a topic goes unreviewed and refills on a correct first try, so the bar says what the child still knows today.
+- Taper rewards as a topic is mastered: full reward the first time a concept is got right, smaller ones for repeats of items already mastered, so the rewards point at new learning. Rewards stay fixed and predictable; the variable-ratio ban above still holds.
+- Optional: let the child write a question of their own for a topic. An adult checks it before it enters a deck; unchecked questions never reach play.
+- Source: Ferro, Gamification with Unity 5.x (ch. 1, 10). Book rules, unverified by a play test; none is built yet.

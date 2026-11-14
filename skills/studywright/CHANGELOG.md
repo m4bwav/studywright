@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.16.0 (2026-11-14)
+- learning-design.md: per-topic mastery as a retention bar that drains without review, rewards that taper on repeats of mastered items (variable-ratio ban kept), optional child-written questions checked by an adult before entering a deck.
+- because: Ferro, Gamification with Unity 5.x (ch. 1, 10); book rules, unverified.
+
 ## 0.15.0 (2026-11-14)
 - learning-design.md: observe, assess, respond table; a misconception note per wrong choice; difficulty changes between sessions only, never mid-quiz; a check pass for AI-written questions and a search when a sheet fact changes.
 - `sw.py check`: optional deck key `objectives` and per-question `objective`; fails when a goal has no question or a question names an unknown goal (`scripts/test_sw_objectives.py`, 5 tests). No current deck uses the key, so it fired 0 times on the 2 samples and 7 studyquest decks.
