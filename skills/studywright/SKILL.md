@@ -3,7 +3,7 @@ name: studywright
 description: "Turn a student's worksheets, notes or study guide (photos, PDFs or text) into a playable study game: one offline HTML page that quizzes every item on the sheet, says right or wrong and why after each answer, brings misses back until mastered, and adds game elements (XP, levels, streaks, a three.js tower that grows with right answers, end-of-game review list). Use on 'make a study guide game', 'quiz my kid on this worksheet', 'turn these notes into a practice test', 'study game for the science test', 'flashcard game from this'. Also 'refresh studywright'. Not for grading finished work or for designing a commercial game (ludowright). The open-world study RPG that grew out of this plugin is its own game, studyquest, and is not built here."
 license: MIT
 metadata:
-  version: "0.12.0"
+  version: "0.15.0"
 ---
 
 # studywright
@@ -18,7 +18,8 @@ The engines are [templates/game.html](templates/game.html) (quest: a queue of qu
 2. **Write one deck per test** as JSON in the user's project, `decks/<slug>.json` (format below; a full example is [decks/sample-states-of-matter.json](decks/sample-states-of-matter.json)). Coverage rules:
    - every blank, every table row and every worked example becomes at least one question; key ideas get two (one recall, one apply/why);
    - mix `mc` and `type` (typed recall is stronger practice; keep typed answers to one or two words and list spelling variants in `accept`);
-   - wrong choices must be plausible misconceptions (e.g. "organisms choose to change"), not jokes;
+   - wrong choices must be plausible misconceptions (e.g. "organisms choose to change"), not jokes; note which misconception each one catches, so `explain` can name the mistake;
+   - AI-written questions get a check pass against the sheet before the child plays (answers right, lures wrong for a reason);
    - every question has `explain`: why the right answer is right, in one or two sentences a 12-year-old reads easily; for classify-the-row questions, name the criterion that decides it;
    - optional `review`: a short label for the end-of-game review list;
    - 15 to 25 questions per test; group by `topic` using the sheet's own headings.
@@ -36,7 +37,7 @@ The engines are [templates/game.html](templates/game.html) (quest: a queue of qu
   {"topic":"People","q":"Moses Austin: filibuster or not?","choices":["Filibuster","Not a filibuster"],"answer":1,"explain":"...","review":"Austin asked permission"}]}
 ```
 
-Optional deck keys: `realm` (history, biology, math, science, words or quest; guessed from the subject if missing: each subject is a themed 3D world and every question opens with a challenge the hero overcomes), per-question `scene`/`win`/`lose` (custom challenge text; `{h}` = hero name, `{t}` = topic), `variants` (list of rewordings of the same idea, each a full mc or type item; a miss comes back in the next wording), `steps` (2-3 smaller sub-questions asked right after the first miss, before the full question returns; use them for every key idea), `foe` (emoji shown in the scene), `practice` (one line shown on the title screen: what this run practices), `stat` (the hero study area this deck trains; default is the subject before the colon) and `follows` (id of the deck this one re-tests). Before writing items, read references/learning-design.md (which question form fits which kind of content, the multiple-choice checklist, failures to avoid); `check` prints WARN lines for length clues and all/none of the above.
+Optional deck keys: `realm` (history, biology, math, science, words or quest; guessed from the subject if missing: each subject is a themed 3D world and every question opens with a challenge the hero overcomes), per-question `scene`/`win`/`lose` (custom challenge text; `{h}` = hero name, `{t}` = topic), `variants` (list of rewordings of the same idea, each a full mc or type item; a miss comes back in the next wording), `steps` (2-3 smaller sub-questions asked right after the first miss, before the full question returns; use them for every key idea), `foe` (emoji shown in the scene), `practice` (one line shown on the title screen: what this run practices), `stat` (the hero study area this deck trains; default is the subject before the colon), `objectives` (the sheet's learning goals; tag questions with `objective` and `check` fails on a goal with no question) and `follows` (id of the deck this one re-tests). Before writing items, read references/learning-design.md (which question form fits which kind of content, the multiple-choice checklist, failures to avoid); `check` prints WARN lines for length clues and all/none of the above.
 
 `type` defaults to `mc`; choices are shuffled at play time, `answer` indexes the list as written.
 

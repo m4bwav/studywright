@@ -112,6 +112,28 @@ def check(deck):
                 if not sub.get("q"):
                     errs.append(f"{tag}.{k}{j}: needs 'q'")
                 errs += check_item(sub, f"{tag}.{k}{j}")
+    errs += check_objectives(deck)
+    return errs
+
+
+def check_objectives(deck):
+    """Optional deck key 'objectives' (list of short strings) and per-question 'objective'.
+    Fails when an objective has no question or a question names an unknown objective."""
+    objs = deck.get("objectives")
+    if objs is None:
+        return []
+    if not isinstance(objs, list) or not all(isinstance(o, str) and o for o in objs):
+        return ["'objectives' must be a list of non-empty strings"]
+    errs, hit = [], {o: 0 for o in objs}
+    for i, q in enumerate(deck.get("questions", []), 1):
+        o = q.get("objective")
+        if o is None:
+            continue
+        if o not in hit:
+            errs.append(f"q{i}: objective '{o}' is not in the deck's 'objectives' list")
+        else:
+            hit[o] += 1
+    errs += [f"objective '{o}' has no question that tests it" for o, n in hit.items() if n == 0]
     return errs
 
 
