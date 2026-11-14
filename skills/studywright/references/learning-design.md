@@ -95,6 +95,22 @@ The in-game score rises with requeues and is not proof of learning. The honest s
 - Loophole pass before shipping a reward: write down the cheapest way to earn it without learning (guess-spamming, replaying an easy deck, quitting before a miss) and close it.
 - Source: Brian Burke, Gamify (2014), ch. 7-8. Book rules, unverified by a play test or script check.
 
+## Observe, assess, respond (0.15.0)
+
+Any adaptive feature is written as three lines before it is built: what the game observes, what that is taken to mean, what changes. Each part can stay simple; rules are enough, no model needed.
+
+| Observe | Assess | Respond |
+|---|---|---|
+| the choice picked, first try or not | the misconception tagged on that wrong choice (noted when the deck is written, below) | its explanation, then a retry or `steps` aimed at that mistake |
+| a long pause before answering | low confidence, not a wrong idea | offer the notes or a hint, no penalty |
+| first-try results for the same items across days | where the child sits against a target success band | change difficulty for the next session only |
+
+- Tag each wrong choice with the misconception it catches. A deck can say it in the item's `explain`; when an item has several plausible lures, write one short line per lure so the explanation can name the mistake that was made.
+- Difficulty moves between sessions, never mid-quiz. Live adaptation can raise stress for learners who cope poorly; a child should meet a stable run and a changed one tomorrow. Aim for a band where most first tries succeed but not all; the band numbers are ours to set by play test, the book gives none.
+- Coverage: list the sheet's learning goals in the optional deck key `objectives` and tag questions with `objective`; `sw.py check` fails when a goal has no question or a question names an unknown goal.
+- Questions an AI wrote get a check pass before the child plays: a second read (by the agent against the sheet, or by the parent) that each answer is right, each lure is wrong for a stated reason, and nothing contradicts the sheet. When a fact on the sheet changes, search the deck for every item that uses it.
+- Source: Mangos and Ferraro (eds.), AI and Gamification Technologies for Complex Work Simulation and Training, ch. 3, 6, 7. The book is about adult, mostly military and workplace training; use with children is ours and unverified. Book rules, unverified, except the coverage rule, which `sw.py check` enforces.
+
 ## Ideas not built yet
 
 - World mode (now in studyquest): selling back, region labels for other decks on the map.

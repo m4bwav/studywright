@@ -116,3 +116,4 @@ README gained a Works with section (ludowright, everscout, askwright); the wiki 
 
 - 2026-11-13 0.13.0: XP check script and XP/gold/progress-bar notes from Gamification by Design (book track zichermann-gamification-by-design).
 - 2026-11-13 0.14.0: learning-design.md gains consent, campaign end, no devaluation, currency sinks, same-task, weakest-player and loophole rules (Burke, Gamify).
+- 2026-11-14 0.15.0: observe-assess-respond notes, misconception per lure, between-session difficulty, AI-question check pass, and an objective coverage check in sw.py (Mangos and Ferraro, AI and Gamification Technologies).

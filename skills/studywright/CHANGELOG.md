@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.15.0 (2026-11-14)
+- learning-design.md: observe, assess, respond table; a misconception note per wrong choice; difficulty changes between sessions only, never mid-quiz; a check pass for AI-written questions and a search when a sheet fact changes.
+- `sw.py check`: optional deck key `objectives` and per-question `objective`; fails when a goal has no question or a question names an unknown goal (`scripts/test_sw_objectives.py`, 5 tests). No current deck uses the key, so it fired 0 times on the 2 samples and 7 studyquest decks.
+- because: Mangos and Ferraro (eds.), AI and Gamification Technologies for Complex Work Simulation and Training (ch. 3, 6, 7). Adult workplace and military training; child use unverified. Book rules, unverified, except the coverage check.
+
 ## 0.14.0 (2026-11-13)
 - learning-design.md: consent and pausing without penalty, a finish state per topic arc, never devaluing earned rewards, a sink for every currency, the same-task rule, a weakest-player check for competition, a loophole pass before shipping a reward.
 - because: Brian Burke, Gamify (ch. 7-8); book rules, unverified.
