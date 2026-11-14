@@ -76,6 +76,14 @@ The in-game score rises with requeues and is not proof of learning. The honest s
 - For kids: no variable-ratio rewards (loot-box style random payouts), no scarcity timers or streaks that punish a missed day.
 - Playtest: run one session with rewards turned off. If the child still plays and learns, the core is sound; if not, the rewards were carrying a weak game.
 
+## XP, gold and progress bars
+
+- XP only goes up and is never spent; gold is the currency you spend. Never pay gold from XP or buy XP with gold. `scripts/verify_xp.py` checks the templates (run it after touching an award).
+- A progress bar never stops at a full 100%: when one fills, show the next tier (next level, next mastery tier, the follow-up deck) so there is always a next step.
+- Idea not built: a "this week" XP count beside the lifetime total, so a slow week still shows effort without resetting anything.
+- No public status or leaderboards: these are single-child offline games.
+- Source: Zichermann and Cunningham, Gamification by Design (2011), ch. 3. Book rules, unverified by a play test; the XP rule has the script check behind it.
+
 ## Ideas not built yet
 
 - World mode (now in studyquest): selling back, region labels for other decks on the map.

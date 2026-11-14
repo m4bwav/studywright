@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.13.0 (2026-11-13)
+- `scripts/verify_xp.py` (+ `test_verify_xp.py`): fails if a template lowers or overwrites XP, pays gold from XP or buys XP with gold. Current templates: 0 breaks.
+- learning-design.md: XP vs gold, progress bars that always show the next tier, an optional weekly XP window (not built), no leaderboards.
+- because: Zichermann and Cunningham, Gamification by Design (ch. 3); bar and weekly-window rules are book rules, unverified.
+
 ## 0.12.0 (2026-11-13)
 - learning-design.md: content type to question form table, a multiple-choice item checklist, pre-brief and debrief, the delayed retest as the honest learning signal, named failures (pointsification, badge inflation, rewards crowding out interest, no variable-ratio rewards or scarcity timers for kids, a rewards-off playtest), and two ideas not built (co-play, a lesson note for the parent).
 - `sw.py check` prints WARN lines (never failing) for a choice much longer than the others and for "all/none of the above".
