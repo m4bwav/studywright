@@ -84,6 +84,17 @@ The in-game score rises with requeues and is not proof of learning. The honest s
 - No public status or leaderboards: these are single-child offline games.
 - Source: Zichermann and Cunningham, Gamification by Design (2011), ch. 3. Book rules, unverified by a play test; the XP rule has the script check behind it.
 
+## Consent, endings and fair rewards (0.14.0)
+
+- Play is offered, never assigned as a chore: the child can pause or skip a day with no penalty and no lost progress. Forced play tends to lower both mood and results.
+- Campaign, not endless: each topic arc has a finish state the child can reach and leave (a delayed retest passed). After that, the deck is review on request, not a treadmill.
+- Never devalue what was earned: do not raise level thresholds, reprice gear or hand out a badge to everyone after the fact. Change rules for new progress only.
+- Every currency has somewhere to go: if gold piles up with nothing worth buying, add a sink or stop paying it.
+- Same-task rule: rewards come only from doing the study itself (answering, retesting), never from a side chore added next to it.
+- Competition check: if any versus or race feature is added (sibling co-play, a beat-your-time mode), ask what the weakest player gets from it; if the answer is nothing, make it cooperative or race against their own past score.
+- Loophole pass before shipping a reward: write down the cheapest way to earn it without learning (guess-spamming, replaying an easy deck, quitting before a miss) and close it.
+- Source: Brian Burke, Gamify (2014), ch. 7-8. Book rules, unverified by a play test or script check.
+
 ## Ideas not built yet
 
 - World mode (now in studyquest): selling back, region labels for other decks on the map.

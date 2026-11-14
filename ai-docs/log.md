@@ -115,3 +115,4 @@ README gained a Works with section (ludowright, everscout, askwright); the wiki 
 - Adopted book-harvest items (Kapp, Chou, Werbach, Edutopia, Field Day Lab, Klopfer notes in technique-harvest) built in: learning-design.md gains content-to-form table, MC checklist, pre-brief/debrief, delayed retest, named failures, co-play and lesson-note ideas. sw.py check WARNs on length clues and all/none of the above. game.html: `practice` deck key, skill word beside score, debrief question.
 
 - 2026-11-13 0.13.0: XP check script and XP/gold/progress-bar notes from Gamification by Design (book track zichermann-gamification-by-design).
+- 2026-11-13 0.14.0: learning-design.md gains consent, campaign end, no devaluation, currency sinks, same-task, weakest-player and loophole rules (Burke, Gamify).
