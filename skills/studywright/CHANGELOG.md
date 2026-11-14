@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.14.0 (2026-11-13)
+- learning-design.md: consent and pausing without penalty, a finish state per topic arc, never devaluing earned rewards, a sink for every currency, the same-task rule, a weakest-player check for competition, a loophole pass before shipping a reward.
+- because: Brian Burke, Gamify (ch. 7-8); book rules, unverified.
+
 ## 0.13.0 (2026-11-13)
 - `scripts/verify_xp.py` (+ `test_verify_xp.py`): fails if a template lowers or overwrites XP, pays gold from XP or buys XP with gold. Current templates: 0 breaks.
 - learning-design.md: XP vs gold, progress bars that always show the next tier, an optional weekly XP window (not built), no leaderboards.
