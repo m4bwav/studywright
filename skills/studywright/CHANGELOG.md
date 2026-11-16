@@ -80,3 +80,6 @@
 
 ## 0.1.0 (2026-11-10)
 - Engine, sw.py check/build, two decks (Texas filibusters, natural selection).
+
+## 0.16.1 (2026-11-15)
+- SKILL.md: multi-handout units go to studyquest world decks; length-clue rule (41/103 drafts gave the answer away); patterns for flashcards, short answer + rubric, tiers, spiral review src, stretch items; frontmatter version caught up (said 0.15.0 after 0.16.0).
