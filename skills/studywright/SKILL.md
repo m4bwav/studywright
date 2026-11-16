@@ -3,7 +3,7 @@ name: studywright
 description: "Turn a student's worksheets, notes or study guide (photos, PDFs or text) into a playable study game: one offline HTML page that quizzes every item on the sheet, says right or wrong and why after each answer, brings misses back until mastered, and adds game elements (XP, levels, streaks, a three.js tower that grows with right answers, end-of-game review list). Use on 'make a study guide game', 'quiz my kid on this worksheet', 'turn these notes into a practice test', 'study game for the science test', 'flashcard game from this'. Also 'refresh studywright'. Not for grading finished work or for designing a commercial game (ludowright). The open-world study RPG that grew out of this plugin is its own game, studyquest, and is not built here."
 license: MIT
 metadata:
-  version: "0.15.0"
+  version: "0.16.1"
 ---
 
 # studywright
@@ -22,7 +22,11 @@ The engines are [templates/game.html](templates/game.html) (quest: a queue of qu
    - AI-written questions get a check pass against the sheet before the child plays (answers right, lures wrong for a reason);
    - every question has `explain`: why the right answer is right, in one or two sentences a 12-year-old reads easily; for classify-the-row questions, name the criterion that decides it;
    - optional `review`: a short label for the end-of-game review list;
-   - 15 to 25 questions per test; group by `topic` using the sheet's own headings.
+   - 15 to 25 questions per test; group by `topic` using the sheet's own headings. A unit covering two or more handouts, or a parent asking for 40+ items, goes to studyquest as a world deck (up to 9 regions of 20), not one long quest;
+   - length clue: the right choice must not be the longest one most of the time. Write wrong choices as full, believable misconceptions about as long as the answer (seen 2026-11-15: 41 of 103 first-draft items gave it away);
+   - requests the engine has no kind for: "flashcards" = typed recall of the definition plus an mc variant; "short answer with rubric" = rubric and model answer on the signpost or intro, then mc items asking which answer earns full points and what a partial answer is missing; "difficulty tiers" = per-question `tier` 1-3 (studyquest validates it); spiral review = topic "Review: ..." plus `src` (id of the earlier deck);
+   - material the class has not taught yet (stretch) goes in its own clearly labeled topic or region ("not from class yet") that no key or score depends on; never present it as the sheet's content;
+   - the student's own written answers are hints only: a half-right one (e.g. "an adaptation is a mutation") becomes a "best fix" item, without the child's name.
 3. **Build and check**: `SW build decks/<slug>.json games/<slug>.html`. Fix every ERROR.
 4. **Play it through** in a browser (serve `games/` on 127.0.0.1 if file:// is blocked; port 8765 may be refused on Windows, use 18765): answer some wrong, confirm the miss returns and the end screen lists it with its answer.
 5. **Follow-up tests.** Before writing one, read `records/INDEX.md` and the linked records (run `SW records` first to file new downloads). Write a new deck with `"follows": "<old id>"` that re-tests every first-try miss at least twice in NEW scenarios (apply it, not recall the sheet's wording), plus a few items the student got right as a check.
