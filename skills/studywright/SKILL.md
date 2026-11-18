@@ -67,3 +67,7 @@ Every finished game, in every mode, produces two things, and a new mode is not d
 2. **A notes prompt**: the finish screen shows a ready prompt with a copy button (`Kit.notesHtml`). It carries the results in plain text and tells the agent to file the log and update the notes. The parent pastes it into any AI session.
 
 When you receive that prompt: run `SW records [--from DIR] [--to DIR]` (files the logs into `records/<deck>/` as JSON + Markdown and rebuilds `records/INDEX.md`; if the file is missing, write the record by hand from the pasted results), then update the project's handoff and log with what was missed and which ideas look shaky, and tell the parent in a few lines what to review. Agents read INDEX.md before writing the next test. Keep records out of public repos (gitignored here). Decks written from a child's schoolwork belong in the family's own project folder, not in this plugin: `decks/` here holds only the two samples.
+
+## YouTube videos
+
+A lesson video's transcript gives the facts to quiz on. Use fetchwright's `yt.py read URL` (captions, chapters, `&t=` links; opt-in route) and `yt.py clip URL A-B "question"` (Gemini reads the screen for spans of 2 minutes or less). Cite the `&t=` link and check numbers against a written source: auto-captions drop decimals.
