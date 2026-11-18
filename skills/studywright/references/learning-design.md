@@ -127,3 +127,9 @@ Any adaptive feature is written as three lines before it is built: what the game
 - Taper rewards as a topic is mastered: full reward the first time a concept is got right, smaller ones for repeats of items already mastered, so the rewards point at new learning. Rewards stay fixed and predictable; the variable-ratio ban above still holds.
 - Optional: let the child write a question of their own for a topic. An adult checks it before it enters a deck; unchecked questions never reach play.
 - Source: Ferro, Gamification with Unity 5.x (ch. 1, 10). Book rules, unverified by a play test; none is built yet.
+
+## Sort into bins, a collection book and own-best times (studyquest, 2026-11-17)
+
+- Classification ideas (tissue / organ / organ system; natural / artificial selection; myth / fact) test better as one sort question than as several two-choice items: every card must be placed, so guessing one answer does not pass, and partial credit (cards in the right bin) shows how close the student was. Built as `type: "sort"` in studyquest world mode.
+- A collection book (one page per idea mastered, kept across replays) gives a visible, fixed-rule goal that also works as a review sheet: each page repeats the answer and the reason.
+- Timing a region against the student's own best adds pace without comparison to others; keep it off scored questions and never punish a slower time.
