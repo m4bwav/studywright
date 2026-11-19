@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.17.1 (2026-11-19)
+- learning-design.md: homework-night short form (about 10 warm-ups on new numbers, one per step the sheet uses; solve the sheet first and check it against its answer key; figures stated in words in finale items).
+- because: studyquest Scorpion Desert (exterior angles), one child playtester.
+
 ## 0.17.0 (2026-11-18)
 - learning-design.md: homework finale (worksheet problems as `homework: true` boss questions after mastery, graded by hash, misses reveal nothing) and showing every number as its sum.
 - because: studyquest homework quest and list 3 play-test work (one child playtester; unverified beyond that game).
