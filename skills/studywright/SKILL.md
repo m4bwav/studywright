@@ -3,7 +3,7 @@ name: studywright
 description: "Turn a student's worksheets, notes or study guide (photos, PDFs or text) into a playable study game: one offline HTML page that quizzes every item on the sheet, says right or wrong and why after each answer, brings misses back until mastered, and adds game elements (XP, levels, streaks, a three.js tower that grows with right answers, end-of-game review list). Use on 'make a study guide game', 'quiz my kid on this worksheet', 'turn these notes into a practice test', 'study game for the science test', 'flashcard game from this'. Also 'refresh studywright'. Not for grading finished work or for designing a commercial game (ludowright). The open-world study RPG that grew out of this plugin is its own game, studyquest, and is not built here."
 license: MIT
 metadata:
-  version: "0.16.1"
+  version: "0.17.0"
 ---
 
 # studywright

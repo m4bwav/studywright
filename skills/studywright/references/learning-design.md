@@ -133,3 +133,8 @@ Any adaptive feature is written as three lines before it is built: what the game
 - Classification ideas (tissue / organ / organ system; natural / artificial selection; myth / fact) test better as one sort question than as several two-choice items: every card must be placed, so guessing one answer does not pass, and partial credit (cards in the right bin) shows how close the student was. Built as `type: "sort"` in studyquest world mode.
 - A collection book (one page per idea mastered, kept across replays) gives a visible, fixed-rule goal that also works as a review sheet: each page repeats the answer and the reason.
 - Timing a region against the student's own best adds pace without comparison to others; keep it off scored questions and never punish a slower time.
+
+## Homework finale and showing the working (studyquest, 2026-11-18)
+
+- Homework finale: the real worksheet problems go in the deck marked `homework: true`. They stay off the map and are asked only by the final boss once every region is mastered, so the game teaches the method on its own practice items first (a teaching ladder built from the worksheet), then the homework is the climax. Answers are stored as a hash and graded by it; a miss reveals nothing and costs nothing, so the game never hands out the homework answers and the child still does the work. Typed numeric answers must match exactly (no fuzzy matching on numbers).
+- Show how a number was reached: every number the game shows (damage, score, reward) appears as its sum of parts (move + gear, base + bonus). The child sees why the number is what it is, which is a small arithmetic lesson in itself and makes the rules learnable instead of magic.
