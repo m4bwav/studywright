@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.17.0 (2026-11-18)
+- learning-design.md: homework finale (worksheet problems as `homework: true` boss questions after mastery, graded by hash, misses reveal nothing) and showing every number as its sum.
+- because: studyquest homework quest and list 3 play-test work (one child playtester; unverified beyond that game).
+
 ## 0.16.0 (2026-11-14)
 - learning-design.md: per-topic mastery as a retention bar that drains without review, rewards that taper on repeats of mastered items (variable-ratio ban kept), optional child-written questions checked by an adult before entering a deck.
 - because: Ferro, Gamification with Unity 5.x (ch. 1, 10); book rules, unverified.
