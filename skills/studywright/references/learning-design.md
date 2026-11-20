@@ -48,6 +48,24 @@ Rules the engine and decks follow, with the evidence base they come from. Check 
 
 A deck usually mixes all four; pick the form per item, not per deck.
 
+## Encoding aids (mnemonics) for bare facts and lists
+
+Retrieval practice tests what is stored; these help store a hard bare fact in the first place. Use them for facts and ordered lists only, not for concepts, rules or procedures, and not on every deck: each costs a few minutes of teaching.
+
+- Hook: tie a bare name, date or word to something meaningful. "Baker" the name is forgotten where "a baker" the job is kept, because the job links to known ideas (ch. 2). Optional per-question key `hook` (one line: the image or the link). Show it after a first miss, never before the first try, so retrieval stays first. `sw.py check` warns when a deck has 5+ typed-recall items and no hook. Showing it in game.html is not built yet.
+- Vivid, acting image: funny, gross-silly or exaggerated, the item doing something (ch. 5). Never adult or violent, whatever the classical advice says. A hook the child makes up or picks from two or three beats one handed over.
+- Abstract words need a concrete stand-in first; nonsense or abstract items are the hardest to encode (ch. 6).
+- Ordered lists (planets, steps, a sequence of rulers): a route lesson, one item per spot on a place the child knows well (their home, the game map), recalled by walking it in order. The place supplies the order the items lack (ch. 5). Not built.
+- Gist before verbatim: test the meaning first; ask for exact wording only where the wording is the point (a definition, an assigned poem). For a poem or speech, one image per line or point, and lean on the rhyme and rhythm it already has (ch. 6).
+- Chunking needs the pattern already known: teach the rule before a long sequence that uses it (ch. 3).
+- Source: Joshua Foer, Moonwalking with Einstein (2011), ch. 2, 3, 5, 6. A journalist's account; the method is well supported for lists and ordered items, less for understanding. Book rules, unverified by a play test, except the hook warning.
+
+## Speed and plateaus
+
+- A speed round's target is the child's own best time cut by 10 to 20 percent, not one fixed timer; the boss timer's fixed 20/30 s is a starting value. The figure is one coach's instruction, not a measured optimum: measure (Foer ch. 8).
+- A mastered deck replayed at the same difficulty is a plateau. Offer a "hard ones" round built from recent misses instead of a replay of the whole deck.
+- Source: Foer ch. 8 (the OK plateau, after Ericsson). Not built; unverified.
+
 ## Writing multiple-choice items
 
 `sw.py check` warns (never fails) on the cheap ones: a choice much longer than the others, and "all/none of the above".
