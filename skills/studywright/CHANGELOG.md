@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+- learning-design.md: encoding aids for bare facts and lists (hook after a first miss, vivid child-safe images, concrete stand-ins, route lesson, gist before verbatim, pattern before sequence) and speed rounds against the child's own best with a hard-ones round.
+- `sw.py check`: optional per-question `hook`; fails on a non-string hook, warns on 5+ typed items with no hook (`scripts/test_sw_hooks.py`, 4 tests). Fires on neither sample deck.
+- because: Foer, Moonwalking with Einstein (ch. 2, 3, 5, 6, 8); book rules, unverified, except the hook check.
+
 ## 0.17.1 (2026-11-19)
 - learning-design.md: homework-night short form (about 10 warm-ups on new numbers, one per step the sheet uses; solve the sheet first and check it against its answer key; figures stated in words in finale items).
 - because: studyquest Scorpion Desert (exterior angles), one child playtester.

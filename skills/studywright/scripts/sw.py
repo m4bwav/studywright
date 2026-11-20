@@ -113,6 +113,25 @@ def check(deck):
                     errs.append(f"{tag}.{k}{j}: needs 'q'")
                 errs += check_item(sub, f"{tag}.{k}{j}")
     errs += check_objectives(deck)
+    errs += check_hooks(deck)
+    return errs
+
+
+def check_hooks(deck):
+    """Optional per-question 'hook': a mnemonic (a vivid image or a link to something known)
+    shown after a first miss, never before the first try. Fails on a non-string hook;
+    warns when a deck has 5+ typed-recall items and none has a hook (bare-fact deck)."""
+    errs, typed, hooked = [], 0, 0
+    for i, q in enumerate(deck.get("questions", []), 1):
+        h = q.get("hook")
+        if h is not None:
+            if not isinstance(h, str) or not h.strip():
+                errs.append(f"q{i}: 'hook' must be a non-empty string")
+            else:
+                hooked += 1
+        typed += q.get("type") == "type"
+    if typed >= 5 and hooked == 0:
+        WARNS.append(f"{typed} typed-recall items and no 'hook': give the hardest bare facts a mnemonic hint")
     return errs
 
 
