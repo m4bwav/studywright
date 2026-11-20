@@ -60,6 +60,20 @@ Retrieval practice tests what is stored; these help store a hard bare fact in th
 - Chunking needs the pattern already known: teach the rule before a long sequence that uses it (ch. 3).
 - Source: Joshua Foer, Moonwalking with Einstein (2011), ch. 2, 3, 5, 6. A journalist's account; the method is well supported for lists and ordered items, less for understanding. Book rules, unverified by a play test, except the hook warning.
 
+## Illusions of knowing, try-first and cumulative review (Make It Stick)
+
+- Sure or guessing: an optional toggle before feedback on key-idea items (not on every item: a click each tires a child). Records list sure-and-wrong items first; those are the illusions of knowing that rereading never reveals (ch. 1, 5). Not built.
+- End-of-round re-ask: keep the instant reason, and at round end ask each missed item once more before showing its answer. Do not drop instant feedback; long delays let a wrong answer set in (ch. 2). Not built.
+- Try first in lessons: one unscored attempt at a problem not yet taught, before the worked example; never score it (ch. 4). After the example, state the rule in one line and group the review's misses by rule (ch. 6). Not built.
+- Two surface forms per key idea: `variants` must change numbers, setting or wording frame, not only reword the stem. Math and science decks also get "which method fits?" items, the skill a blocked set never asks for (ch. 1, 3).
+- Cumulative follow-ups: a follow-up deck re-asks a sample from every earlier deck in the unit, not only the last one's misses; predictable, frequent, low-stakes quizzes (ch. 8, sec. 31).
+- Leitner level per item: records keep a level per item across plays; a miss drops it to level 1 and it returns next session, mastered items rarely (ch. 3). Not built.
+- Praise effort, strategy and recovery ("you fixed it on the second try"), never traits ("smart", "genius"). `sw.py check` warns on trait words in `win`, `explain`, `scene`, `intro` and `practice` (ch. 7). Growth-mindset effects replicate smaller than first claimed: keep the wording, build nothing more on it.
+- Tell the child why it feels hard: one line on the intro or finish that mixed, spaced practice feels slower but sticks (ch. 3).
+- No false premise: a question's wording, or a wrong choice's setup, must not assert something false or plant a vivid wrong detail; it can be recalled later as fact (ch. 5).
+- Too easy teaches nothing: a lesson at 100% first-try accuracy over several plays is errorless pacing; make the steps bigger (ch. 4).
+- Source: Brown, Roediger, McDaniel, Make It Stick (2014). Book rules, unverified by a play test, except the praise warning.
+
 ## Speed and plateaus
 
 - A speed round's target is the child's own best time cut by 10 to 20 percent, not one fixed timer; the boss timer's fixed 20/30 s is a starting value. The figure is one coach's instruction, not a measured optimum: measure (Foer ch. 8).

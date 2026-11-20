@@ -118,3 +118,4 @@ README gained a Works with section (ludowright, everscout, askwright); the wiki 
 - 2026-11-13 0.14.0: learning-design.md gains consent, campaign end, no devaluation, currency sinks, same-task, weakest-player and loophole rules (Burke, Gamify).
 - 2026-11-14 0.15.0: observe-assess-respond notes, misconception per lure, between-session difficulty, AI-question check pass, and an objective coverage check in sw.py (Mangos and Ferraro, AI and Gamification Technologies).
 - 2026-11-19: books round 6 track 36 (Foer): encoding-aids and speed notes in learning-design.md, optional `hook` key + bare-fact warning in sw.py check.
+- 2026-11-19: books round 6 track 56 (Make It Stick): learning-design section on illusions of knowing, try-first, cumulative follow-ups, Leitner levels; sw.py check warns on trait praise.

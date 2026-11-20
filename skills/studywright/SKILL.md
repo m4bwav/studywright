@@ -19,6 +19,7 @@ The engines are [templates/game.html](templates/game.html) (quest: a queue of qu
    - every blank, every table row and every worked example becomes at least one question; key ideas get two (one recall, one apply/why);
    - mix `mc` and `type` (typed recall is stronger practice; keep typed answers to one or two words and list spelling variants in `accept`);
    - wrong choices must be plausible misconceptions (e.g. "organisms choose to change"), not jokes; note which misconception each one catches, so `explain` can name the mistake;
+   - no false premise: a stem or a lure's setup never asserts something false as given; praise effort or the fix, never traits (`check` warns on "smart", "genius");
    - AI-written questions get a check pass against the sheet before the child plays (answers right, lures wrong for a reason);
    - every question has `explain`: why the right answer is right, in one or two sentences a 12-year-old reads easily; for classify-the-row questions, name the criterion that decides it;
    - optional `review`: a short label for the end-of-game review list;
@@ -29,7 +30,7 @@ The engines are [templates/game.html](templates/game.html) (quest: a queue of qu
    - the student's own written answers are hints only: a half-right one (e.g. "an adaptation is a mutation") becomes a "best fix" item, without the child's name.
 3. **Build and check**: `SW build decks/<slug>.json games/<slug>.html`. Fix every ERROR.
 4. **Play it through** in a browser (serve `games/` on 127.0.0.1 if file:// is blocked; port 8765 may be refused on Windows, use 18765): answer some wrong, confirm the miss returns and the end screen lists it with its answer.
-5. **Follow-up tests.** Before writing one, read `records/INDEX.md` and the linked records (run `SW records` first to file new downloads). Write a new deck with `"follows": "<old id>"` that re-tests every first-try miss at least twice in NEW scenarios (apply it, not recall the sheet's wording), plus a few items the student got right as a check.
+5. **Follow-up tests.** Before writing one, read `records/INDEX.md` and the linked records (run `SW records` first to file new downloads). Write a new deck with `"follows": "<old id>"` that re-tests every first-try miss at least twice in NEW scenarios (apply it, not recall the sheet's wording), plus a few items the student got right as a check, plus a sample from every earlier deck in the unit (cumulative, not only the last deck).
 6. Hand over each game so the parent never has to select text: put its URL (`file:///D:/path/to/games/<slug>.html`, forward slashes, spaces as %20) on the clipboard yourself (`Set-Clipboard '<url>'` on Windows, `pbcopy` on macOS, `xclip -sel c` on Linux) and say "the link is on your clipboard, paste it into the browser"; also give a clickable markdown link and the URL on a line of its own in a code span. A code span alone failed (2026-11-12): in the VS Code chat panel a long path wraps and cannot be selected and copied. The pages work offline (three.js is optional, the quiz runs without it).
 
 ## Deck format
