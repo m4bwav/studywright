@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.18.0 (2026-11-19)
 - learning-design.md: illusions of knowing (optional sure/guess with sure-and-wrong listed first), end-of-round re-ask, try-first and one-line rule in lessons, two surface forms and which-method items, cumulative follow-ups, Leitner level per item, effort praise, no false premise, too-easy lessons. SKILL.md: cumulative follow-ups, no-false-premise and praise rules.
 - `sw.py check`: warns on trait praise ("smart", "genius", "gifted", "clever", "brilliant", "a natural") in `win`/`explain`/`scene`/`intro`/`practice` (`scripts/test_sw_praise.py`, 2 tests). Fires on neither sample deck nor any template.
 - because: Brown, Roediger, McDaniel, Make It Stick (ch. 1-8); book rules, unverified, except the praise check.
