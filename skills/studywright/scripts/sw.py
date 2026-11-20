@@ -8,7 +8,7 @@
         ~/Downloads) into DIR/<deck>/ as JSON + Markdown and rebuild DIR/INDEX.md,
         the paper trail agents read before writing the next test (default ./records)
 """
-import json, sys, html
+import json, re, sys, html
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -114,6 +114,7 @@ def check(deck):
                 errs += check_item(sub, f"{tag}.{k}{j}")
     errs += check_objectives(deck)
     errs += check_hooks(deck)
+    check_praise(deck)
     return errs
 
 
@@ -133,6 +134,22 @@ def check_hooks(deck):
     if typed >= 5 and hooked == 0:
         WARNS.append(f"{typed} typed-recall items and no 'hook': give the hardest bare facts a mnemonic hint")
     return errs
+
+
+TRAIT = re.compile(r"\b(smart|genius|gifted|clever|brilliant|a natural)\b", re.I)
+
+
+def check_praise(deck):
+    """Warn on praise for traits ('you're so smart') in text the child reads; praise effort,
+    strategy and fixing a miss instead (Make It Stick ch. 7)."""
+    for i, q in enumerate(deck.get("questions", []), 1):
+        for k in ("win", "explain", "scene"):
+            m = TRAIT.search(q[k]) if isinstance(q.get(k), str) else None
+            if m:
+                WARNS.append(f"q{i}.{k}: praises a trait ('{m.group(0)}'); praise effort or the fix instead")
+    for k in ("intro", "practice"):
+        if isinstance(deck.get(k), str) and TRAIT.search(deck[k]):
+            WARNS.append(f"{k}: praises a trait; praise effort or the fix instead")
 
 
 def check_objectives(deck):

@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- learning-design.md: illusions of knowing (optional sure/guess with sure-and-wrong listed first), end-of-round re-ask, try-first and one-line rule in lessons, two surface forms and which-method items, cumulative follow-ups, Leitner level per item, effort praise, no false premise, too-easy lessons. SKILL.md: cumulative follow-ups, no-false-premise and praise rules.
+- `sw.py check`: warns on trait praise ("smart", "genius", "gifted", "clever", "brilliant", "a natural") in `win`/`explain`/`scene`/`intro`/`practice` (`scripts/test_sw_praise.py`, 2 tests). Fires on neither sample deck nor any template.
+- because: Brown, Roediger, McDaniel, Make It Stick (ch. 1-8); book rules, unverified, except the praise check.
 - learning-design.md: encoding aids for bare facts and lists (hook after a first miss, vivid child-safe images, concrete stand-ins, route lesson, gist before verbatim, pattern before sequence) and speed rounds against the child's own best with a hard-ones round.
 - `sw.py check`: optional per-question `hook`; fails on a non-string hook, warns on 5+ typed items with no hook (`scripts/test_sw_hooks.py`, 4 tests). Fires on neither sample deck.
 - because: Foer, Moonwalking with Einstein (ch. 2, 3, 5, 6, 8); book rules, unverified, except the hook check.
