@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.18.1 (2026-11-20)
+- learning-design.md: help ladder keyed to miss count (presets 0/2/4 and 3/5/7), measured warning against immediate retries (47% echo under a 50% random draw), 2.2 s miss hold and 1.2 s advance gate after praise, mixed-age co-play idle hints (9-13 s and 30 s).
+- because: an open-source kids' word game played headless and timed (technique harvest, web games 2026-11).
+
 ## 0.18.0 (2026-11-19)
 - learning-design.md: illusions of knowing (optional sure/guess with sure-and-wrong listed first), end-of-round re-ask, try-first and one-line rule in lessons, two surface forms and which-method items, cumulative follow-ups, Leitner level per item, effort praise, no false premise, too-easy lessons. SKILL.md: cumulative follow-ups, no-false-premise and praise rules.
 - `sw.py check`: warns on trait praise ("smart", "genius", "gifted", "clever", "brilliant", "a natural") in `win`/`explain`/`scene`/`intro`/`practice` (`scripts/test_sw_praise.py`, 2 tests). Fires on neither sample deck nor any template.
