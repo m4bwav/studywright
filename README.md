@@ -13,7 +13,7 @@ Photos of a worksheet in, a study game out. Each game is one HTML file that runs
 python skills/studywright/scripts/sw.py build skills/studywright/decks/sample-states-of-matter.json games/sample-states-of-matter.html
 ```
 
-Deck format and the learning design rules are in [skills/studywright/SKILL.md](skills/studywright/SKILL.md). A second builder, lesson mode, teaches a method step by step before it tests it.
+Deck format and the learning design rules are in [skills/studywright/SKILL.md](skills/studywright/SKILL.md). Hard words can carry a deck glossary: they show a hover or tap card in plain words, or the original wording if the reader prefers. A second builder, lesson mode, teaches a method step by step before it tests it.
 
 The plugin is also a knowledge base on building learning games: the research is in [RESEARCH.md](skills/studywright/RESEARCH.md) and the design rules, with what each build taught, are in [learning-design.md](skills/studywright/references/learning-design.md). The open-world study RPG that started here is now a separate game.
 
