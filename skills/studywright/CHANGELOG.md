@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.20.1 (2026-11-21)
+- `sw.py check`: WARN once per term that another deck in the same folder defines in its glossary, this deck's lesson or quiz text uses (accepted answers and ids skipped), and this deck's glossary lacks; names the deck that defines it. Same matcher as the word cards (longest phrase up to 4 words, plural fallback, aliases). Unreadable sibling files are skipped. 3 new tests in `test_sw_glossary.py` (positive, negative, alias and plural); suite 30 passed.
+
 ## 0.20.0 (2026-11-21)
 - Deck `glossary` (`term`, `def`, `plain`, optional `aliases`): `sw.py build` injects `templates/glossary.js` (only when a deck has one), which marks glossary words in all lesson and quiz text, including text the game adds later, and shows a word card on hover, tap or keyboard focus. Longest phrase up to 4 words wins; a word ending in s falls back to the singular. Card at most 300 px wide, above the word with room, else below, kept 8 px inside the screen; no dialog. A corner button switches "Plain, easier to read" (default) and "Original, as written", saved in localStorage, the open card re-renders at once; plain falls back to def. Fade off under prefers-reduced-motion.
 - `sw.py check`: ERROR on a glossary entry with no `plain` or no `def`; WARN when `plain` is longer than `def` and on duplicate terms or aliases. Lesson decks are checked too.

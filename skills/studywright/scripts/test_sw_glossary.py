@@ -70,6 +70,43 @@ def test_js_twin_agrees():
     assert got == [want for _, want in CASES], got
 
 
+def xdeck(tmp, own, other):
+    """Write a sibling deck with glossary G and this deck; return the cross-deck warnings."""
+    tmp.mkdir(parents=True, exist_ok=True)
+    (tmp / "bio.json").write_text(json.dumps({"glossary": G}), encoding="utf-8")
+    (tmp / "notes.json").write_text("not json", encoding="utf-8")
+    me = tmp / "me.json"
+    deck = dict(own, questions=[{"q": other, "explain": "Because.", "choices": ["yes", "no"], "answer": 0}])
+    me.write_text(json.dumps(deck), encoding="utf-8")
+    sw.WARNS.clear()
+    sw.check_xdeck(deck, me)
+    return [w for w in sw.WARNS if "defined in" in w]
+
+
+def test_xdeck_warns_once_per_missing_term(tmp_path=None):
+    tmp = Path(tmp_path or __import__("tempfile").mkdtemp()) / "pos"
+    w = xdeck(tmp, {}, "Natural selection shapes each trait; natural selection again.")
+    assert len(w) == 2 and all("bio.json" in x for x in w), w
+    assert "'natural selection'" in w[0] and "'trait'" in w[1]
+
+
+def test_xdeck_quiet_when_own_glossary_has_it(tmp_path=None):
+    tmp = Path(tmp_path or __import__("tempfile").mkdtemp()) / "neg"
+    own = {"glossary": [{"term": "trait", "def": "d", "plain": "p"}]}
+    assert xdeck(tmp, own, "Each trait varies.") == []
+    assert xdeck(tmp, {}, "The bus has glass.") == []
+
+
+def test_xdeck_alias_and_plural(tmp_path=None):
+    tmp = Path(tmp_path or __import__("tempfile").mkdtemp()) / "alias"
+    w = xdeck(tmp, {}, "Two features differ.")
+    assert len(w) == 1 and "'trait'" in w[0]
+    w = xdeck(tmp, {}, "Traits vary.")
+    assert len(w) == 1 and "'trait'" in w[0]
+    own = {"glossary": [{"term": "characteristic", "def": "d", "plain": "p", "aliases": ["feature"]}]}
+    assert xdeck(tmp, own, "Two features differ.") == []
+
+
 if __name__ == "__main__":
     for n, f in list(globals().items()):
         if n.startswith("test_"):

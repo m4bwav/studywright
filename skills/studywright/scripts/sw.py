@@ -193,6 +193,57 @@ def check_glossary(deck):
     return errs
 
 
+XDECK_SKIP = {"glossary", "id", "accept", "banned_hashes", "answer"}
+
+
+def deck_text(v, key=None):
+    """All lesson and quiz strings in a deck, minus the glossary, ids and answers."""
+    if key in XDECK_SKIP:
+        return
+    if isinstance(v, str):
+        yield v
+    elif isinstance(v, list):
+        for x in v:
+            yield from deck_text(x)
+    elif isinstance(v, dict):
+        for k, x in v.items():
+            yield from deck_text(x, k)
+
+
+def check_xdeck(deck, path):
+    """WARN once per term that a sibling deck (same folder) glosses, this deck's text uses,
+    and this deck's glossary lacks. Same matcher as the word cards."""
+    path = Path(path)
+    other = {}
+    for f in sorted(path.parent.glob("*.json")):
+        if f.resolve() == path.resolve():
+            continue
+        try:
+            g = json.loads(f.read_text(encoding="utf-8")).get("glossary")
+        except (ValueError, OSError, AttributeError):
+            continue
+        for e in g if isinstance(g, list) else []:
+            if isinstance(e, dict) and e.get("term"):
+                for t in [e["term"]] + list(e.get("aliases") or []):
+                    other.setdefault(gloss_key(t), (e, f.name))
+    if not other:
+        return
+    own = gloss_index(deck.get("glossary") if isinstance(deck.get("glossary"), list) else [])
+    idx = {k: e for k, (e, _) in other.items()}
+    where = {id(e): n for e, n in other.values()}
+    done = set()
+    for text in deck_text(deck):
+        for _, _, term in gloss_find(text, idx):
+            k = gloss_key(term)
+            if k in done:
+                continue
+            done.add(k)
+            e = other[k][0]
+            if any(gloss_key(t) in own for t in [e["term"]] + list(e.get("aliases") or [])):
+                continue
+            WARNS.append(f"glossary: '{term}' is used here and defined in {where[id(e)]}, but missing from this deck's glossary")
+
+
 def check_hooks(deck):
     """Optional per-question 'hook': a mnemonic (a vivid image or a link to something known)
     shown after a first miss, never before the first try. Fails on a non-string hook;
@@ -377,6 +428,7 @@ def main(argv):
         return 2
     deck = json.loads(Path(argv[1]).read_text(encoding="utf-8"))
     errs = check(deck)
+    check_xdeck(deck, argv[1])
     for e in errs:
         print("ERROR", e)
     for w in WARNS:
