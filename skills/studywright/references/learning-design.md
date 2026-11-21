@@ -114,6 +114,7 @@ The in-game score rises with requeues and is not proof of learning. The honest s
 - A progress bar never stops at a full 100%: when one fills, show the next tier (next level, next mastery tier, the follow-up deck) so there is always a next step.
 - Idea not built: a "this week" XP count beside the lifetime total, so a slow week still shows effort without resetting anything.
 - No public status or leaderboards: these are single-child offline games.
+- Easy picks must not pay better: wherever the child chooses (which deck, mode, hint or no hint), XP per minute on the easier pick must not beat the harder one, because learners paid for right answers keep choosing easy problems after the pay stops (Kapp, ch. 4). `verify_xp.py` warns on it; with no arguments it checks game.html, where replaying a mastered deck pays about 150 XP/min against 47 for a new deck (time and accuracy guessed) until the taper below is built; `--rates TABLE.json` checks another engine's choices.
 - Source: Zichermann and Cunningham, Gamification by Design (2011), ch. 3. Book rules, unverified by a play test; the XP rule has the script check behind it.
 
 ## Consent, endings and fair rewards (0.14.0)
@@ -171,6 +172,13 @@ Any adaptive feature is written as three lines before it is built: what the game
 - Homework finale: the real worksheet problems go in the deck marked `homework: true`. They stay off the map and are asked only by the final boss once every region is mastered, so the game teaches the method on its own practice items first (a teaching ladder built from the worksheet), then the homework is the climax. Answers are stored as a hash and graded by it; a miss reveals nothing and costs nothing, so the game never hands out the homework answers and the child still does the work. Typed numeric answers must match exactly (no fuzzy matching on numbers).
 - Homework night, short form (2026-11-19): when the sheet is due tonight, about 10 warm-up items are enough: one for the rule in words, then one per step the sheet uses (find the angle, find the missing part, write the equation, x on both sides, plug x back in), each on new numbers that are not any of the sheet's answers. Then the sheet's own problems as the finale. Solve the whole sheet before writing the deck and check it against any built-in answer key (a riddle code, a matching table); a mismatch means a misread figure. Figures cannot go into finale items, so state each figure in words (which side is extended past which point, which angles are given) and say which sheet problem it is, so the child can look at the paper.
 - Show how a number was reached: every number the game shows (damage, score, reward) appears as its sum of parts (move + gear, base + bonus). The child sees why the number is what it is, which is a small arithmetic lesson in itself and makes the rules learnable instead of magic.
+
+## Reward names, two voices, feedback timing (Kapp, second pass, 2026-11-20)
+
+- Feat, badge and title names are read like praise: no trait words, and never a mocking name for a miss; a near-miss award says "almost" kindly. `sw.py names` lints the engine files and `sw.py check` lints a deck's optional `feats`, `badges` and `titles`.
+- Two voices: one character explains (the reason, the method) and a different one cheers (praise, streaks); do not fold both into one mentor line. Small studies, test with the child first.
+- Fade feedback timing by mastery: first sight of an item always gets the instant reason; on review rounds of items already mastered the reason may wait until the round ends, so the child judges first. Small studies (adult lab), test with the child first.
+- Source: Kapp, The Gamification of Learning and Instruction (2012), ch. 4 (rewards, avatars) and ch. 10 (notification, goal orientation). Book rules, unverified, except the name lint and the XP-per-minute warning.
 
 ## Help ladders, idle hints and input gates (measured on a live kids' game, 2026-11-20)
 

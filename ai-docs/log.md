@@ -119,3 +119,4 @@ README gained a Works with section (ludowright, everscout, askwright); the wiki 
 - 2026-11-14 0.15.0: observe-assess-respond notes, misconception per lure, between-session difficulty, AI-question check pass, and an objective coverage check in sw.py (Mangos and Ferraro, AI and Gamification Technologies).
 - 2026-11-19: books round 6 track 36 (Foer): encoding-aids and speed notes in learning-design.md, optional `hook` key + bare-fact warning in sw.py check.
 - 2026-11-19: books round 6 track 56 (Make It Stick): learning-design section on illusions of knowing, try-first, cumulative follow-ups, Leitner levels; sw.py check warns on trait praise.
+- 2026-11-20 0.19.0: Kapp second pass: verify_xp.py warns when an easier pick pays more XP/min (game.html: mastered-deck replay 150 vs new deck 47, taper still owed), sw.py names lints feat/badge/title names (0 hits on 86 names), notes on two voices and feedback faded by mastery.

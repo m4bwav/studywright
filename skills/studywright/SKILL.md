@@ -19,7 +19,7 @@ The engines are [templates/game.html](templates/game.html) (quest: a queue of qu
    - every blank, every table row and every worked example becomes at least one question; key ideas get two (one recall, one apply/why);
    - mix `mc` and `type` (typed recall is stronger practice; keep typed answers to one or two words and list spelling variants in `accept`);
    - wrong choices must be plausible misconceptions (e.g. "organisms choose to change"), not jokes; note which misconception each one catches, so `explain` can name the mistake;
-   - no false premise: a stem or a lure's setup never asserts something false as given; praise effort or the fix, never traits (`check` warns on "smart", "genius");
+   - no false premise: a stem or a lure's setup never asserts something false as given; praise effort or the fix, never traits (`check` warns on "smart", "genius"; `sw.py names` lints feat, badge and title names too);
    - AI-written questions get a check pass against the sheet before the child plays (answers right, lures wrong for a reason);
    - every question has `explain`: why the right answer is right, in one or two sentences a 12-year-old reads easily; for classify-the-row questions, name the criterion that decides it;
    - optional `review`: a short label for the end-of-game review list;

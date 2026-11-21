@@ -7,3 +7,5 @@ Script: `python scripts/test_verify_xp.py` and `python scripts/verify_xp.py` (XP
 Script: `python scripts/test_sw_objectives.py` (objective coverage in `sw.py check`). Passed 2026-11-14.
 
 Script: `python scripts/test_sw_hooks.py` (hook key and bare-fact warning in `sw.py check`). Passed 2026-11-19.
+
+Script: `python scripts/test_sw_names.py` (reward-name lint in `sw.py check` and `sw.py names`) and the new rate tests in `test_verify_xp.py` (easy picks must not pay more XP per minute). Passed 2026-11-20.
