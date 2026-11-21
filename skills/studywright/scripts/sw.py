@@ -86,7 +86,7 @@ def check_lesson(deck):
 
 def check(deck):
     if deck.get("mode") == "lesson":
-        return check_lesson(deck)
+        return check_lesson(deck) + check_glossary(deck)
     errs = []
     if deck.get("mode") == "world":
         errs.append("world decks moved to the studyquest game on 2026-11-12; this plugin builds quest and lesson decks")
@@ -116,7 +116,80 @@ def check(deck):
                 errs += check_item(sub, f"{tag}.{k}{j}")
     errs += check_objectives(deck)
     errs += check_hooks(deck)
+    errs += check_glossary(deck)
     check_praise(deck)
+    return errs
+
+
+def gloss_key(s):
+    return " ".join(str(s).lower().split())
+
+
+def gloss_index(glossary):
+    """term and aliases -> entry; the first entry wins (same rule as templates/glossary.js)."""
+    idx = {}
+    for e in glossary or []:
+        for t in [e.get("term")] + list(e.get("aliases") or []):
+            if t and gloss_key(t) not in idx:
+                idx[gloss_key(t)] = e
+    return idx
+
+
+def gloss_find(text, idx):
+    """Python twin of GL.find in glossary.js: longest phrase up to 4 words; a final word ending
+    in s falls back to the singular. Returns (start, end, term) tuples."""
+    ws = list(re.finditer(r"[A-Za-z][A-Za-z'-]*", text))
+    out, i = [], 0
+    while i < len(ws):
+        hit = None
+        for n in range(min(4, len(ws) - i), 0, -1):
+            a, b = ws[i], ws[i + n - 1]
+            seg = text[a.start():b.end()]
+            if n > 1 and not re.fullmatch(r"[A-Za-z'-]+(\s+[A-Za-z'-]+)*", seg):
+                continue
+            k = gloss_key(seg)
+            e = idx.get(k)
+            if e is None and re.search(r"[^s]s$", k):
+                e = idx.get(k[:-1])
+            if e is not None:
+                hit = (a.start(), b.end(), e["term"], n)
+                break
+        if hit:
+            out.append(hit[:3])
+            i += hit[3]
+        else:
+            i += 1
+    return out
+
+
+def check_glossary(deck):
+    """Optional `glossary`: [{term, def, plain, aliases?}]. Missing text fails; long plain text and duplicates warn."""
+    g = deck.get("glossary")
+    if g is None:
+        return []
+    if not isinstance(g, list):
+        return ["'glossary' must be a list of {term, def, plain}"]
+    errs, seen = [], set()
+    for i, e in enumerate(g, 1):
+        tag = f"glossary{i}"
+        if not isinstance(e, dict) or not str(e.get("term", "")).strip():
+            errs.append(f"{tag}: needs 'term'")
+            continue
+        tag += f" ({e['term']})"
+        for k, why in (("def", "the original wording"), ("plain", "simpler words a child can read")):
+            if not str(e.get(k, "")).strip():
+                errs.append(f"{tag}: needs '{k}' ({why})")
+        al = e.get("aliases")
+        if al is not None and not isinstance(al, list):
+            errs.append(f"{tag}: 'aliases' must be a list")
+            al = None
+        if str(e.get("def", "")).strip() and len(str(e.get("plain", ""))) > len(str(e["def"])):
+            WARNS.append(f"{tag}: plain text is longer than def; plain should be the easier read")
+        for t in [e["term"]] + (al or []):
+            k = gloss_key(t)
+            if k in seen:
+                WARNS.append(f"{tag}: duplicate term '{t}'; the first entry wins")
+            seen.add(k)
     return errs
 
 
@@ -320,7 +393,10 @@ def main(argv):
     if argv[0] == "build":
         page = (LESSON if lesson else TEMPLATE).read_text(encoding="utf-8")
         data = json.dumps(deck, ensure_ascii=False).replace("</", "<\\/")
-        page = page.replace("/*__KIT__*/", (HERE.parent / "templates" / "kit.js").read_text(encoding="utf-8"))
+        kit = (HERE.parent / "templates" / "kit.js").read_text(encoding="utf-8")
+        if deck.get("glossary"):
+            kit += "\n" + (HERE.parent / "templates" / "glossary.js").read_text(encoding="utf-8")
+        page = page.replace("/*__KIT__*/", kit)
         page = (page.replace("__TITLE__", html.escape(deck["title"]))
                     .replace("__ACCENT__", deck.get("accent", "#7aa2ff"))
                     .replace("__DECK__", data))

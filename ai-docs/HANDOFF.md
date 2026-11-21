@@ -2,6 +2,8 @@
 
 State 2026-11-12 (session 15): the study RPG was split out. World mode, the seven decks written from the son's schoolwork, the built games and the gitignored records/ folder now live in the private repo https://github.com/m4bwav/studyquest (clone at D:/m4bwa/Claude/Projects/Ai/studyquest, its own HANDOFF, log and continue prompt). Everything about the son's plays, tests and follow-up decks is tracked there from now on. studywright 0.11.0 keeps the quest and lesson builders, kit.js, sw.py, two sample decks, the research and the learning-design notes. Mark's framing: studywright is for the building, the techniques and a knowledge base of learning game development.
 
+2026-11-21: 0.20.0 adds deck glossaries (word cards, plain/original switch, check rules; templates/glossary.js). studyquest decks can use it once its engine copies glossary.js or builds through sw.py.
+
 History before the split (kept for reference; the play and deck items below now belong to studyquest):
 
 State 2026-11-10: v0.2.0 public at https://github.com/m4bwav/studywright (wiki: 4 pages + sidebar, clone at Ai/studywright.wiki). Installed as studywright@studywright (local marketplace, user scope). Texas deck is "Texas Test Prep", 47 q (filibusters + Louisiana Purchase/Hidalgo guide); row 4 = Barr (Mark confirmed).

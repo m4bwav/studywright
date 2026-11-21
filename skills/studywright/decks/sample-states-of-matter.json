@@ -279,5 +279,30 @@
    "answer": 0,
    "explain": "The chocolate took in heat from the hot car. A solid gaining heat and becoming liquid is melting."
   }
+ ],
+ "glossary": [
+  {
+   "term": "state of matter",
+   "aliases": [
+    "state"
+   ],
+   "def": "One of the distinct forms in which matter can exist, distinguished by how its particles are arranged and move.",
+   "plain": "The form stuff is in: solid, liquid or gas."
+  },
+  {
+   "term": "particle",
+   "def": "A minute portion of matter, such as an atom or molecule, considered as a discrete unit.",
+   "plain": "A tiny piece of stuff, too small to see."
+  },
+  {
+   "term": "volume",
+   "def": "The amount of three-dimensional space a substance or object occupies.",
+   "plain": "How much space something takes up."
+  },
+  {
+   "term": "container",
+   "def": "An object such as a box, jar or bottle that can hold or transport a substance.",
+   "plain": "Something that holds stuff, like a jar."
+  }
  ]
 }

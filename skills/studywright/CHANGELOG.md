@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.20.0 (2026-11-21)
+- Deck `glossary` (`term`, `def`, `plain`, optional `aliases`): `sw.py build` injects `templates/glossary.js` (only when a deck has one), which marks glossary words in all lesson and quiz text, including text the game adds later, and shows a word card on hover, tap or keyboard focus. Longest phrase up to 4 words wins; a word ending in s falls back to the singular. Card at most 300 px wide, above the word with room, else below, kept 8 px inside the screen; no dialog. A corner button switches "Plain, easier to read" (default) and "Original, as written", saved in localStorage, the open card re-renders at once; plain falls back to def. Fade off under prefers-reduced-motion.
+- `sw.py check`: ERROR on a glossary entry with no `plain` or no `def`; WARN when `plain` is longer than `def` and on duplicate terms or aliases. Lesson decks are checked too.
+- Sample deck states-of-matter has a 4-word glossary. Built page 75,998 to 82,130 bytes; headless Chrome probe: 3 words marked (plural and 3-word phrase), card opens on focus, stays inside the screen, flips below at the top edge, switches register live, saves it, no errors.
+- `scripts/test_sw_glossary.py`, 6 tests (match logic, check rules, and the JS matcher run under node against the same cases).
+- because: technique harvest, a browser game's common room (second register for hard words, read in place).
+
 ## 0.19.0 (2026-11-20)
 - `verify_xp.py`: warns when an easier choice the child can make pays more XP per minute than a harder one (`--rates TABLE.json`, or a built-in game.html table read from its award line). On game.html: 1 warning (replaying a mastered deck about 150 XP/min vs 47 for a new deck, time and accuracy guessed); on a studyquest table: 0 of 2 groups (review 54 vs new 50 XP/min, under the 10% tolerance). Rate warnings never fail the run. 4 new tests in `test_verify_xp.py`.
 - `sw.py names [FILE ...]`: lints feat, badge and title names in engine files for trait praise and mocking words; `sw.py check` also lints a deck's optional `feats`, `badges`, `titles`. 0 warnings over 35 names in the templates and 51 in studyquest's engine (no false positives). `scripts/test_sw_names.py`, 4 tests.
