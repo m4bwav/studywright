@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.19.0 (2026-11-20)
+- `verify_xp.py`: warns when an easier choice the child can make pays more XP per minute than a harder one (`--rates TABLE.json`, or a built-in game.html table read from its award line). On game.html: 1 warning (replaying a mastered deck about 150 XP/min vs 47 for a new deck, time and accuracy guessed); on a studyquest table: 0 of 2 groups (review 54 vs new 50 XP/min, under the 10% tolerance). Rate warnings never fail the run. 4 new tests in `test_verify_xp.py`.
+- `sw.py names [FILE ...]`: lints feat, badge and title names in engine files for trait praise and mocking words; `sw.py check` also lints a deck's optional `feats`, `badges`, `titles`. 0 warnings over 35 names in the templates and 51 in studyquest's engine (no false positives). `scripts/test_sw_names.py`, 4 tests.
+- learning-design.md: easy-picks-must-not-pay-better line; reward names, two voices and feedback faded by mastery (the last two as small studies to test with the child first).
+- because: Kapp, The Gamification of Learning and Instruction (ch. 4, 10), second pass. Leaderboard caution not added: the no-leaderboard line already stands.
+
 ## 0.18.1 (2026-11-20)
 - learning-design.md: help ladder keyed to miss count (presets 0/2/4 and 3/5/7), measured warning against immediate retries (47% echo under a 50% random draw), 2.2 s miss hold and 1.2 s advance gate after praise, mixed-age co-play idle hints (9-13 s and 30 s).
 - because: an open-source kids' word game played headless and timed (technique harvest, web games 2026-11).

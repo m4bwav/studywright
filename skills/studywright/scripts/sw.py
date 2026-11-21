@@ -3,6 +3,8 @@
 
   sw.py check DECK.json            validate a deck
   sw.py build DECK.json OUT.html   validate, then write a standalone game page
+  sw.py names [FILE ...]           lint feat, badge and title names in engine files
+                                   (default: templates/*.html and kit.js)
   sw.py records [--from DIR] [--to DIR]
         file the studywright-*.json records the games save (default from
         ~/Downloads) into DIR/<deck>/ as JSON + Markdown and rebuild DIR/INDEX.md,
@@ -150,6 +152,60 @@ def check_praise(deck):
     for k in ("intro", "practice"):
         if isinstance(deck.get(k), str) and TRAIT.search(deck[k]):
             WARNS.append(f"{k}: praises a trait; praise effort or the fix instead")
+    for k in ("feats", "badges", "titles"):
+        v = deck.get(k)
+        items = v.items() if isinstance(v, dict) else enumerate(v) if isinstance(v, list) else []
+        for key, it in items:
+            nm = it.get("name") if isinstance(it, dict) else it
+            if isinstance(nm, str):
+                why = name_problem(nm)
+                if why:
+                    WARNS.append(f"{k}.{key}: name '{nm}' {why}")
+
+
+# Reward names are read like praise (Kapp, The Gamification of Learning and Instruction, ch. 10):
+# no trait words, no mocking a miss; a near-miss award says "almost" kindly.
+MOCK = re.compile(r"\b(fail(s|ed|ure)?|loser|blew( it)?|noob|n00b|dumb|stupid|clumsy|butterfingers|scrub|"
+                  r"worst|pathetic|useless|slowpoke|try ?hard)\b", re.I)
+
+
+def name_problem(name):
+    m = TRAIT.search(name)
+    if m:
+        return f"praises a trait ('{m.group(0)}'); name the effort or strategy instead"
+    m = MOCK.search(name)
+    if m:
+        return f"mocks the player ('{m.group(0)}'); word a near miss as encouragement"
+    return None
+
+
+NAME_LIT = re.compile(r"""\b(name|title|badge|feat|label)\s*:\s*(['"`])((?:(?!\2).){1,60})\2""")
+
+
+def lint_names(text):
+    """Feat, badge and title names in an engine file: string literals after name:, title:,
+    badge:, feat: or label: keys. Returns (line, name, problem) for each bad one."""
+    hits = []
+    for n, line in enumerate(text.splitlines(), 1):
+        for m in NAME_LIT.finditer(line):
+            why = name_problem(m.group(3))
+            if why:
+                hits.append((n, m.group(3), why))
+    return hits
+
+
+def names(argv):
+    root = HERE.parent / "templates"
+    files = [Path(a) for a in argv] or sorted(root.glob("*.html")) + [root / "kit.js"]
+    total = found = 0
+    for f in files:
+        text = f.read_text(encoding="utf-8")
+        found += sum(1 for _ in NAME_LIT.finditer(text))
+        for n, nm, why in lint_names(text):
+            total += 1
+            print(f"WARN {f.name}:{n}: '{nm}' {why}")
+    print(f"{len(files)} files, {found} names read, {total} reward-name warnings")
+    return 0
 
 
 def check_objectives(deck):
@@ -241,6 +297,8 @@ def records(argv):
 def main(argv):
     if argv and argv[0] == "records":
         return records(argv[1:])
+    if argv and argv[0] == "names":
+        return names(argv[1:])
     if len(argv) < 2 or argv[0] not in ("check", "build"):
         print(__doc__)
         return 2

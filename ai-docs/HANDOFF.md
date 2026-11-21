@@ -51,3 +51,4 @@ Next:
 4. Build ideas in skills/studywright/references/learning-design.md ("Ideas not built yet") that fit quest or lesson mode.
 5. First everscout scan of beat learning-games; fold findings into RESEARCH.md.
 6. evergreen-test evals for the skill (trigger + build case).
+7. Taper XP on repeats of mastered items in game.html (learning-design 0.16.0): `verify_xp.py` warns until it is built (2026-11-20: mastered-deck replay ~150 XP/min vs ~47 for a new deck).
