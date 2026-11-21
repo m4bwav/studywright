@@ -116,6 +116,7 @@ def check(deck):
                 errs += check_item(sub, f"{tag}.{k}{j}")
     errs += check_objectives(deck)
     errs += check_hooks(deck)
+    errs += check_reuse(deck)
     errs += check_glossary(deck)
     check_praise(deck)
     return errs
@@ -262,6 +263,56 @@ def check_hooks(deck):
     return errs
 
 
+def check_reuse(deck):
+    """Misconception reuse, paired items, the why follow-up and predict items (Ambrose et al.,
+    How Learning Works ch. 1 and 4; Zinsser, Writing to Learn ch. 11).
+    - 'mis': tag(s) of the misconception an item's lures catch. One explanation rarely shifts it,
+      so WARN when a tag sits on fewer than 3 items (variants count).
+    - 'pair': id shared by two items that look alike but need different rules, or look different
+      but share one. ERROR when a pair id is on one item; WARN when a math/science deck of 20+
+      items has none.
+    - 'why': follow-up mc {q?, choices, answer, explain?} asked after a right pick; the item is
+      mastered only when the reason is right too. WARN (KEY-NO-WHY) when a topic of 5+ items has none.
+    - WARN when a science deck of 15+ items has no predict item ('predict', 'what will happen')."""
+    errs, mis, pairs, topics = [], {}, {}, {}
+    qs = deck.get("questions", [])
+    for i, q in enumerate(qs, 1):
+        tags = q.get("mis", [])
+        tags = [tags] if isinstance(tags, str) else tags
+        for v in q.get("variants") or []:
+            vt = v.get("mis", [])
+            tags = tags + ([vt] if isinstance(vt, str) else vt)
+        for t in tags:
+            mis[t] = mis.get(t, 0) + 1
+        if q.get("pair") is not None:
+            pairs.setdefault(q["pair"], []).append(i)
+        w = q.get("why")
+        tp = topics.setdefault(q.get("topic", ""), [0, 0])
+        tp[0] += 1
+        if w is not None:
+            if not isinstance(w, dict):
+                errs.append(f"q{i}: 'why' must be an mc object with choices and answer")
+            else:
+                errs += check_item({**w, "type": "mc"}, f"q{i}.why")
+                tp[1] += 1
+    for t, n in mis.items():
+        if n < 3:
+            WARNS.append(f"MISCONCEPTION-ONCE: '{t}' is caught by {n} item(s); re-use it in 3+ items in new settings")
+    for pid, items in pairs.items():
+        if len(items) < 2:
+            errs.append(f"pair '{pid}' is on one item (q{items[0]}); a pair needs two items")
+    subj = (deck.get("realm") or deck.get("subject") or "").lower()
+    if len(qs) >= 20 and not pairs and re.search(r"math|science|biology|chem|physic", subj):
+        WARNS.append(f"{len(qs)} items and no 'pair': add two that look alike but need different rules")
+    for t, (n, w) in topics.items():
+        if n >= 5 and w == 0:
+            WARNS.append(f"KEY-NO-WHY: topic '{t}' has {n} items and no 'why' follow-up; a lucky guess counts as mastered")
+    if len(qs) >= 15 and re.search(r"science|biology|chem|physic", subj) and not any(
+            re.search(r"\bpredict|what will happen|what happens (next|if)", q.get("q", ""), re.I) for q in qs):
+        WARNS.append("science deck with no predict item: ask 'what will happen if...?' before the reason shows")
+    return errs
+
+
 TRAIT = re.compile(r"\b(smart|genius|gifted|clever|brilliant|a natural)\b", re.I)
 
 
@@ -368,6 +419,10 @@ def record_md(r):
             L.append(f"- [{m.get('topic', '')}] {m.get('q', '')} -> **{m.get('answer', '')}**" + (f" (tries: {tries})" if tries else ""))
     else:
         L.append("Perfect first-try run.")
+    if r.get("lucky_guesses"):
+        L += ["", "Right pick, wrong reason: " + "; ".join(r["lucky_guesses"])]
+    if r.get("wrapper"):
+        L += ["", "Think-back: " + "; ".join(f"{k}: {v}" for k, v in r["wrapper"].items())]
     if r.get("unseen"):
         L += ["", f"Not reached ({len(r['unseen'])} of {r.get('deck_total')}): " + "; ".join(sorted({u.get('topic', '') for u in r["unseen"]}))]
     if r.get("mode") == "world":

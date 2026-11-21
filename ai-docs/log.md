@@ -122,3 +122,4 @@ README gained a Works with section (ludowright, everscout, askwright); the wiki 
 - 2026-11-20 0.19.0: Kapp second pass: verify_xp.py warns when an easier pick pays more XP/min (game.html: mastered-deck replay 150 vs new deck 47, taper still owed), sw.py names lints feat/badge/title names (0 hits on 86 names), notes on two voices and feedback faded by mastery.
 - 2026-11-21 0.20.0: deck glossary with hover/tap/focus word cards and a plain/original register switch (templates/glossary.js, injected only when used); check rules; 6 tests; from the lanternsociety-common-room harvest.
 - 2026-11-21: 0.20.1 `sw.py check` warns when a term glossed in a sibling deck (same folder) appears in this deck's text but not its glossary; 3 tests, suite 30 passed.
+- 2026-11-21: books round 7 track 70 (Ambrose, Zinsser): check_reuse in sw.py (MISCONCEPTION-ONCE, pair, KEY-NO-WHY, predict), why follow-up and exam-wrapper debrief in game.html; 0.21.0.

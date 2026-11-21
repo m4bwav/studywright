@@ -93,7 +93,10 @@ Retrieval practice tests what is stored; these help store a hard bare fact in th
 ## Before and after a session
 
 - Pre-brief: the title screen says in one line what this run practices ("telling melting from dissolving").
-- Debrief: after the review list, ask one question back ("Which one will you look at again before the test?"). It goes into the notes prompt.
+- Debrief as an exam wrapper (Ambrose et al., How Learning Works, ch. 7): three questions after the review list: slips or not known yet, how did you get ready, what will you do differently. The notes prompt asks the agent to store the answers as `wrapper` in the record and show them at the start of the next game.
+- Misconceptions: one explanation rarely shifts an embedded one (Ambrose ch. 1). Tag lures with `mis` and re-use each tag in 3+ later items in new settings; predict-then-reveal items ("what will happen if...?") let the child test the old belief first.
+- Paired items (Ambrose ch. 4): same surface with different rules, different surface with one rule, marked with a shared `pair` id, so the child learns deep features, not looks.
+- No credit without the reason (Zinsser, Writing to Learn, ch. 11): a key-idea mc item can carry `why`; a right pick with a wrong reason is a lucky guess, comes back, and is listed in the record.
 - Beside the score show a word for the skill level (Starting, Getting there, Solid, Mastered) so the number means something to a child.
 
 ## Measuring learning honestly
