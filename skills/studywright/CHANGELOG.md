@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.21.0 (2026-11-21)
+- `sw.py check` (new `check_reuse`): WARN MISCONCEPTION-ONCE when a `mis` tag sits on fewer than 3 items (variants count); ERROR on a `pair` id used once, WARN when a math or science deck of 20+ items has no pair; ERROR on a malformed `why`, WARN KEY-NO-WHY when a topic of 5+ items has no `why`; WARN when a science deck of 15+ items has no predict item. `scripts/test_sw_reuse.py`, 7 tests (each check fires on a bad case, quiet on a good one); suite 37 passed. Samples stay warning-free.
+- game.html: `why` follow-up after a right pick (mastered only when the reason is right; a wrong reason requeues the item and adds it to `lucky_guesses` in the record). The single debrief line became the three exam-wrapper questions; the notes prompt lists lucky guesses and asks for the answers as `wrapper`. `sw.py records` prints both.
+- because: Ambrose et al., How Learning Works (ch. 1, 4, 7); Zinsser, Writing to Learn (ch. 11). Dropped: see the PR body.
+
 ## 0.20.1 (2026-11-21)
 - `sw.py check`: WARN once per term that another deck in the same folder defines in its glossary, this deck's lesson or quiz text uses (accepted answers and ids skipped), and this deck's glossary lacks; names the deck that defines it. Same matcher as the word cards (longest phrase up to 4 words, plural fallback, aliases). Unreadable sibling files are skipped. 3 new tests in `test_sw_glossary.py` (positive, negative, alias and plural); suite 30 passed.
 
