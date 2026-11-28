@@ -7,5 +7,5 @@ Plugin that turns worksheets into study games, and the knowledge base on how to 
 - Every mode must end a play with a downloaded log and the notes prompt (`Kit.notesHtml`).
 - CLI: `python skills/studywright/scripts/sw.py check|build DECK.json [OUT.html]` (stdlib only).
 - Decks here are samples only: `skills/studywright/decks/sample-*.json`. Built samples: `games/`.
-- State and next steps: [ai-docs/HANDOFF.md](ai-docs/HANDOFF.md). Log: [ai-docs/log.md](ai-docs/log.md).
+- State and next steps: [ai-docs/HANDOFF.md](ai-docs/HANDOFF.md). Log: [ai-docs/log/](ai-docs/log/), one file per event (`everlast.py log`).
 - This repo is public: no deck, photo or record from a child's schoolwork goes in it, and no child's name in any file.

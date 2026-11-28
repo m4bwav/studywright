@@ -134,7 +134,7 @@ function builder(o){const edit=o.edit,perks=o.perks||{},snd=o.sound||{},beep=k=>
 function notesPrompt(R,fname){const miss=R.first_try_misses||[],a=R.questions_total-miss.length,h=R.hero||{},un=R.unseen||[];
  return `Use the studywright skill to update the study notes with this play.
 1. Run "sw.py records" to file the play log ${fname} from Downloads (if the file is missing, use the results below).
-2. Update records/INDEX.md, ai-docs/HANDOFF.md and ai-docs/log.md: what was missed, which ideas look shaky, and what the next game should re-test.
+2. Update records/INDEX.md and ai-docs/HANDOFF.md, and add a log event file in ai-docs/log/ (everlast.py log): what was missed, which ideas look shaky, and what the next game should re-test.
 3. Tell me in a few lines what to review before the test.
 
 Results: ${R.title} (deck ${R.deck}${R.mode?', '+R.mode+' mode':''}), hero ${h.name||'?'}, ${String(R.finished).slice(0,16).replace('T',' ')} UTC${R.elapsed_sec?', '+Math.round(R.elapsed_sec/60)+' min':''}.

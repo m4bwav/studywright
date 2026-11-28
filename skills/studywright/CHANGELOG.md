@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.21.1 (2026-11-27)
+- The notes prompt every game hands back now says to add a log event file in ai-docs/log/ instead of editing ai-docs/log.md; AGENTS.md points at ai-docs/log/.
+- because: everlast 0.8.0 made the project log one file per event, so open PRs stop conflicting on a shared log.md.
+
 ## 0.21.0 (2026-11-21)
 - `sw.py check` (new `check_reuse`): WARN MISCONCEPTION-ONCE when a `mis` tag sits on fewer than 3 items (variants count); ERROR on a `pair` id used once, WARN when a math or science deck of 20+ items has no pair; ERROR on a malformed `why`, WARN KEY-NO-WHY when a topic of 5+ items has no `why`; WARN when a science deck of 15+ items has no predict item. `scripts/test_sw_reuse.py`, 7 tests (each check fires on a bad case, quiet on a good one); suite 37 passed. Samples stay warning-free.
 - game.html: `why` follow-up after a right pick (mastered only when the reason is right; a wrong reason requeues the item and adds it to `lucky_guesses` in the record). The single debrief line became the three exam-wrapper questions; the notes prompt lists lucky guesses and asks for the answers as `wrapper`. `sw.py records` prints both.
